@@ -1,6 +1,7 @@
 "use client"
 
 import React from 'react'
+import { useState, useEffect } from 'react'
 
 import * as z from 'zod'
 import {zodResolver} from "@hookform/resolvers/zod"
@@ -11,20 +12,24 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '..
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import FileUpload from '../FileUpload'
-import { useModal } from '@/hooks/useModal'
 
 //for validation
 const formSchema = z.object({
     name: z.string().min(1, {
       message: "Server name is required!",
     }),
-    // imageUrl: z.string().min(1, {
-    //   message: "Server image URL is required!",
-    // }),
+    imageUrl: z.string().min(1, {
+      message: "Server image URL is required!",
+    }),
   })
 
-const CreateServerModal = () => {
-    const {type, isOpen, onClose} = useModal();
+const CreateIntialServerModal = () => {
+    //used to fix hydration error
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -34,23 +39,18 @@ const CreateServerModal = () => {
         }
     });
 
-    const isModalOpen = type === "createServer" && isOpen;
-
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async(values: z.infer<typeof formSchema>) => {
         console.log(values);
-        handleCloseModal();
     }
 
-    const handleCloseModal = () => {
-        form.reset();
-        onClose();
+    if (!isMounted) {
+        return null;
     }
-
 
     return (
-        <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+        <Dialog open>
             <DialogContent className="bg-white text-black p-0 overflow-hidden">
                 <DialogHeader className="pt-8 px-6">
                     <DialogTitle className="text-2xl text-center font-bold">Create a new server</DialogTitle>
@@ -111,4 +111,4 @@ const CreateServerModal = () => {
     )
 }
 
-export default CreateServerModal
+export default CreateIntialServerModal
