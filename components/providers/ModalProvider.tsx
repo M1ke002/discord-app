@@ -3,6 +3,10 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
 import CreateServerModal from '../modals/CreateServerModal'
+import InviteModal from '../modals/InviteModal';
+import EditServerModal from '../modals/EditServerModal';
+import ManageMembersModal from '../modals/ManageMembersModal';
+import CreateChannelModal from '../modals/CreateChannelModal';
 
 //this component will be used to render all the modals
 const ModalProvider = () => {
@@ -18,6 +22,10 @@ const ModalProvider = () => {
     return (
     <>
         <CreateServerModal />
+        <InviteModal />
+        <EditServerModal />
+        <ManageMembersModal/>
+        <CreateChannelModal />
     </>
   )
 }

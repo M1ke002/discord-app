@@ -8,7 +8,7 @@ import TooltipActions from '../TooltipActions'
 
 interface NavItemProps {
     id: string,
-    imageUrl: string,
+    imageUrl: string | null,
     name: string,
 
 }
@@ -39,14 +39,19 @@ const NavItem = ({id, imageUrl, name}: NavItemProps) => {
             <div
                 className={cn(
                     "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden",
-                    params?.serverId === id && "text-primary rounded-[16px]"
+                    params?.serverId === id && "text-primary rounded-[16px]",
+                    imageUrl === null && "group-hover:bg-[#7289DA] justify-center items-center dark:bg-neutral-700"
                 )}
             >
-                <Image
-                    fill
-                    src={imageUrl}
-                    alt='Channel'
-                />
+                {imageUrl === null ? 
+                    <p>{name[0]}</p> 
+                    :
+                    <Image
+                        fill
+                        src={imageUrl}
+                        alt='Channel'
+                    />
+                }
             </div>
         </button>
     </TooltipActions>

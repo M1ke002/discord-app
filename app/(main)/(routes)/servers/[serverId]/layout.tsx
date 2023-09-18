@@ -1,3 +1,4 @@
+import ServerSidebar from '@/components/server/ServerSidebar';
 import { redirect } from 'next/navigation';
 import React from 'react'
 
@@ -15,7 +16,7 @@ const ServerLayout = ({children, params}: {children: React.ReactNode, params:{se
     const server = {};
 
     if (!server) {
-        return redirect('/servers');
+        return redirect('/');
     }
 
 
@@ -23,7 +24,7 @@ const ServerLayout = ({children, params}: {children: React.ReactNode, params:{se
     <div className="h-full">
         <div className="hidden md:flex h-full w-60 z-20 flex-col fixed inset-y-0 bg-black">
             {/* server channels sidebar */}
-            Channel sidebar
+            <ServerSidebar serverId={params.serverId}/>
         </div>
         <main className='h-full md:pl-60'>
         {children}

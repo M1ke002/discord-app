@@ -30,7 +30,7 @@ const Navbar = async () => {
         {
             id: '2456',
             name: 'dsds',
-            imageUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
+            imageUrl: null
         }
     ];
   
@@ -40,12 +40,12 @@ const Navbar = async () => {
     >
         <NavDirectMessages/>
         <Separator
-            className='h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-10 mx-auto'
+            className='my-1 h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-11 mx-auto'
         />
         <ScrollArea className='flex-1 w-full'>
             {servers.map(server => {
                 return (
-                    <div key={server.id} className='mb-4'>
+                    <div key={server.id} className='mb-3'>
                         <NavItem id={server.id} name={server.name} imageUrl={server.imageUrl} />
                     </div>
                 )
