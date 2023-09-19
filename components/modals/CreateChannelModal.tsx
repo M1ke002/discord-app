@@ -13,12 +13,13 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
 import { Hash, Video, Volume2 } from 'lucide-react'
+import { ChannelType } from '@/utils/constants'
 
-enum ChannelType {
-    Text = "text",
-    Audio = "audio",
-    Video = "video"
-}
+// enum ChannelType {
+//     Text = "text",
+//     Audio = "audio",
+//     Video = "video"
+// }
 
 //for validation
 const formSchema = z.object({
@@ -35,7 +36,7 @@ const CreateChannelModal = () => {
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            channelType: ChannelType.Text
+            channelType: ChannelType.TEXT
         }
     });
 

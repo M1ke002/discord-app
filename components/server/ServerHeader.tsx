@@ -3,24 +3,25 @@ import React from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { ChevronDown, LogOut, PlusCircle, Settings, Trash, UserPlus, Users } from 'lucide-react';
 import { useModal } from '@/hooks/useModal';
+import { IServerProps, MemberRole } from '@/utils/constants';
 
-interface ServerHeaderProps {
-    server: {
-        name: string;
-        channels: { type: string }[];
-        members: { profileId: string; name: string; role: string, avatarUrl: string }[];
-        inviteCode: string;
-        imageUrl: string | null;
-    },
-    role?: string;
+interface ServerHeaderProps extends IServerProps {
+    // server: {
+    //     name: string;
+    //     channels: { type: string }[];
+    //     members: { profileId: string; name: string; role: string, avatarUrl: string }[];
+    //     inviteCode: string;
+    //     imageUrl: string | null;
+    // },
+    role?: MemberRole;
 }
 
 const ServerHeader = ({server, role}: ServerHeaderProps) => {
 
   const {onOpen} = useModal();
 
-  const isAdmin = role === 'Admin';
-  const isModerator = isAdmin || role === 'Moderator';
+  const isAdmin = role === MemberRole.ADMIN;
+  const isModerator = isAdmin || role === MemberRole.MODERATOR;
     
   return (
     <DropdownMenu>
@@ -72,7 +73,7 @@ const ServerHeader = ({server, role}: ServerHeaderProps) => {
             {isModerator && (
                 <DropdownMenuItem 
                     className='px-3 py-2 text-sm cursor-pointer'
-                    onClick={() => onOpen("createChannel", {server})}
+                    onClick={() => onOpen("createChannel")}
                 >
                     Create channel
                     <PlusCircle className='h-4 w-4 ml-auto'/>

@@ -13,12 +13,13 @@ import { ScrollArea } from '../ui/scroll-area'
 import UserAvatar from '../UserAvatar'
 import { Check, Gavel, Loader2, MoreVertical, Shield, ShieldAlert, ShieldCheck, ShieldQuestion } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { MemberRole, getRoleIcon } from '@/utils/constants'
 
-const roleIconMap = {
-    'Member': null,
-    'Moderator': <ShieldCheck className='h-4 w-4 text-indigo-500'/>,
-    'Admin': <ShieldAlert className='h-4 w-4 text-rose-500'/>
-}
+// const roleIconMap = {
+//     'Member': null,
+//     'Moderator': <ShieldCheck className='h-4 w-4 text-indigo-500'/>,
+//     'Admin': <ShieldAlert className='h-4 w-4 text-rose-500'/>
+// }
 
 const ManageMembersModal = () => {
     const {type, isOpen, onOpen, onClose, data} = useModal();
@@ -64,7 +65,7 @@ const ManageMembersModal = () => {
                             <div className="flex flex-col gap-y-1">
                                 <div className="text-xs font-semibold flex items-center gap-x-1">
                                     {member.name}
-                                    {roleIconMap[member.role as keyof typeof roleIconMap]}
+                                    {getRoleIcon('h-4 w-4')[member.role as keyof typeof getRoleIcon]}
                                 </div>
                                 <p className="text-xs text-zinc-500">dummyemail@email.com</p>
                             </div>

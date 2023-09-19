@@ -4,13 +4,12 @@ import { Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
 import { useParams, useRouter } from 'next/navigation';
-import { type } from 'os';
 
 interface ServerSearchProps {
     data: {
         label: string;
         type: "channels" | "members";
-        data: {
+        items: {
             icon: React.ReactNode;
             name: string;
             id: string;
@@ -62,15 +61,23 @@ const ServerSearch = ({data}: ServerSearchProps) => {
             <CommandInput placeholder='Search all channels and members'/>
             <CommandList>
                 <CommandEmpty>No results found</CommandEmpty>
-                {data.map(({label, type, data}) => {
-                    if (data?.length === 0) return null;
+                {data.map(({label, type, items}) => {
+                    if (items?.length === 0) return null;
                     return (
                         <CommandGroup key={label} heading={label}>
-                            {data?.map(({icon, name, id}) => {
+                            {items?.map(({icon, name, id}) => {
                                 return (
                                     <CommandItem key={id} onSelect={() => navigatePageOrConversation(type, id)}>
-                                        {icon}
-                                        <span>{name}</span>
+                                        {type === "channels" && 
+                                            <>
+                                                {icon}
+                                                <span>{name}</span>
+                                            </>}
+                                        {type === "members" && 
+                                            <>
+                                                <span>{name}</span>
+                                                {icon}
+                                            </>}
                                     </CommandItem>
                                 );
                             })}

@@ -6,6 +6,7 @@ import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
 import NavItem from './NavItem';
 import { ModeToggle } from '../ModeToggle';
+import {dummyServerList as servers} from '@/utils/constants';
 
 const Navbar = async () => {
 //   const profile = await getCurrentProfile()
@@ -16,23 +17,7 @@ const Navbar = async () => {
     }
 
     //fake servers of the user (will be obtained by calling api)
-    const servers = [
-        {
-            id: '123',
-            name: 'dsds',
-            imageUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-        },
-        {
-            id: '245',
-            name: 'csgo',
-            imageUrl: 'https://utfs.io/f/9455970e-4afb-4fde-afa2-f4a4f7fee873-3kvko5.png'
-        },
-        {
-            id: '2456',
-            name: 'dsds',
-            imageUrl: null
-        }
-    ];
+
   
     return (
     <div className="space-y-4 flex flex-col items-center h-full text-primary

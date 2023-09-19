@@ -9,45 +9,12 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Check, Copy, RefreshCw } from 'lucide-react'
 import { useOrigin } from '@/hooks/useOrigin'
+import { dummyServer } from '@/utils/constants'
 
 const fakeResponse = {
-    data: {
-        name: 'csgo',
-        channels: [
-            {
-                type: 'text',
-            },
-            {
-                type: 'audio',
-            },
-            {
-                type: 'video',
-            }
-        ],
-        members: [
-            {
-                profileId: '1',
-                name: 'member1',
-                role: 'Moderator',
-                avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-            },
-            {
-                profileId: '2',
-                name: 'member2',
-                role: 'Admin',
-                avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-            },
-            {
-                profileId: '3',
-                name: 'member3',
-                role: 'Member',
-                avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-            }
-        ],
-        inviteCode: 'new_123abcd',
-        imageUrl: 'https://'
-    }
+    data: dummyServer
 }
+
 const InviteModal = () => {
     const {type, isOpen, onOpen, onClose, data} = useModal();
     const origin = useOrigin();
@@ -96,6 +63,7 @@ const InviteModal = () => {
                     </Label>
                     <div className="flex items-center mt-2 gap-x-2">
                         <Input 
+                            readOnly
                             disabled={isLoading}
                             className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0"
                             value={inviteUrl}
