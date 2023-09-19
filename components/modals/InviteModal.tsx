@@ -28,17 +28,20 @@ const fakeResponse = {
             {
                 profileId: '1',
                 name: 'member1',
-                role: 'Moderator'
+                role: 'Moderator',
+                avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
             },
             {
                 profileId: '2',
                 name: 'member2',
-                role: 'Admin'
+                role: 'Admin',
+                avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
             },
             {
                 profileId: '3',
                 name: 'member3',
-                role: 'Member'
+                role: 'Member',
+                avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
             }
         ],
         inviteCode: 'new_123abcd',

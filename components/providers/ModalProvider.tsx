@@ -7,6 +7,8 @@ import InviteModal from '../modals/InviteModal';
 import EditServerModal from '../modals/EditServerModal';
 import ManageMembersModal from '../modals/ManageMembersModal';
 import CreateChannelModal from '../modals/CreateChannelModal';
+import LeaveServerModal from '../modals/LeaveServerModal';
+import DeleteServerModal from '../modals/DeleteServerModal';
 
 //this component will be used to render all the modals
 const ModalProvider = () => {
@@ -26,6 +28,8 @@ const ModalProvider = () => {
         <EditServerModal />
         <ManageMembersModal/>
         <CreateChannelModal />
+        <LeaveServerModal />
+        <DeleteServerModal />
     </>
   )
 }

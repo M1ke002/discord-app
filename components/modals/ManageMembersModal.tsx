@@ -46,10 +46,12 @@ const ManageMembersModal = () => {
         setEditingMemberId("");
     }
 
+    //TODO: add search bar here to search for members using name or email address
+
     return (
         <Dialog open={isModalOpen} onOpenChange={onClose}>
             <DialogContent className="bg-white text-black overflow-hidden">
-                <DialogHeader className="pt-8 px-6">
+                <DialogHeader className="pt-5 px-6">
                     <DialogTitle className="text-2xl text-center font-bold">Manage members</DialogTitle>
                     <DialogDescription className="text-center text-zinc-500">
                         {server?.members.length} members

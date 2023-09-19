@@ -1,9 +1,26 @@
 import React from 'react'
 import { redirect } from 'next/navigation';
 import ServerHeader from './ServerHeader';
+import { ScrollArea } from '../ui/scroll-area';
+import ServerSearch from './ServerSearch';
+import { Hash, ShieldAlert, ShieldCheck, User2, Video, Volume2 } from 'lucide-react';
+
 
 interface ServerSidebarProps {
     serverId: string;
+}
+
+//maps channel type to icon
+const channelIconMap = {
+  "text": <Hash className='h-4 w-4 mr-2'/>,
+  "audio": <Volume2 className='h-4 w-4 mr-2'/>,
+  "video": <Video className='h-4 w-4 mr-2'/>
+}
+
+const roleIconMap = {
+  'Member': <User2 className='h-4 w-4 mr-2'/>,
+  'Moderator': <ShieldCheck className='h-4 w-4 mr-2 text-indigo-500'/>,
+  'Admin': <ShieldAlert className='h-4 w-4 mr-2 text-rose-500'/>
 }
 
 const ServerSidebar = ({serverId}: ServerSidebarProps) => {
@@ -11,7 +28,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
   const profile = {
     id: '2',
     name: 'Mit',
-    role: 'Admin',
+    role: 'Member',
   }
 
   if (!profile) {
@@ -25,13 +42,24 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
     channels: [
       {
         type: 'text',
+        id: '1',
+        name: 'general'
       },
       {
         type: 'audio',
+        id: '2',
+        name: 'voice chat'
       },
       {
         type: 'video',
-      }
+        id: '3',
+        name: 'video chat'
+      },
+      {
+        type: 'text',
+        id: '4',
+        name: 'trash'
+      },
     ],
     members: [
       {
@@ -73,6 +101,60 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
   return (
     <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
       <ServerHeader server={server} role={role}/>
+      <ScrollArea className='flex-1 px-3'>
+        <div className="mt-2">
+          <ServerSearch 
+            data = {
+              [
+                {
+                  label: 'Text Channels',
+                  type: 'channels',
+                  data: textChannels?.map(channel => (
+                    {
+                      icon: channelIconMap[channel.type as keyof typeof channelIconMap],
+                      name: channel.name,
+                      id: channel.id
+                    }
+                  ))
+                },
+                {
+                  label: 'Audio Channels',
+                  type: 'channels',
+                  data: audioChannels?.map(channel => (
+                    {
+                      icon: channelIconMap[channel.type as keyof typeof channelIconMap],
+                      name: channel.name,
+                      id: channel.id
+                    }
+                  ))
+                },
+                {
+                  label: 'Video Channels',
+                  type: 'channels',
+                  data: videoChannels?.map(channel => (
+                    {
+                      icon: channelIconMap[channel.type as keyof typeof channelIconMap],
+                      name: channel.name,
+                      id: channel.id
+                    }
+                  ))
+                },
+                {
+                  label: 'Members',
+                  type: 'members',
+                  data: server?.members.map(member => (
+                    {
+                      icon: roleIconMap[member.role as keyof typeof roleIconMap],
+                      name: member.name,
+                      id: member.profileId
+                    }
+                  ))
+                }
+              ]
+            }
+          />
+        </div>
+      </ScrollArea>
     </div>
   )
 }
