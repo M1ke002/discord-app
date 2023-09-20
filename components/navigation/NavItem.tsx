@@ -40,7 +40,7 @@ const NavItem = ({id, imageUrl, name}: NavItemProps) => {
                 className={cn(
                     "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden",
                     params?.serverId === id && "text-primary rounded-[16px]",
-                    imageUrl === null && "group-hover:bg-[#7289DA] justify-center items-center dark:bg-neutral-700"
+                    imageUrl === null && "group-hover:bg-[#7289DA] group-hover:text-white justify-center items-center dark:bg-neutral-700 bg-white"
                 )}
             >
                 {imageUrl === null ? 

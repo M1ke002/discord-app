@@ -1,13 +1,21 @@
+"use client";
+
 import React from 'react'
 import { redirect } from 'next/navigation';
 import ServerHeader from './ServerHeader';
 import { ScrollArea } from '../ui/scroll-area';
 import ServerSearch from './ServerSearch';
 import { Separator } from '../ui/separator';
-import ServerSection from './ServerSection';
+import ServerCategory from './ServerCategory';
 import { getChannelIcon, getRoleIcon } from '@/utils/constants';
 import {dummyServer as server, ChannelType, MemberRole} from '@/utils/constants';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import ServerChannel from './ServerChannel';
+import UserAccount from './UserAccount';
 
 interface ServerSidebarProps {
     serverId: string;
@@ -53,7 +61,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
             data = {
               [
                 {
-                  label: 'Text Channels',
+                  category: 'Text Channels',
                   type: 'channels',
                   items: textChannels?.map(channel => (
                     {
@@ -65,7 +73,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                   ))
                 },
                 {
-                  label: 'Audio Channels',
+                  category: 'Audio Channels',
                   type: 'channels',
                   items: audioChannels?.map(channel => (
                     {
@@ -76,7 +84,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                   ))
                 },
                 {
-                  label: 'Video Channels',
+                  category: 'Video Channels',
                   type: 'channels',
                   items: videoChannels?.map(channel => (
                     {
@@ -87,7 +95,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                   ))
                 },
                 {
-                  label: 'Members',
+                  category: 'Members',
                   type: 'members',
                   items: server?.members.map(member => (
                     {
@@ -104,44 +112,56 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
         </div>
         <Separator className="bg-zinc-200 dark:bg-zinc-700 my-2 rounded-md"/>
         {textChannels && (
-          <div className="mb-2">
-            <ServerSection
-              label='Text channels'
-              channelType={ChannelType.TEXT}
-              server={server}
-              role={role}
-            />
-            {textChannels.map(channel => (
-              <ServerChannel
-                key={channel.id}
-                role={role}
-                channel={channel}
-                server={server}
-              />
-            ))}
-          </div>
+          <Collapsible defaultOpen={true}>
+            <div className="mb-2">
+                <CollapsibleTrigger className='w-full'>
+                    <ServerCategory
+                      label='Text channels'
+                      channelType={ChannelType.TEXT}
+                      server={server}
+                      role={role}
+                    />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  {textChannels.map(channel => (
+                    <ServerChannel
+                      key={channel.id}
+                      role={role}
+                      channel={channel}
+                      server={server}
+                    />
+                  ))}
+                </CollapsibleContent>
+            </div>
+          </Collapsible>
         )}
         {audioChannels && (
-          <div className="mb-2">
-            <ServerSection
-              label='Audio channels'
-              channelType={ChannelType.AUDIO}
-              server={server}
-              role={role}
-            />
-            {audioChannels.map(channel => (
-              <ServerChannel
-                key={channel.id}
-                role={role}
-                channel={channel}
-                server={server}
-              />
-            ))}
-          </div>
+          <Collapsible defaultOpen={true}>
+            <div className="mb-2">
+              <CollapsibleTrigger className='w-full'>
+                  <ServerCategory
+                    label='Audio channels'
+                    channelType={ChannelType.AUDIO}
+                    server={server}
+                    role={role}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  {audioChannels.map(channel => (
+                    <ServerChannel
+                      key={channel.id}
+                      role={role}
+                      channel={channel}
+                      server={server}
+                    />
+                  ))}
+                </CollapsibleContent>
+            </div>
+          </Collapsible>
         )}
         {videoChannels && (
           <div className="mb-2">
-            <ServerSection
+            <ServerCategory
               label='Video channels'
               channelType={ChannelType.VIDEO}
               server={server}
@@ -158,6 +178,11 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
           </div>
         )}
       </ScrollArea>
+      <UserAccount 
+        avatarUrl={member?.avatarUrl || ""}
+        username={member?.name || ""}
+        nickname={member?.nickname || ""}
+      />
     </div>
   )
 }

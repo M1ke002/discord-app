@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 
 interface ServerSearchProps {
     data: {
-        label: string;
+        category: string;
         type: "channels" | "members";
         items: {
             icon: React.ReactNode;
@@ -61,10 +61,10 @@ const ServerSearch = ({data}: ServerSearchProps) => {
             <CommandInput placeholder='Search all channels and members'/>
             <CommandList>
                 <CommandEmpty>No results found</CommandEmpty>
-                {data.map(({label, type, items}) => {
+                {data.map(({category, type, items}) => {
                     if (items?.length === 0) return null;
                     return (
-                        <CommandGroup key={label} heading={label}>
+                        <CommandGroup key={category} heading={category}>
                             {items?.map(({icon, name, id}) => {
                                 return (
                                     <CommandItem key={id} onSelect={() => navigatePageOrConversation(type, id)}>

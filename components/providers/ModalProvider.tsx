@@ -9,6 +9,8 @@ import ManageMembersModal from '../modals/ManageMembersModal';
 import CreateChannelModal from '../modals/CreateChannelModal';
 import LeaveServerModal from '../modals/LeaveServerModal';
 import DeleteServerModal from '../modals/DeleteServerModal';
+import DeleteChannelModal from '../modals/DeleteChannelModal';
+import EditChannelModal from '../modals/EditChannelModal';
 
 //this component will be used to render all the modals
 const ModalProvider = () => {
@@ -30,6 +32,8 @@ const ModalProvider = () => {
         <CreateChannelModal />
         <LeaveServerModal />
         <DeleteServerModal />
+        <DeleteChannelModal />
+        <EditChannelModal />
     </>
   )
 }

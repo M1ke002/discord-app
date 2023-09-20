@@ -1,6 +1,8 @@
 import Navbar from '@/components/navigation/Navbar'
 import React from 'react'
 
+//all page.tsx files in app/(main) will have this layout
+
 const MainLayout = async ({children}: {children: React.ReactNode}) => {
   return (
     <div className="h-full">

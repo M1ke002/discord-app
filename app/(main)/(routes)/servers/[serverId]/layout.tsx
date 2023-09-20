@@ -27,7 +27,7 @@ const ServerLayout = ({children, params}: {children: React.ReactNode, params:{se
             <ServerSidebar serverId={params.serverId}/>
         </div>
         <main className='h-full md:pl-60'>
-        {children}
+            {children}
         </main>
     </div>
   )

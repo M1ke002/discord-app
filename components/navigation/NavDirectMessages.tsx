@@ -22,7 +22,7 @@ const NavDirectMessages = () => {
             />
             <div
                 className={cn(
-                    "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden group-hover:bg-[#7289DA]",
+                    "relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden bg-black group-hover:bg-[#7289DA]",
                     "dark:bg-neutral-700 justify-center items-center"
                     // params?.serverId === id && "text-primary rounded-[16px]"
                 )}

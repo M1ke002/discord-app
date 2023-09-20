@@ -73,18 +73,21 @@ export const dummyServer = {
       {
         profileId: '1',
         name: 'member1',
+        nickname: 'Member1',
         role: MemberRole.MODERATOR,
         avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
       },
       {
         profileId: '2',
         name: 'member2',
+        nickname: 'Member2',
         role: MemberRole.ADMIN,
         avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
       },
       {
         profileId: '3',
         name: 'member3',
+        nickname: 'Member3',
         role: MemberRole.MEMBER,
         avatarUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
       }
