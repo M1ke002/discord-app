@@ -19,12 +19,12 @@ logging:
     root: DEBUG
     org.springframework.security: TRACE
 
-## Set JWT Secret Key
-#jwt:
-#  JWT_SECRET: thisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthentication
-#  JWT_EXPIRATION_MS: 30000
-#  #set refresh token expiration time to 1 day
-#  JWT_REFRESH_EXPIRATION_MS: 60000
+# Set JWT Secret Key
+jwt:
+  JWT_SECRET: thisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthentication
+  JWT_EXPIRATION_MS: 900000
+  #set refresh token expiration time to 1 day
+  JWT_REFRESH_EXPIRATION_MS: 86400000
 
 
 
