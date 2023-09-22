@@ -20,7 +20,7 @@ public class UserServerMapping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
     @JoinColumn(
@@ -29,7 +29,7 @@ public class UserServerMapping {
     )
     private User user;
     @ManyToOne(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
     @JoinColumn(

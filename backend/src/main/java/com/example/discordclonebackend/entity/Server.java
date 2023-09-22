@@ -35,16 +35,16 @@ public class Server {
             mappedBy = "server",
             fetch = FetchType.EAGER
     )
-    private List<Channel> channels;
+    private List<Channel> channels = new ArrayList<>();
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "server",
             fetch = FetchType.EAGER
     )
-    private List<Category> categories;
+    private List<Category> categories = new ArrayList<>();
     //server owner
     @ManyToOne(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
     @JoinColumn(

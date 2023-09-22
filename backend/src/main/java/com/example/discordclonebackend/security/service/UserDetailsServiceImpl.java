@@ -1,8 +1,9 @@
 package com.example.discordclonebackend.security.service;
 
+import com.example.discordclonebackend.entity.User;
 import com.example.discordclonebackend.repository.UserRepository;
+import com.example.discordclonebackend.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,9 +18,20 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        com.example.discordclonebackend.entity.User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
         //NOTE: we are returning a User details object from Spring Security, not our User entity object
-        return new User(user.getUsername(), user.getPassword(), new ArrayList<>());
+//        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), new ArrayList<>());
+        return new CustomUserDetails(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getNickname(),
+                user.getAvatarUrl(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                new ArrayList<>()
+        );
     }
+
 
 }

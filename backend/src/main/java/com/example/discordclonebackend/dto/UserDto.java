@@ -4,14 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponseDto {
+public class UserDto {
+    private Long id;
     private String username;
     private String nickname;
     private String avatarUrl;
-    private String accessToken;
-    private String refreshToken;
-    private String tokenType = "Bearer";
+    private Date createdAt;
+    private Date updatedAt;
 }

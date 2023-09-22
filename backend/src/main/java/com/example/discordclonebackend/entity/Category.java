@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,9 +23,9 @@ public class Category {
             cascade = CascadeType.ALL,
             mappedBy = "category"
     )
-    private List<Channel> channels;
+    private List<Channel> channels = new ArrayList<>();
     @ManyToOne(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
     @JoinColumn(
@@ -35,4 +36,9 @@ public class Category {
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;
+
+    public Category(String name, Server server) {
+        this.name = name;
+        this.server = server;
+    }
 }

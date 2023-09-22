@@ -18,7 +18,7 @@ public class Channel {
     private Long id;
     private String name;
     @ManyToOne(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
     @JoinColumn(
@@ -27,7 +27,7 @@ public class Channel {
     )
     private Server server;
     @ManyToOne(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
     )
     @JoinColumn(
@@ -38,4 +38,10 @@ public class Channel {
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;
+
+    public Channel(String name, Server server, Category category) {
+        this.name = name;
+        this.server = server;
+        this.category = category;
+    }
 }
