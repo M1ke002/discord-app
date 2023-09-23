@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface UserServerMappingRepository extends JpaRepository<UserServerMapping, Long> {
     public List<UserServerMapping> findAllByUserId(Long userId);
+
+
+    public UserServerMapping findByUserIdAndServerId(Long userId, Long serverId);
 }

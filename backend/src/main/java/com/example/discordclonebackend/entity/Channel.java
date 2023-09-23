@@ -35,6 +35,8 @@ public class Channel {
             referencedColumnName = "id"
     )
     private Category category;
+    @Enumerated(EnumType.STRING)
+    private ChannelType type = ChannelType.TEXT;
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;
@@ -43,5 +45,12 @@ public class Channel {
         this.name = name;
         this.server = server;
         this.category = category;
+    }
+
+    public Channel(String name, Server server, Category category, ChannelType type) {
+        this.name = name;
+        this.server = server;
+        this.category = category;
+        this.type = type;
     }
 }

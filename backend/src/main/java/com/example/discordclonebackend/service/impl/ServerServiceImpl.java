@@ -36,7 +36,7 @@ public class ServerServiceImpl implements ServerService {
     private UserServerMappingRepository userServerMappingRepository;
 
     @Override
-    public String createServer(ServerRequest serverRequest) {
+    public ServerDto createServer(ServerRequest serverRequest) {
         Server server = new Server();
         server.setName(serverRequest.getServerName());
         server.setImageUrl(serverRequest.getImageUrl());
@@ -47,13 +47,13 @@ public class ServerServiceImpl implements ServerService {
         Category voiceCategory = new Category("Voice channels", server);
         Category videoCategory = new Category("Video channels", server);
         //create 3 channels by default: general, video, voice
-        Channel generalChannel = new Channel("general", server, textCategory);
-        Channel videoChannel = new Channel("video", server, videoCategory);
-        Channel voiceChannel = new Channel("voice", server, voiceCategory);
+        Channel generalChannel = new Channel("general", server, textCategory, ChannelType.TEXT);
+        Channel videoChannel = new Channel("video", server, videoCategory, ChannelType.VIDEO);
+        Channel voiceChannel = new Channel("voice", server, voiceCategory, ChannelType.VOICE);
 
-        textCategory.getChannels().add(generalChannel);
-        voiceCategory.getChannels().add(voiceChannel);
-        videoCategory.getChannels().add(videoChannel);
+//        textCategory.getChannels().add(generalChannel);
+//        voiceCategory.getChannels().add(voiceChannel);
+//        videoCategory.getChannels().add(videoChannel);
 
         server.getChannels().add(generalChannel);
         server.getChannels().add(videoChannel);
@@ -65,6 +65,7 @@ public class ServerServiceImpl implements ServerService {
         //get user from user id
         User user = userRepository.findById(serverRequest.getUserId()).orElse(null);
         if (user == null) {
+            System.out.println("User not found");
             return null;
         }
         //set user as server owner
@@ -78,15 +79,68 @@ public class ServerServiceImpl implements ServerService {
 
         server.getUserServerMappings().add(userServerMapping);
 
-        serverRepository.save(server);
+        server = serverRepository.save(server);
 
-        return "Server created successfully";
+        ServerDto serverDto = new ServerDto();
+        serverDto.setId(server.getId());
+        serverDto.setName(server.getName());
+        serverDto.setImageUrl(server.getImageUrl());
+        serverDto.setInviteCode(server.getInviteCode());
+        serverDto.setOwnerId(server.getOwner().getId());
+        serverDto.setCreatedAt(server.getCreatedAt());
+        serverDto.setUpdatedAt(server.getUpdatedAt());
+
+        //get channel list, convert to channel dto list
+        serverDto.setChannels(
+                server.getChannels().stream().map(channel -> {
+                    ChannelDto channelDto = new ChannelDto();
+                    channelDto.setId(channel.getId());
+                    channelDto.setName(channel.getName());
+                    channelDto.setType(channel.getType());
+                    channelDto.setCreatedAt(channel.getCreatedAt());
+                    channelDto.setUpdatedAt(channel.getUpdatedAt());
+                    channelDto.setServerId(channel.getServer().getId());
+                    channelDto.setCategoryId(channel.getCategory().getId());
+                    return channelDto;
+                }).collect(Collectors.toList())
+        );
+
+        //get category list, convert to category dto list
+        serverDto.setCategories(
+                server.getCategories().stream().map(category -> {
+                    CategoryDto categoryDto = new CategoryDto();
+                    categoryDto.setId(category.getId());
+                    categoryDto.setName(category.getName());
+                    categoryDto.setCreatedAt(category.getCreatedAt());
+                    categoryDto.setUpdatedAt(category.getUpdatedAt());
+                    categoryDto.setServerId(category.getId());
+                    return categoryDto;
+                }).collect(Collectors.toList())
+        );
+
+        //get user list, convert to user dto list
+        serverDto.setUsers(
+                server.getUserServerMappings().stream().map(userServerMapping1 -> {
+                    UserDto userDto = new UserDto();
+                    userDto.setId(userServerMapping1.getUser().getId());
+                    userDto.setUsername(userServerMapping1.getUser().getUsername());
+                    userDto.setNickname(userServerMapping1.getUser().getNickname());
+                    userDto.setRole(userServerMapping1.getRole());
+                    userDto.setAvatarUrl(userServerMapping1.getUser().getAvatarUrl());
+                    userDto.setCreatedAt(userServerMapping1.getUser().getCreatedAt());
+                    userDto.setUpdatedAt(userServerMapping1.getUser().getUpdatedAt());
+                    return userDto;
+                }).collect(Collectors.toList())
+        );
+
+        return serverDto;
     }
 
     @Override
     public Boolean deleteServer(Long serverId) {
         Server server = serverRepository.findById(serverId).orElse(null);
         if (server == null) {
+            System.out.println("Server not found");
             return false;
         }
         serverRepository.delete(server);
@@ -115,10 +169,11 @@ public class ServerServiceImpl implements ServerService {
                     ChannelDto channelDto = new ChannelDto();
                     channelDto.setId(channel.getId());
                     channelDto.setName(channel.getName());
+                    channelDto.setType(channel.getType());
                     channelDto.setCreatedAt(channel.getCreatedAt());
                     channelDto.setUpdatedAt(channel.getUpdatedAt());
                     channelDto.setServerId(server.getId());
-                    channelDto.setCategoryId(channel.getCategory().getId());
+                    channelDto.setCategoryId(channel.getCategory() == null ? null : channel.getCategory().getId());
                     return channelDto;
                 }).collect(Collectors.toList())
         );
@@ -141,6 +196,7 @@ public class ServerServiceImpl implements ServerService {
                     userDto.setId(userServerMapping.getUser().getId());
                     userDto.setUsername(userServerMapping.getUser().getUsername());
                     userDto.setNickname(userServerMapping.getUser().getNickname());
+                    userDto.setRole(userServerMapping.getRole());
                     userDto.setAvatarUrl(userServerMapping.getUser().getAvatarUrl());
                     userDto.setCreatedAt(userServerMapping.getUser().getCreatedAt());
                     userDto.setUpdatedAt(userServerMapping.getUser().getUpdatedAt());
@@ -166,5 +222,76 @@ public class ServerServiceImpl implements ServerService {
             );
         }).toList();
         return serverDtos;
+    }
+
+    @Override
+    public String generateNewInviteCode(Long serverId) {
+        Server server = serverRepository.findById(serverId).orElse(null);
+        if (server == null) {
+            System.out.println("Server not found");
+            return null;
+        }
+        //create invite code using uuid
+        server.setInviteCode(UUID.randomUUID().toString());
+        serverRepository.save(server);
+        return server.getInviteCode();
+    }
+
+    @Override
+    public Boolean leaveServer(Long serverId, Long userId) {
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, serverId);
+        if (userServerMapping == null) {
+            System.out.println("User is not a member of the server");
+            return false;
+        }
+        if (userServerMapping.getRole() == UserRole.ADMIN) {
+            System.out.println("Cannot leave server as admin");
+            return false;
+        }
+        userServerMappingRepository.delete(userServerMapping);
+        return true;
+    }
+
+    @Override
+    public Boolean joinServer(Long serverId, String inviteCode, Long userId) {
+        //check if user exists
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            System.out.println("User not found");
+            return false;
+        }
+        //check if server exists and invite code is valid
+        Server server = serverRepository.findByIdAndInviteCode(serverId, inviteCode);
+        if (server == null) {
+            System.out.println("Server not found or invite code is invalid");
+            return false;
+        }
+        //check if user is already a member of the server
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, serverId);
+        if (userServerMapping != null) {
+            System.out.println("User is already a member of the server");
+            return false;
+        }
+        //create user server mapping
+        UserServerMapping newUserServerMapping = new UserServerMapping(
+                user,
+                server
+        );
+        userServerMappingRepository.save(newUserServerMapping);
+        return true;
+    }
+
+    @Override
+    public Boolean updateServer(Long serverId, ServerRequest serverRequest) {
+        //find server by id
+        Server server = serverRepository.findById(serverId).orElse(null);
+        if (server == null) {
+            return false;
+        }
+        //update server name and image URL
+        server.setName(serverRequest.getServerName());
+        server.setImageUrl(serverRequest.getImageUrl());
+        serverRepository.save(server);
+        return true;
     }
 }

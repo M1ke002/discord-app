@@ -19,8 +19,11 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+
+    //remove CascadeType.ALL because it will delete all channels in the category when the category is deleted
+    //instead, we only want the channel's category_id to be set to null
     @OneToMany(
-            cascade = CascadeType.ALL,
+//            cascade = CascadeType.ALL,
             mappedBy = "category"
     )
     private List<Channel> channels = new ArrayList<>();
@@ -40,5 +43,12 @@ public class Category {
     public Category(String name, Server server) {
         this.name = name;
         this.server = server;
+    }
+
+    @PreRemove
+    private void removeCategoryFromChannels() {
+        for (Channel channel : channels) {
+            channel.setCategory(null);
+        }
     }
 }

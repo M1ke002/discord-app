@@ -1,5 +1,6 @@
 package com.example.discordclonebackend.dto;
 
+import com.example.discordclonebackend.entity.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ public class UserDto {
     private String username;
     private String nickname;
     private String avatarUrl;
+    private UserRole role;
     private Date createdAt;
     private Date updatedAt;
 }

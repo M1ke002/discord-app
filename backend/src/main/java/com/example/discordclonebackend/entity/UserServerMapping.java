@@ -42,4 +42,15 @@ public class UserServerMapping {
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;
+
+    public UserServerMapping(User user, Server server) {
+        this.user = user;
+        this.server = server;
+    }
+
+    public UserServerMapping(User user, Server server, UserRole role) {
+        this.user = user;
+        this.server = server;
+        this.role = role;
+    }
 }
