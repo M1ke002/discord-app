@@ -13,4 +13,6 @@ public interface UserServerMappingRepository extends JpaRepository<UserServerMap
 
 
     public UserServerMapping findByUserIdAndServerId(Long userId, Long serverId);
+
+    public void deleteAllByUserId(Long userId);
 }

@@ -60,9 +60,10 @@ public class SecurityConfig {
         return http
                 .cors(httpSecurityCorsConfigurer -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(Arrays.asList("*"));
+                    configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:3000/*"));
                     configuration.setAllowedMethods(Arrays.asList("*"));
                     configuration.setAllowedHeaders(Arrays.asList("*"));
+                    configuration.setAllowCredentials(true);
                     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                     source.registerCorsConfiguration("/**", configuration);
                     httpSecurityCorsConfigurer.configurationSource(source);

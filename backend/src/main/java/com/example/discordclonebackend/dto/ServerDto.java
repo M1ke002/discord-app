@@ -19,7 +19,7 @@ public class ServerDto {
     private Date createdAt;
     private Date updatedAt;
     //need a list of users
-    private List<UserDto> users;
+    private List<ServerMemberDto> users;
     //list of channels
     private List<ChannelDto> channels;
     //list of categories
@@ -29,5 +29,12 @@ public class ServerDto {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
+    }
+
+    public ServerDto(Long id, String name, String imageUrl, Long ownerId) {
+        this.id = id;
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.ownerId = ownerId;
     }
 }

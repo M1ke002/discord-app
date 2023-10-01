@@ -1,6 +1,7 @@
 package com.example.discordclonebackend.security;
 
 
+import com.example.discordclonebackend.dto.JwtToken;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -25,23 +26,30 @@ public class JwtUtils {
     private long JWT_REFRESH_EXPIRATION_MS;
     @Value("${jwt.JWT_SECRET}")
     private String JWT_SECRET;
-    public String generateToken(Authentication authentication, String tokenType) {
+    public JwtToken generateToken(Authentication authentication, String tokenType) {
         String username = authentication.getName();
         Date currDate = new Date();
-        Date expiryDate = null;
+        Long duration = null;
+//        Date expiryDate = null;
         if (tokenType.equals("refreshToken")) {
-            expiryDate = new Date(currDate.getTime() + JWT_REFRESH_EXPIRATION_MS);
+            duration = currDate.getTime() + JWT_REFRESH_EXPIRATION_MS;
+//            expiryDate = new Date(currDate.getTime() + JWT_REFRESH_EXPIRATION_MS);
         } else {
-            expiryDate = new Date(currDate.getTime() + JWT_EXPIRATION_MS);
+            duration = currDate.getTime() + JWT_EXPIRATION_MS;
+//            expiryDate = new Date(currDate.getTime() + JWT_EXPIRATION_MS);
         }
-//        Date expiryDate = new Date(currDate.getTime() + JWT_EXPIRATION_MS);
+        Date expiryDate = new Date(duration);
         String token = Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(currDate)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
                 .compact();
-        return token;
+        return new JwtToken(
+            tokenType.equals("refreshToken") ? JwtToken.TokenType.REFRESH : JwtToken.TokenType.ACCESS,
+            token,
+            duration
+        );
     }
 
 //    public String generateRefreshToken(Authentication authentication) {

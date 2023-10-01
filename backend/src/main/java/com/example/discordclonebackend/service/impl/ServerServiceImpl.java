@@ -3,7 +3,7 @@ package com.example.discordclonebackend.service.impl;
 import com.example.discordclonebackend.dto.CategoryDto;
 import com.example.discordclonebackend.dto.ChannelDto;
 import com.example.discordclonebackend.dto.ServerDto;
-import com.example.discordclonebackend.dto.UserDto;
+import com.example.discordclonebackend.dto.ServerMemberDto;
 import com.example.discordclonebackend.dto.request.ServerRequest;
 import com.example.discordclonebackend.entity.*;
 import com.example.discordclonebackend.repository.ServerRepository;
@@ -121,15 +121,15 @@ public class ServerServiceImpl implements ServerService {
         //get user list, convert to user dto list
         serverDto.setUsers(
                 server.getUserServerMappings().stream().map(userServerMapping1 -> {
-                    UserDto userDto = new UserDto();
-                    userDto.setId(userServerMapping1.getUser().getId());
-                    userDto.setUsername(userServerMapping1.getUser().getUsername());
-                    userDto.setNickname(userServerMapping1.getUser().getNickname());
-                    userDto.setRole(userServerMapping1.getRole());
-                    userDto.setAvatarUrl(userServerMapping1.getUser().getAvatarUrl());
-                    userDto.setCreatedAt(userServerMapping1.getUser().getCreatedAt());
-                    userDto.setUpdatedAt(userServerMapping1.getUser().getUpdatedAt());
-                    return userDto;
+                    ServerMemberDto serverMemberDto = new ServerMemberDto();
+                    serverMemberDto.setId(userServerMapping1.getUser().getId());
+                    serverMemberDto.setUsername(userServerMapping1.getUser().getUsername());
+                    serverMemberDto.setNickname(userServerMapping1.getUser().getNickname());
+                    serverMemberDto.setRole(userServerMapping1.getRole());
+                    serverMemberDto.setAvatarUrl(userServerMapping1.getUser().getAvatarUrl());
+                    serverMemberDto.setCreatedAt(userServerMapping1.getUser().getCreatedAt());
+                    serverMemberDto.setUpdatedAt(userServerMapping1.getUser().getUpdatedAt());
+                    return serverMemberDto;
                 }).collect(Collectors.toList())
         );
 
@@ -192,15 +192,15 @@ public class ServerServiceImpl implements ServerService {
         //get user list, convert to user dto list
         serverDto.setUsers(
                 server.getUserServerMappings().stream().map(userServerMapping -> {
-                    UserDto userDto = new UserDto();
-                    userDto.setId(userServerMapping.getUser().getId());
-                    userDto.setUsername(userServerMapping.getUser().getUsername());
-                    userDto.setNickname(userServerMapping.getUser().getNickname());
-                    userDto.setRole(userServerMapping.getRole());
-                    userDto.setAvatarUrl(userServerMapping.getUser().getAvatarUrl());
-                    userDto.setCreatedAt(userServerMapping.getUser().getCreatedAt());
-                    userDto.setUpdatedAt(userServerMapping.getUser().getUpdatedAt());
-                    return userDto;
+                    ServerMemberDto serverMemberDto = new ServerMemberDto();
+                    serverMemberDto.setId(userServerMapping.getUser().getId());
+                    serverMemberDto.setUsername(userServerMapping.getUser().getUsername());
+                    serverMemberDto.setNickname(userServerMapping.getUser().getNickname());
+                    serverMemberDto.setRole(userServerMapping.getRole());
+                    serverMemberDto.setAvatarUrl(userServerMapping.getUser().getAvatarUrl());
+                    serverMemberDto.setCreatedAt(userServerMapping.getUser().getCreatedAt());
+                    serverMemberDto.setUpdatedAt(userServerMapping.getUser().getUpdatedAt());
+                    return serverMemberDto;
                 }).collect(Collectors.toList())
         );
         return serverDto;
@@ -293,5 +293,71 @@ public class ServerServiceImpl implements ServerService {
         server.setImageUrl(serverRequest.getImageUrl());
         serverRepository.save(server);
         return true;
+    }
+
+    @Override
+    public Boolean kickUserFromServer(Long serverId, Long userId, Long adminId) {
+        //check if admin is the admin of the server
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(adminId, serverId);
+        if (userServerMapping == null) {
+            System.out.println("Invalid Admin Id");
+            return false;
+        }
+        if (!userServerMapping.getRole().equals(UserRole.MODERATOR) && !userServerMapping.getRole().equals(UserRole.ADMIN)) {
+            System.out.println("User is not an ADMIN or MODERATOR of the server");
+            return null;
+        }
+        //check if user to be kicked is a member of the server
+        userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, serverId);
+        if (userServerMapping == null) {
+            System.out.println("User is not a member of the server");
+            return false;
+        }
+        //check if user to be kicked is an admin
+        if (userServerMapping.getRole().equals(UserRole.ADMIN)) {
+            System.out.println("Cannot kick an admin");
+            return false;
+        }
+        userServerMappingRepository.delete(userServerMapping);
+        return true;
+    }
+
+    @Override
+    public Boolean changeUserRole(Long serverId, Long userId, Long adminId, String role) {
+        //check if admin is the admin of the server
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(adminId, serverId);
+        if (userServerMapping == null) {
+            System.out.println("Invalid Admin Id");
+            return false;
+        }
+        if (!userServerMapping.getRole().equals(UserRole.MODERATOR) && !userServerMapping.getRole().equals(UserRole.ADMIN)) {
+            System.out.println("User is not an ADMIN or MODERATOR of the server");
+            return null;
+        }
+        //check if user to change role is a member of the server
+        userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, serverId);
+        if (userServerMapping == null) {
+            System.out.println("User is not a member of the server");
+            return false;
+        }
+        //check if user to change role is an admin
+        if (userServerMapping.getRole().equals(UserRole.ADMIN)) {
+            System.out.println("Cannot change the role of an admin");
+            return false;
+        }
+        //check if role is valid
+        try {
+            UserRole userRole = UserRole.valueOf(role);
+            if (userRole.equals(UserRole.ADMIN)) {
+                System.out.println("Cannot change the role to admin");
+                return false;
+            }
+            userServerMapping.setRole(userRole);
+            userServerMappingRepository.save(userServerMapping);
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid role");
+            return false;
+        }
     }
 }

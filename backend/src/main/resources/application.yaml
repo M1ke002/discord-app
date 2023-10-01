@@ -22,9 +22,11 @@ logging:
 # Set JWT Secret Key
 jwt:
   JWT_SECRET: thisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthentication
-  JWT_EXPIRATION_MS: 900000
+  JWT_EXPIRATION_MS: 60000
   #set refresh token expiration time to 1 day
   JWT_REFRESH_EXPIRATION_MS: 86400000
+  accessTokenCookieName: accessToken
+  refreshTokenCookieName: refreshToken
 
 
 

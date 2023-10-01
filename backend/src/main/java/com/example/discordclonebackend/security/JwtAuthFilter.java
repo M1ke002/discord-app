@@ -3,9 +3,11 @@ package com.example.discordclonebackend.security;
 import com.example.discordclonebackend.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 public class JwtAuthFilter extends OncePerRequestFilter {
+    @Value("${jwt.accessTokenCookieName}")
+    private String accessTokenCookieName;
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -26,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //get the jwt token from the request
-        String jwtToken = getJwtTokenFromRequest(request);
+        String jwtToken = getJwtToken(request);
         //validate the jwt token
         if (jwtToken != null && jwtUtils.validateToken(jwtToken)) {
             //get the username from the jwt token
@@ -43,6 +47,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         //continue the filter chain
         filterChain.doFilter(request, response);
+    }
+
+    public String getJwtToken(HttpServletRequest request) {
+        // check the cookie first, if the cookie exists, return the jwt token from the cookie
+        //else return the jwt token from the request header (Authorization Bearer)
+        String result = getJwtTokenFromCookie(request);
+        if (result != null) {
+            return result;
+        }
+        return getJwtTokenFromRequest(request);
+    }
+
+    public String getJwtTokenFromCookie(HttpServletRequest request) {
+        //print the request.getCookies() to see the cookies
+        System.out.println("Cookies = " + request.getCookies());
+        if (request.getCookies() != null) {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(accessTokenCookieName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     public String getJwtTokenFromRequest(HttpServletRequest request) {

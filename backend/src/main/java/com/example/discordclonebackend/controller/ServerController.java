@@ -1,6 +1,7 @@
 package com.example.discordclonebackend.controller;
 
 import com.example.discordclonebackend.dto.ServerDto;
+import com.example.discordclonebackend.dto.request.ChangeRoleRequest;
 import com.example.discordclonebackend.dto.request.ServerRequest;
 import com.example.discordclonebackend.dto.response.StringResponse;
 import com.example.discordclonebackend.service.ServerService;
@@ -14,6 +15,8 @@ import java.util.List;
 @RequestMapping("/api/v1/servers")
 @CrossOrigin("*")
 public class ServerController {
+
+    //TODO: implement role change
 
     @Autowired
     private ServerService serverService;
@@ -91,5 +94,31 @@ public class ServerController {
             return ResponseEntity.badRequest().body(new StringResponse("Joining server failed"));
         }
         return ResponseEntity.ok(new StringResponse("Joined server successfully"));
+    }
+
+    @DeleteMapping("/{serverId}/kick/{userId}")
+    public ResponseEntity<?> kickUserFromServer(
+            @PathVariable("serverId") Long serverId,
+            @PathVariable("userId") Long userId,
+            @RequestParam("adminId") Long adminId) {
+        Boolean isKicked = serverService.kickUserFromServer(serverId, userId, adminId);
+        if (!isKicked) {
+            return ResponseEntity.badRequest().body(new StringResponse("Kicking user from server failed"));
+        }
+        return ResponseEntity.ok(new StringResponse("Kicked user from server successfully"));
+    }
+
+    //example request: http://localhost:8080/api/v1/servers/1/change-role/2?adminId=1
+    @PutMapping("/{serverId}/change-role/{userId}")
+    public ResponseEntity<?> changeUserRole(
+            @PathVariable("serverId") Long serverId,
+            @PathVariable("userId") Long userId,
+            @RequestParam("adminId") Long adminId,
+            @RequestBody ChangeRoleRequest changeRoleRequest) {
+        Boolean isChanged = serverService.changeUserRole(serverId, userId, adminId, changeRoleRequest.getRole());
+        if (!isChanged) {
+            return ResponseEntity.badRequest().body(new StringResponse("Changing user role failed"));
+        }
+        return ResponseEntity.ok(new StringResponse("Changed user role successfully"));
     }
 }

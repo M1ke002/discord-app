@@ -21,4 +21,8 @@ public interface ServerService {
     public Boolean joinServer(Long serverId, String inviteCode, Long userId);
 
     public Boolean updateServer(Long serverId, ServerRequest serverRequest);
+
+    public Boolean kickUserFromServer(Long serverId, Long userId, Long adminId);
+
+    public Boolean changeUserRole(Long serverId, Long userId, Long adminId, String role);
 }
