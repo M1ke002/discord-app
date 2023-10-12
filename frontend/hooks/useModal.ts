@@ -1,23 +1,14 @@
 import {create} from 'zustand';
-import { IServerOptionalProps } from '@/utils/constants';
+import Server from '@/types/Server';
+import Channel from '@/types/Channel';
 
 export type ModalType = 'createServer' | 'editServer' | 'leaveServer' | 'deleteServer' | 'members' | 'createChannel' 
 | 'editChannel' | 'deleteChannel' | 'invite';
 
-interface ModalData extends IServerOptionalProps{
-    // server?: {
-    //     name: string;
-    //     channels: { type: string }[];
-    //     members: { profileId: string; name: string; role: string, avatarUrl: string }[];
-    //     inviteCode: string;
-    //     imageUrl: string | null;
-    // },
+interface ModalData {
+    server?: Server;
     categoryName?: string;
-    channel?: {
-        type: string,
-        id: string,
-        name: string
-    };
+    channel?: Channel;
 }
 
 interface ModalStore {

@@ -12,7 +12,7 @@ interface ServerSearchProps {
         items: {
             icon: React.ReactNode;
             name: string;
-            id: string;
+            id: number;
         }[] | undefined;
     }[];
 }
@@ -34,7 +34,7 @@ const ServerSearch = ({data}: ServerSearchProps) => {
       return () => document.removeEventListener("keydown", down)
   }, [])
 
-  const navigatePageOrConversation = (type: "channels" | "members", id: string) => {
+  const navigatePageOrConversation = (type: "channels" | "members", id: number) => {
     setOpen(false)
     if (type === "channels") {
       router.push(`/servers/${params?.serverId}/channels/${id}`)

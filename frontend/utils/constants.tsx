@@ -9,17 +9,17 @@ import { Hash, MemoryStick, ShieldAlert, ShieldCheck, User2, Video, Volume2 } fr
 
 export const getChannelIcon = (customClasses: string) => {
   return {
-    "text": <Hash className={customClasses}/>,
-    "audio": <Volume2 className={customClasses}/>,
-    "video": <Video className={customClasses}/>
+    "TEXT": <Hash className={customClasses}/>,
+    "VOICE": <Volume2 className={customClasses}/>,
+    "VIDEO": <Video className={customClasses}/>
   }
 }
 
 export const getRoleIcon = (customClasses: string) => {
   return {
-    "Member": null,
-    "Moderator": <ShieldCheck className={`text-indigo-500 ${customClasses}`}/>,
-    "Admin": <ShieldAlert className={`text-rose-500 ${customClasses}`}/>
+    "MEMBER": null,
+    "MODERATOR": <ShieldCheck className={`text-indigo-500 ${customClasses}`}/>,
+    "ADMIN": <ShieldAlert className={`text-rose-500 ${customClasses}`}/>
   }
 }
   

@@ -40,7 +40,7 @@ const InviteModal = () => {
             // const response = await axios.patch(`/api/servers/${server?.id}/inviteCode`);
             const response = fakeResponse;
             //reopen modal with new invite url
-            onOpen("invite", {server: response.data});
+            // onOpen("invite", {server: response.data}); -----> should be uncommented when api is ready
         } catch (error) {   
             
         } finally {

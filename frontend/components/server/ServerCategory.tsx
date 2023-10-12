@@ -6,15 +6,16 @@ import { ChannelType, MemberRole , IServerOptionalProps } from '@/utils/constant
 import TooltipActions from '../TooltipActions';
 import { ChevronDown, Plus } from 'lucide-react';
 import { useModal } from '@/hooks/useModal';
+import Server from '@/types/Server';
 
-interface ServerCategoryProps extends IServerOptionalProps{
+interface ServerCategoryProps{
+  server: Server;
   label: string;
-  channelType: ChannelType;
   role: MemberRole
 }
 
 //TODO: rename component to ServerCategory (more precise name?)
-const ServerCategory = ({label, channelType, role}: ServerCategoryProps) => {
+const ServerCategory = ({label, role}: ServerCategoryProps) => {
   const {onOpen} = useModal();
 
   const [rotateChevron, setRotateChevron] = useState(false);

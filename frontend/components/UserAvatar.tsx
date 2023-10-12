@@ -12,7 +12,7 @@ const UserAvatar = ({src, className, username}: UserAvatarProps) => {
   return (
     <Avatar className={cn("h-7 w-7 md:h-10 md:w-10", className)}>
       <AvatarImage src={src} />
-      <AvatarFallback>{username?.split("")[0].toUpperCase()}</AvatarFallback>
+      <AvatarFallback className='dark:text-white'>{username?.split("")[0].toUpperCase()}</AvatarFallback>
     </Avatar>
   )
 }

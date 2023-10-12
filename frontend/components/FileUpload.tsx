@@ -5,8 +5,6 @@ import { UploadDropzone } from './UploadThing';
 import {X} from 'lucide-react'
 import Image from 'next/image';
 
-import "@uploadthing/react/styles.css"
-
 interface FileUploadProps {
     onChange: (url?: string) => void;
     endpoint: "messageFile" | "serverImage";

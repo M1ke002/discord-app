@@ -3,16 +3,11 @@ import React from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { ChevronDown, LogOut, PlusCircle, Settings, Trash, UserPlus, Users } from 'lucide-react';
 import { useModal } from '@/hooks/useModal';
-import { IServerProps, MemberRole } from '@/utils/constants';
+import { MemberRole } from '@/utils/constants';
+import Server from '@/types/Server';
 
-interface ServerHeaderProps extends IServerProps {
-    // server: {
-    //     name: string;
-    //     channels: { type: string }[];
-    //     members: { profileId: string; name: string; role: string, avatarUrl: string }[];
-    //     inviteCode: string;
-    //     imageUrl: string | null;
-    // },
+interface ServerHeaderProps{
+    server: Server;
     role?: MemberRole;
 }
 

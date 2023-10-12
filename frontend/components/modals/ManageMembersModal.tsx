@@ -14,6 +14,7 @@ import UserAvatar from '../UserAvatar'
 import { Check, Gavel, Loader2, MoreVertical, Shield, ShieldAlert, ShieldCheck, ShieldQuestion } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { MemberRole, getRoleIcon } from '@/utils/constants'
+import Member from '@/types/Member'
 
 // const roleIconMap = {
 //     'Member': null,
@@ -29,8 +30,8 @@ const ManageMembersModal = () => {
     const isModalOpen = type === "members" && isOpen;
     const {server} = data;
 
-    const changeRole = async (memberId: string, role: string) => {
-        setEditingMemberId(memberId);
+    const changeRole = async (memberId: number, role: string) => {
+        setEditingMemberId(memberId.toString());
         // const response = await axios.put(...)
         //update the server component with the new role
         router.refresh();
@@ -38,8 +39,8 @@ const ManageMembersModal = () => {
         setEditingMemberId("");
     }
 
-    const kickMember = async (memberId: string) => {
-        setEditingMemberId(memberId);
+    const kickMember = async (memberId: number) => {
+        setEditingMemberId(memberId.toString());
         // const response = await axios.delete(...)
         //update the server component with the new role
         router.refresh();
@@ -55,22 +56,22 @@ const ManageMembersModal = () => {
                 <DialogHeader className="pt-5 px-6">
                     <DialogTitle className="text-2xl text-center font-bold">Manage members</DialogTitle>
                     <DialogDescription className="text-center text-zinc-500">
-                        {server?.members.length} members
+                        {server?.users.length} members
                     </DialogDescription>
                 </DialogHeader>
                 <ScrollArea className='mt-8 max-h-[420px] pr-6'>
-                    {server?.members.map(member => (
-                        <div key={member.profileId} className="flex items-center gap-x-2 mb-6">
-                            <UserAvatar username={member.name} src={member.avatarUrl} />
+                    {server?.users.map((member: Member) => (
+                        <div key={member.id} className="flex items-center gap-x-2 mb-6">
+                            <UserAvatar username={member.username} src={member.avatarUrl} />
                             <div className="flex flex-col gap-y-1">
                                 <div className="text-xs font-semibold flex items-center gap-x-1">
-                                    {member.name}
+                                    {member.username}
                                     {getRoleIcon('h-4 w-4')[member.role as keyof typeof getRoleIcon]}
                                 </div>
                                 <p className="text-xs text-zinc-500">dummyemail@email.com</p>
                             </div>
                             {/* TODO: handle case to not render the div below if member is an admin */}
-                            {editingMemberId !== member.profileId && (
+                            {editingMemberId !== member.id.toString() && (
                                 <div className="ml-auto text-xs">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger>
@@ -84,14 +85,14 @@ const ManageMembersModal = () => {
                                                 </DropdownMenuSubTrigger>
                                                 <DropdownMenuPortal>
                                                     <DropdownMenuSubContent sideOffset={7}>
-                                                        <DropdownMenuItem onClick={() => changeRole(member.profileId, "Member")}>
+                                                        <DropdownMenuItem onClick={() => changeRole(member.id, "Member")}>
                                                             <Shield className='h-4 w-4 mr-2'/>
                                                             Member
                                                             {member.role === 'Member' && (
                                                                 <Check className='text-xs text-green-500 h-4 w-4 ml-3'/>
                                                             )}
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => changeRole(member.profileId, "Moderator")}>
+                                                        <DropdownMenuItem onClick={() => changeRole(member.id, "Moderator")}>
                                                             <ShieldCheck className='h-4 w-4 mr-2'/>
                                                             Moderator
                                                             {member.role === 'Moderator' && (
@@ -102,7 +103,7 @@ const ManageMembersModal = () => {
                                                 </DropdownMenuPortal>
                                             </DropdownMenuSub>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem onClick={() => kickMember(member.profileId)} className='text-rose-500'>
+                                            <DropdownMenuItem onClick={() => kickMember(member.id)} className='text-rose-500'>
                                                 <Gavel className='h-4 w-4 mr-2'/>
                                                 Kick
                                             </DropdownMenuItem>
@@ -111,7 +112,7 @@ const ManageMembersModal = () => {
                                 </div>
                             )}
                             {/* show loading icon for the member that is being edited */}
-                            {editingMemberId === member.profileId && (
+                            {editingMemberId === member.id.toString() && (
                                 <Loader2 className="ml-auto h-4 w-4 animate-spin text-zinc-500"/>
                             )}
                         </div>

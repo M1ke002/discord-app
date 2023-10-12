@@ -7,13 +7,12 @@ import React from 'react'
 import TooltipActions from '../TooltipActions'
 import { Edit, Lock, Trash } from 'lucide-react'
 import { ModalType, useModal } from '@/hooks/useModal'
+import Server from '@/types/Server'
+import Channel from '@/types/Channel'
 
-interface ServerChannelProps extends IServerProps {
-    channel: {
-        type: string,
-        id: string,
-        name: string
-    },
+interface ServerChannelProps {
+    server: Server;
+    channel: Channel;
     role?: MemberRole,
 }
 
@@ -31,7 +30,7 @@ const onAction = (e: React.MouseEvent, action: ModalType) => {
     <button
         className={cn(
             "group px-2 py-2 rounded-md flex items-center w-full hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 transition mb-1",
-            params?.channelId === channel.id && "bg-zinc-700/20 dark:bg-zinc-700"
+            params?.channelId === channel.id.toString() && "bg-zinc-700/20 dark:bg-zinc-700"
         )}
         onClick={() => router.push(`/servers/${params?.serverId}/channels/${channel.id}`)}
     >
@@ -39,7 +38,7 @@ const onAction = (e: React.MouseEvent, action: ModalType) => {
         <p 
             className={cn(
                 'line-clamp-1 font-semibold text-sm text-zinc-500 group-hover:text-zinc-600 dark:text-zinc-400 dark:group-hover:text-zinc-300 transition',
-                params?.channelId === channel.id && "text-primary dark:text-zinc-200 dark:group-hover:text-white"
+                params?.channelId === channel.id.toString() && "text-primary dark:text-zinc-200 dark:group-hover:text-white"
             )}
         >
             {channel.name}

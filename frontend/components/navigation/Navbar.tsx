@@ -1,23 +1,64 @@
+"use client"
+
 import React from 'react'
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import axios from '@/lib/axiosConfig';
 import NavigationAction from './NavigationAction';
 import NavDirectMessages from './NavDirectMessages';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
 import NavItem from './NavItem';
 import { ModeToggle } from '../ModeToggle';
-import {dummyServerList as servers} from '@/utils/constants';
+import {dummyServerList} from '@/utils/constants';
+// import { getServerSession } from "next-auth/next"
+// import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import Server from '@/types/Server';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 
-const Navbar = async () => {
-//   const profile = await getCurrentProfile()
-    const profile = "fakeProfile";
+const Navbar = () => {
+    const { data: session } = useSession();
+    const [servers, setServers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
-    if (!profile) {
-        return redirect('/');
-    }
+    useEffect(() => {
+        if (!session) {
+            console.log('no session');
+            router.replace('/login');
+            return;
+        }
 
-    //fake servers of the user (will be obtained by calling api)
+        const fetchServers = async () => {
+            setLoading(true);
+            //fake servers of the user (will be obtained by calling api)
+            console.log('getting servers in navbar...');
+            try {
+                const response = await axios.get(`/servers?userId=${session.user.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${session.accessToken}`,
+                    },
+                });
+                // console.log(response.data);
+                const servers = response.data;
+                setServers(servers);
+                console.log('[navBar] servers: '+ servers);
+            } catch (error) {
+                console.log('[navBar] sussy: '+error);
+                return;
+            }
+            setLoading(false);
+        }
 
+        if (session) {
+            fetchServers();
+        }
+
+    }, [])
+
+    // if (loading) {
+    //     return <div>Loading...</div>;
+    // }
   
     return (
     <div className="space-y-4 flex flex-col items-center h-full text-primary
@@ -28,10 +69,10 @@ const Navbar = async () => {
             className='my-1 h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-11 mx-auto'
         />
         <ScrollArea className='flex-1 w-full'>
-            {servers.map(server => {
+            {servers.map((server: Server) => {
                 return (
                     <div key={server.id} className='mb-3'>
-                        <NavItem id={server.id} name={server.name} imageUrl={server.imageUrl} />
+                        <NavItem id={String(server.id)} name={server.name} imageUrl={null} />
                     </div>
                 )
             })}

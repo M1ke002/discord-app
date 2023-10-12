@@ -1,6 +1,11 @@
+"use client";
+
 import { Hash } from 'lucide-react';
 import React from 'react'
 import MobileToggle from '../MobileToggle';
+import axios from '@/lib/axiosConfig';
+import { useSession } from "next-auth/react";
+
 
 interface ChatHeaderProps {
     serverId: string;
@@ -10,6 +15,24 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader = ({serverId, name, type, imageUrl}: ChatHeaderProps) => {
+  const {data:session} = useSession();
+
+  const testAPI = async () => {
+    // const session = await getSession();
+    console.log(session);
+    try {
+      const res = await axios.get('/auth/test', {
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+        },
+      });
+      console.log(res.data);
+      alert(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div className='text-md font-semibold px-3 flex items-center h-12 border-neutral-200 dark:border-neutral-800 border-b-2'>
         <MobileToggle serverId={serverId}/>
@@ -17,6 +40,9 @@ const ChatHeader = ({serverId, name, type, imageUrl}: ChatHeaderProps) => {
             <Hash className='w-5 h-5 text-zinc-500 dark:text-zinc-400 mr-2'/>
         )}
         <p className='font-semibold text-md text-black dark:text-white'>{name}</p>
+        <button onClick={testAPI}>
+          Test API
+        </button>
     </div>
   )
 }

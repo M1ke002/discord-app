@@ -2,6 +2,7 @@ import React from 'react'
 import UserAvatar from '../UserAvatar'
 import { LogOut, Settings } from 'lucide-react'
 import TooltipActions from '../TooltipActions'
+import { signOut } from 'next-auth/react'
 
 //TODO: change props to accept a Member object instead
 interface UserAccountProps {
@@ -36,6 +37,7 @@ const UserAccount = ({avatarUrl, username, nickname}: UserAccountProps) => {
             <TooltipActions label='log out'>
                 <button 
                     className='group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 transition p-2 rounded-md'
+                    onClick={() => signOut()}
                 >
                     <LogOut className='h-4 w-4 text-rose-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300'/>
                 </button>

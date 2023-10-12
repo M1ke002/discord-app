@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react'
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import ServerHeader from './ServerHeader';
 import { ScrollArea } from '../ui/scroll-area';
 import ServerSearch from './ServerSearch';
@@ -14,8 +14,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import axios from '@/lib/axiosConfig';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import ServerChannel from './ServerChannel';
 import UserAccount from './UserAccount';
+import Server from '@/types/Server';
+import Category from '@/types/Category';
+import Channel from '@/types/Channel';
 
 interface ServerSidebarProps {
     serverId: string;
@@ -25,149 +31,111 @@ interface ServerSidebarProps {
 
 
 const ServerSidebar = ({serverId}: ServerSidebarProps) => {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [server, setServer] = useState<Server>();
 
-  const profile = {
-    id: '2',
-  }
+  useEffect(() => {
+    if (!session) {
+      console.log('no session');
+      router.replace('/login');
+      return;
+    }
 
-  if (!profile) {
-    return redirect('/');
-  }
+    const fetchServerInfo = async () => {
+      try {
+        const response = await axios.get(`/servers/${serverId}`, {
+          headers: {
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+        });
+        const server = response.data;
+        //set the server's image url to null for now
+        server.imageUrl = null;
+        if (!server) {
+          router.replace('/');
+          return;
+        }
+        setServer(server);
+      } catch (error) {
+        console.log('[serverSidebar] sussy: '+error);
+        return;
+      }
+    }
+    fetchServerInfo();
+  }, [])
 
-  //find server info from db using the serverId
-  // const server = await getServer(serverId);
-  //currently using dummy server from utils/constants.tsx
- 
 
-  if (!server) {
-      return redirect('/');
-  }
 
-  const textChannels = server?.channels.filter(channel => channel.type === ChannelType.TEXT);
-  const audioChannels = server?.channels.filter(channel => channel.type === ChannelType.AUDIO);
-  const videoChannels = server?.channels.filter(channel => channel.type === ChannelType.VIDEO);
+  if (session && server) {
+    console.log('got server' + JSON.stringify(server));
 
-  //get the logged in user's role in the server
-  const member = server?.members.find(member => member.profileId === profile.id);
-  // const role = member?.role;
-  const role = MemberRole.ADMIN;
+    // const textChannels = server.channels.filter(channel => channel.type === ChannelType.TEXT);
+    // const audioChannels = server.channels.filter(channel => channel.type === ChannelType.AUDIO);
+    // const videoChannels = server.channels.filter(channel => channel.type === ChannelType.VIDEO);
+    const categories = server.categories;
 
-  return (
-    <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
-      <ServerHeader server={server} role={role}/>
-      <ScrollArea className='flex-1 px-3'>
-        <div className="mt-2">
-          <ServerSearch 
-            data = {
-              [
-                {
-                  category: 'Text Channels',
-                  type: 'channels',
-                  items: textChannels?.map(channel => (
+    //get the logged in user's role in the server
+    const member = server.users.find(member => member.id === session.user.id);
+    if (!member) {
+      console.log('member not found');
+      return;
+    }
+    const role = member.role === "ADMIN" ? MemberRole.ADMIN : MemberRole.MEMBER;
+
+      return (
+        <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
+          <ServerHeader server={server} role={role}/>
+          <ScrollArea className='flex-1 px-3'>
+            <div className="mt-2">
+              <ServerSearch 
+                data = {
+                  [
+                    ...categories.map((category: Category) => (
+                      {
+                        category: category.name,
+                        type: "channels" as const,
+                        items: server.channels.filter((channel: Channel) => channel.categoryId === category.id).map((channel: Channel) => (
+                          {
+                            icon: getChannelIcon('h-4 w-4 mr-2')[channel.type as keyof typeof getChannelIcon],
+                            name: channel.name,
+                            id: channel.id
+                          }
+                        ))
+                      }
+                    )),
                     {
-                      // icon: channelIconMap[channel.type as keyof typeof channelIconMap],
-                      icon: getChannelIcon('h-4 w-4 mr-2')[channel.type as keyof typeof getChannelIcon],
-                      name: channel.name,
-                      id: channel.id
-                    }
-                  ))
-                },
-                {
-                  category: 'Audio Channels',
-                  type: 'channels',
-                  items: audioChannels?.map(channel => (
+                      category: 'Other channels',
+                      type: "channels" as const,
+                      items: server.channels.filter(channel => channel.categoryId === null).map((channel: Channel) => (
+                        {
+                          icon: getChannelIcon('h-4 w-4 mr-2')[channel.type as keyof typeof getChannelIcon],
+                          name: channel.name,
+                          id: channel.id
+                        }
+                      ))
+                    },
                     {
-                      icon: getChannelIcon('h-4 w-4 mr-2')[channel.type as keyof typeof getChannelIcon],
-                      name: channel.name,
-                      id: channel.id
+                      category: 'Members',
+                      type: "members" as const,
+                      items: server?.users.map(member => (
+                        {
+                          // icon: roleIconMap[member.role as keyof typeof roleIconMap],
+                          icon: getRoleIcon('h-4 w-4 ml-2')[member.role as keyof typeof getRoleIcon],
+                          name: member.username,
+                          id: member.id
+                        }
+                      ))
                     }
-                  ))
-                },
-                {
-                  category: 'Video Channels',
-                  type: 'channels',
-                  items: videoChannels?.map(channel => (
-                    {
-                      icon: getChannelIcon('h-4 w-4 mr-2')[channel.type as keyof typeof getChannelIcon],
-                      name: channel.name,
-                      id: channel.id
-                    }
-                  ))
-                },
-                {
-                  category: 'Members',
-                  type: 'members',
-                  items: server?.members.map(member => (
-                    {
-                      // icon: roleIconMap[member.role as keyof typeof roleIconMap],
-                      icon: getRoleIcon('h-4 w-4 ml-2')[member.role as keyof typeof getRoleIcon],
-                      name: member.name,
-                      id: member.profileId
-                    }
-                  ))
+                  ]
                 }
-              ]
-            }
-          />
-        </div>
-        <Separator className="bg-zinc-200 dark:bg-zinc-700 my-2 rounded-md"/>
-        {textChannels && (
-          <Collapsible defaultOpen={true}>
-            <div className="mb-2">
-                <CollapsibleTrigger className='w-full'>
-                    <ServerCategory
-                      label='Text channels'
-                      channelType={ChannelType.TEXT}
-                      server={server}
-                      role={role}
-                    />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  {textChannels.map(channel => (
-                    <ServerChannel
-                      key={channel.id}
-                      role={role}
-                      channel={channel}
-                      server={server}
-                    />
-                  ))}
-                </CollapsibleContent>
+              />
             </div>
-          </Collapsible>
-        )}
-        {audioChannels && (
-          <Collapsible defaultOpen={true}>
-            <div className="mb-2">
-              <CollapsibleTrigger className='w-full'>
-                  <ServerCategory
-                    label='Audio channels'
-                    channelType={ChannelType.AUDIO}
-                    server={server}
-                    role={role}
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  {audioChannels.map(channel => (
-                    <ServerChannel
-                      key={channel.id}
-                      role={role}
-                      channel={channel}
-                      server={server}
-                    />
-                  ))}
-                </CollapsibleContent>
-            </div>
-          </Collapsible>
-        )}
-        {videoChannels && (
-          <div className="mb-2">
-            <ServerCategory
-              label='Video channels'
-              channelType={ChannelType.VIDEO}
-              server={server}
-              role={role}
-            />
-            {videoChannels.map(channel => (
+
+            <Separator className="bg-zinc-200 dark:bg-zinc-700 my-2 rounded-md"/>
+
+            {/* list of channels without a category */}
+            {server.channels.filter(channel => channel.categoryId === null).map((channel: Channel) => (
               <ServerChannel
                 key={channel.id}
                 role={role}
@@ -175,16 +143,42 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                 server={server}
               />
             ))}
-          </div>
-        )}
-      </ScrollArea>
-      <UserAccount 
-        avatarUrl={member?.avatarUrl || ""}
-        username={member?.name || ""}
-        nickname={member?.nickname || ""}
-      />
-    </div>
-  )
+            {/* list of categories and their channels */}
+            {categories.map((category: Category)  => (
+              <Collapsible defaultOpen={true} key={category.id}>
+                <div className="mb-2">
+                    <CollapsibleTrigger className='w-full'>
+                        <ServerCategory
+                          key={category.id}
+                          label={category.name}
+                          server={server}
+                          role={role}
+                        />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      {server.channels.filter((channel: Channel) => channel.categoryId === category.id).map((channel: Channel) => (
+                        <ServerChannel
+                          key={channel.id}
+                          role={role}
+                          channel={channel}
+                          server={server}
+                        />
+                      ))}
+                    </CollapsibleContent>
+                </div>
+              </Collapsible>
+            ))}
+          </ScrollArea>
+          <UserAccount 
+            avatarUrl={member?.avatarUrl || ""}
+            username={member?.username || ""}
+            nickname={member?.nickname || ""}
+          />
+        </div>
+      )
+  } else {
+    return <div>Loading skeleton...</div>
+  }
 }
 
 export default ServerSidebar
