@@ -14,6 +14,9 @@ import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
 import { Hash, Video, Volume2 } from 'lucide-react'
 import { ChannelType } from '@/utils/constants'
+import { useRouter, useParams } from 'next/navigation'
+import { useToast } from '../ui/use-toast'
+import useAxiosAuth from '@/hooks/useAxiosAuth'
 
 // enum ChannelType {
 //     Text = "text",
@@ -26,19 +29,24 @@ const formSchema = z.object({
     name: z.string().min(1, {
       message: "Channel name is required!",
     }),
-    channelType: z.nativeEnum(ChannelType)
+    channelType: z.nativeEnum(ChannelType),
+    categoryId: z.string().optional().nullable()
   })
 
 const CreateChannelModal = () => {
     const {type, isOpen, onClose, data} = useModal();
-
-    const {categoryName} = data;
+    const router = useRouter();
+    const params = useParams();
+    const axiosAuth = useAxiosAuth();
+    const {toast} = useToast(); 
+    const {selectedCategory, categories, userId} = data;
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            channelType: ChannelType.TEXT
+            channelType: ChannelType.TEXT,
+            categoryId: ""
         }
     });
 
@@ -47,8 +55,30 @@ const CreateChannelModal = () => {
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async(values: z.infer<typeof formSchema>) => {
-        console.log(values);
+        const data = {
+            userId,
+            serverId: params?.serverId,
+            categoryId: selectedCategory ? selectedCategory.id : (values.categoryId === "" ? null : values.categoryId),
+            name: values.name,
+            type: values.channelType.toUpperCase()
+        }
+        console.log(data);
+
+        const res = await axiosAuth.post('/channels', data);
+        if (res.status === 200) {
+            toast({
+                title: "New channel created!"
+            })
+            console.log(res.data);
+        } else {
+            toast({
+                title: "Something went wrong",
+                variant: "destructive"
+            })
+        }
         handleCloseModal();
+        //to refetch the new data from backend
+        router.push(`/servers/${params?.serverId}`);
     }
 
     const handleCloseModal = () => {
@@ -62,9 +92,9 @@ const CreateChannelModal = () => {
             <DialogContent className="bg-white text-black p-0 overflow-hidden">
                 <DialogHeader className="pt-8 px-6">
                     <DialogTitle className="text-2xl text-center font-bold">Create Channel</DialogTitle>
-                    {categoryName && (
+                    {selectedCategory && (
                         <DialogDescription className="text-center text-zinc-500">
-                            In {categoryName}
+                            In {selectedCategory.name}
                         </DialogDescription>
                     )}
                 </DialogHeader>
@@ -116,6 +146,46 @@ const CreateChannelModal = () => {
                                     </FormItem>
                                 )}
                             />
+                            {!selectedCategory &&                           
+                            <FormField
+                                control={form.control}
+                                name="categoryId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel 
+                                            className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>
+                                            Category
+                                      </FormLabel>
+                                      <Select
+                                        disabled={isLoading}
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                            <FormControl>
+                                                <SelectTrigger 
+                                                    className='bg-zinc-300/50 border-0 focus:ring-0 text-black focus:ring-offset-0 capitalize outline-none' 
+                                                >
+                                                    <SelectValue placeholder="Select a category (optional)" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className='bg-zinc-300 text-black outline-none border-0 focus:ring-0'>
+                                                <SelectItem className='capitalize' value="">
+                                                    <div>
+                                                        <p>Select a category (optional)</p>
+                                                    </div>
+                                                </SelectItem>
+                                                {categories?.map(category => (
+                                                    <SelectItem key={category.id} className='capitalize' value={category.id.toString()}>
+                                                        <div>
+                                                            <p>{category.name}</p>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                      </Select>
+                                    </FormItem>
+                                )}
+                            />}
                             <FormField
                                 control={form.control}
                                 name="name"

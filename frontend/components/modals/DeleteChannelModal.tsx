@@ -6,15 +6,18 @@ import { Dialog, DialogTitle, DialogContent, DialogHeader, DialogDescription, Di
 import { useModal } from '@/hooks/useModal'
 import { Button } from '../ui/button'
 import { useRouter } from 'next/navigation'
-
+import useAxiosAuth from '@/hooks/useAxiosAuth'
+import { useToast } from '../ui/use-toast'
 
 const DeleteChannelModal = () => {
     const {type, isOpen, onClose, data} = useModal();
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const axiosAuth = useAxiosAuth();
+    const {toast} = useToast(); 
 
     const isModalOpen = type === "deleteChannel" && isOpen;
-    const {server, channel} = data;
+    const {server, channel, userId} = data;
 
 
     const handleCloseModal = () => {
@@ -23,11 +26,21 @@ const DeleteChannelModal = () => {
 
     const deleteChannel = async () => {
         setIsLoading(true);
-        // await axios.put(`....`);
-        // router.refresh();
-        // router.push(`/servers/${server.id}`);
+        const res = await axiosAuth.delete(`/channels/${channel?.id}?userId=${userId}&serverId=${server?.id}`);
+        if (res.status === 200) {
+            toast({
+                title: "Channel deleted successfully!"
+            })
+            console.log(res.data);
+        } else {
+            toast({
+                title: "Something went wrong",
+                variant: "destructive"
+            })
+        }
         setIsLoading(false);
         handleCloseModal();
+        router.push(`/servers/${server?.id}`);
     }
 
 

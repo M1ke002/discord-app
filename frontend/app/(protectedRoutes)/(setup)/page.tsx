@@ -8,7 +8,7 @@ import axios from '@/lib/axiosConfig';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Channel from '@/types/Channel';
-
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 //the home page
 const SetupPage = () => {
@@ -16,6 +16,7 @@ const SetupPage = () => {
     const [servers, setServers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const axiosAuth = useAxiosAuth();
 
     useEffect(() => {
         if (!session) {
@@ -29,11 +30,12 @@ const SetupPage = () => {
             try {
                 console.log('getting servers...');
                 //get all servers of the user
-                let response = await axios.get(`/servers?userId=${session.user.id}`, {
-                    headers: {
-                        Authorization: `Bearer ${session.accessToken}`,
-                    },
-                });
+                // let response = await axios.get(`/servers?userId=${session.user.id}`, {
+                //     headers: {
+                //         Authorization: `Bearer ${session.accessToken}`,
+                //     },
+                // });
+                let response = await axiosAuth.get(`/servers?userId=${session.user.id}`);
                 // console.log(response.data);
                 const servers = response.data;
                 // const servers = await response.json();
@@ -44,11 +46,12 @@ const SetupPage = () => {
                 console.log(servers);
                 setServers(servers);
                 //get the first server's info
-                response = await axios.get(`/servers/${servers[0].id}`, {
-                    headers: {
-                        Authorization: `Bearer ${session.accessToken}`,
-                      },
-                });
+                // response = await axios.get(`/servers/${servers[0].id}`, {
+                //     headers: {
+                //         Authorization: `Bearer ${session.accessToken}`,
+                //       },
+                // });
+                response = await axiosAuth.get(`/servers/${servers[0].id}`);
                 // console.log(response.data);
                 const server = response.data;
                 console.log('found server: '+JSON.stringify(server));

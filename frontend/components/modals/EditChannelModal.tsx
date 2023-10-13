@@ -14,6 +14,9 @@ import { Button } from '../ui/button'
 import { useModal } from '@/hooks/useModal'
 import { Hash, Video, Volume2 } from 'lucide-react'
 import { ChannelType } from '@/utils/constants'
+import { useRouter } from 'next/navigation'
+import { useToast } from '../ui/use-toast'
+import useAxiosAuth from '@/hooks/useAxiosAuth'
 
 // enum ChannelType {
 //     Text = "text",
@@ -26,19 +29,24 @@ const formSchema = z.object({
     name: z.string().min(1, {
       message: "Channel name is required!",
     }),
-    channelType: z.nativeEnum(ChannelType)
+    channelType: z.nativeEnum(ChannelType),
+    categoryId: z.string().optional().nullable()
   })
 
 const EditChannelModal = () => {
     const {type, isOpen, onClose, data} = useModal();
+    const {toast} = useToast(); 
+    const router = useRouter();
+    const axiosAuth = useAxiosAuth();
 
-    const {server, channel} = data;
+    const {server, channel, categories, userId} = data;
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            channelType: ChannelType.TEXT
+            channelType: ChannelType.TEXT,
+            categoryId: ""
         }
     });
 
@@ -46,6 +54,7 @@ const EditChannelModal = () => {
         if (channel) {
             form.setValue("name", channel.name);
             form.setValue("channelType", ChannelType[channel.type.toUpperCase() as keyof typeof ChannelType]);
+            form.setValue("categoryId", channel.categoryId ? channel.categoryId.toString() : "");
         }
     }, [channel, form])
 
@@ -54,14 +63,33 @@ const EditChannelModal = () => {
     const isLoading = form.formState.isSubmitting;
 
     const onSubmit = async(values: z.infer<typeof formSchema>) => {
-        console.log(values);
+        const res = await axiosAuth.put(`/channels/${channel?.id}`, {
+            userId,
+            serverId: server?.id,
+            categoryId: values.categoryId === "" ? null : values.categoryId,
+            name: values.name,
+            type: values.channelType.toUpperCase()
+        });
+        if (res.status === 200) {
+            toast({
+                title: "Channel edited successfully!"
+            })
+            console.log(res.data);
+        } else {
+            toast({
+                title: "Something went wrong",
+                variant: "destructive"
+            })
+        }
         onClose();
+        router.push(`/servers/${server?.id}`);
     }
 
     const handleCloseModal = () => {
         if (channel) {
             form.setValue("name", channel.name);
             form.setValue("channelType", ChannelType[channel.type.toUpperCase() as keyof typeof ChannelType]);
+            form.setValue("categoryId", channel.categoryId ? channel.categoryId.toString() : "");
         }
         onClose();
     }
@@ -115,6 +143,45 @@ const EditChannelModal = () => {
                                                         <span>video</span>
                                                     </div>
                                                 </SelectItem>
+                                            </SelectContent>
+                                      </Select>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="categoryId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel 
+                                            className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>
+                                            Category
+                                      </FormLabel>
+                                      <Select
+                                        disabled={isLoading}
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                      >
+                                            <FormControl>
+                                                <SelectTrigger 
+                                                    className='bg-zinc-300/50 border-0 focus:ring-0 text-black focus:ring-offset-0 capitalize outline-none' 
+                                                >
+                                                    <SelectValue placeholder="Select a category (optional)" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className='bg-zinc-300 text-black outline-none border-0 focus:ring-0'>
+                                                <SelectItem className='capitalize' value="">
+                                                    <div>
+                                                        <p>Select a category (optional)</p>
+                                                    </div>
+                                                </SelectItem>
+                                                {categories?.map(category => (
+                                                    <SelectItem key={category.id} className='capitalize' value={category.id.toString()}>
+                                                        <div>
+                                                            <p>{category.name}</p>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
                                             </SelectContent>
                                       </Select>
                                     </FormItem>

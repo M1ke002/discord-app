@@ -15,11 +15,13 @@ import {dummyServerList} from '@/utils/constants';
 import Server from '@/types/Server';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 const Navbar = () => {
     const { data: session } = useSession();
     const [servers, setServers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const axiosAuth = useAxiosAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -34,11 +36,7 @@ const Navbar = () => {
             //fake servers of the user (will be obtained by calling api)
             console.log('getting servers in navbar...');
             try {
-                const response = await axios.get(`/servers?userId=${session.user.id}`, {
-                    headers: {
-                        Authorization: `Bearer ${session.accessToken}`,
-                    },
-                });
+                const response = await axiosAuth.get(`/servers?userId=${session.user.id}`);
                 // console.log(response.data);
                 const servers = response.data;
                 setServers(servers);

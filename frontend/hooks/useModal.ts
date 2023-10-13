@@ -1,14 +1,17 @@
 import {create} from 'zustand';
 import Server from '@/types/Server';
 import Channel from '@/types/Channel';
+import Category from '@/types/Category';
 
 export type ModalType = 'createServer' | 'editServer' | 'leaveServer' | 'deleteServer' | 'members' | 'createChannel' 
 | 'editChannel' | 'deleteChannel' | 'invite';
 
 interface ModalData {
     server?: Server;
-    categoryName?: string;
+    categories?: Category[];
+    selectedCategory?: Category;
     channel?: Channel;
+    userId?: number;
 }
 
 interface ModalStore {

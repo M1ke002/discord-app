@@ -5,6 +5,7 @@ import React from 'react'
 import MobileToggle from '../MobileToggle';
 import axios from '@/lib/axiosConfig';
 import { useSession } from "next-auth/react";
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 
 interface ChatHeaderProps {
@@ -16,16 +17,13 @@ interface ChatHeaderProps {
 
 const ChatHeader = ({serverId, name, type, imageUrl}: ChatHeaderProps) => {
   const {data:session} = useSession();
+  const axiosAuth = useAxiosAuth();
 
   const testAPI = async () => {
     // const session = await getSession();
     console.log(session);
     try {
-      const res = await axios.get('/auth/test', {
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-        },
-      });
+      const res = await axiosAuth.get('/auth/test');
       console.log(res.data);
       alert(res.data);
     } catch (error) {

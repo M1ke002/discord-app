@@ -22,6 +22,8 @@ import UserAccount from './UserAccount';
 import Server from '@/types/Server';
 import Category from '@/types/Category';
 import Channel from '@/types/Channel';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { usePathname } from 'next/navigation';
 
 interface ServerSidebarProps {
     serverId: string;
@@ -34,6 +36,11 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
   const { data: session } = useSession();
   const router = useRouter();
   const [server, setServer] = useState<Server>();
+  const axiosAuth = useAxiosAuth();
+  const pathName = usePathname();
+
+  //this newPath is used as the dependecy to refetch serveInfo from backend
+  const newPath = pathName.substring(0, pathName.lastIndexOf("/"));
 
   useEffect(() => {
     if (!session) {
@@ -42,13 +49,14 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
       return;
     }
 
+    if (!(newPath === `/servers/${serverId}/channels`)) {
+      return;
+    }
+
     const fetchServerInfo = async () => {
+      console.log('fetch data in server side bar: ' + newPath)
       try {
-        const response = await axios.get(`/servers/${serverId}`, {
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-          },
-        });
+        const response = await axiosAuth.get(`/servers/${serverId}`);
         const server = response.data;
         //set the server's image url to null for now
         server.imageUrl = null;
@@ -63,12 +71,12 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
       }
     }
     fetchServerInfo();
-  }, [])
+  }, [newPath])
 
 
 
   if (session && server) {
-    console.log('got server' + JSON.stringify(server));
+    // console.log('got server' + JSON.stringify(server));
 
     // const textChannels = server.channels.filter(channel => channel.type === ChannelType.TEXT);
     // const audioChannels = server.channels.filter(channel => channel.type === ChannelType.AUDIO);
@@ -85,7 +93,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
 
       return (
         <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
-          <ServerHeader server={server} role={role}/>
+          <ServerHeader server={server} role={role} categories={categories} userId={session.user.id}/>
           <ScrollArea className='flex-1 px-3'>
             <div className="mt-2">
               <ServerSearch 
@@ -141,6 +149,8 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                 role={role}
                 channel={channel}
                 server={server}
+                userId={session.user.id}
+                categories={categories}
               />
             ))}
             {/* list of categories and their channels */}
@@ -150,9 +160,10 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                     <CollapsibleTrigger className='w-full'>
                         <ServerCategory
                           key={category.id}
-                          label={category.name}
+                          category={category}
                           server={server}
                           role={role}
+                          userId={session.user.id}
                         />
                     </CollapsibleTrigger>
                     <CollapsibleContent>
@@ -162,6 +173,8 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
                           role={role}
                           channel={channel}
                           server={server}
+                          userId={session.user.id}
+                          categories={categories}
                         />
                       ))}
                     </CollapsibleContent>

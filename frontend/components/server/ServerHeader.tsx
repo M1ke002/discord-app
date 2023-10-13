@@ -1,17 +1,20 @@
 "use client"
 import React from 'react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { ChevronDown, LogOut, PlusCircle, Settings, Trash, UserPlus, Users } from 'lucide-react';
+import { ChevronDown, LogOut, PlusCircle, Settings, Trash, UserPlus, FolderPlus, Users } from 'lucide-react';
 import { useModal } from '@/hooks/useModal';
 import { MemberRole } from '@/utils/constants';
 import Server from '@/types/Server';
+import Category from '@/types/Category';
 
 interface ServerHeaderProps{
     server: Server;
     role?: MemberRole;
+    categories: Category[];
+    userId: number;
 }
 
-const ServerHeader = ({server, role}: ServerHeaderProps) => {
+const ServerHeader = ({server, role, categories, userId}: ServerHeaderProps) => {
 
   const {onOpen} = useModal();
 
@@ -68,10 +71,20 @@ const ServerHeader = ({server, role}: ServerHeaderProps) => {
             {isModerator && (
                 <DropdownMenuItem 
                     className='px-3 py-2 text-sm cursor-pointer'
-                    onClick={() => onOpen("createChannel")}
+                    onClick={() => onOpen("createChannel", {categories, userId})}
                 >
                     Create channel
                     <PlusCircle className='h-4 w-4 ml-auto'/>
+                </DropdownMenuItem>
+            )}
+
+            {isModerator && (
+                <DropdownMenuItem 
+                    className='px-3 py-2 text-sm cursor-pointer'
+                    onClick={() => onOpen("createChannel")}
+                >
+                    Create category
+                    <FolderPlus className='h-4 w-4 ml-auto'/>
                 </DropdownMenuItem>
             )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from "next/link";
 
 
@@ -10,9 +10,10 @@ import { useForm } from 'react-hook-form'
 
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {useRouter} from 'next/navigation';
+import {useRouter, useSearchParams } from 'next/navigation';
 import { cn } from "@/lib/utils"
 import { signIn } from "next-auth/react";
+import { useToast } from '@/components/ui/use-toast';
 
 
 
@@ -27,13 +28,26 @@ const formSchema = z.object({
 })
 
 const LoginPage = () => {
-  // const { data: session, status } = useSession();
+  const searchParams = useSearchParams()
+  const {toast} = useToast(); 
   const [message, setMessage] = useState({
     hasMessage: false,
     content: "",
     messageType: ""
   })
   const router = useRouter();
+
+  useEffect(() => {
+    const isSessionExpired = searchParams.get('message') === "sessionExpired";
+  
+    if (isSessionExpired) {
+      console.log('session expired!')
+      toast({
+        title: "Session expired!",
+        description: "Please sign in again",
+      })
+    }
+  }, [])
   
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -83,14 +97,6 @@ const LoginPage = () => {
 
 }
 
-  // if (status === "loading") {
-  //   return <div>Loading...</div>;
-  // }
-  // if (status === "authenticated") {
-  //   router.push("/");
-  //   return;
-  // }
-  
   return (
     <div className='w-full h-full absolute inset-y-0 flex items-center justify-center'>
       {/* <div className="container mx-auto h-full flex justify-center items-center"> */}

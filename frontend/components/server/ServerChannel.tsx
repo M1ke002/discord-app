@@ -9,21 +9,24 @@ import { Edit, Lock, Trash } from 'lucide-react'
 import { ModalType, useModal } from '@/hooks/useModal'
 import Server from '@/types/Server'
 import Channel from '@/types/Channel'
+import Category from '@/types/Category'
 
 interface ServerChannelProps {
     server: Server;
     channel: Channel;
-    role?: MemberRole,
+    categories: Category[];
+    role?: MemberRole;
+    userId: number;
 }
 
-const ServerChannel = ({channel, role, server}: ServerChannelProps) => {
+const ServerChannel = ({channel, role, server, categories, userId}: ServerChannelProps) => {
 const params = useParams();
 const router = useRouter();
 const {onOpen} = useModal();
 
 const onAction = (e: React.MouseEvent, action: ModalType) => {
     e.stopPropagation();
-    onOpen(action, {server, channel});
+    onOpen(action, {server, channel, userId, categories});
 }
 
   return (
