@@ -11,6 +11,9 @@ import LeaveServerModal from '../modals/LeaveServerModal';
 import DeleteServerModal from '../modals/DeleteServerModal';
 import DeleteChannelModal from '../modals/DeleteChannelModal';
 import EditChannelModal from '../modals/EditChannelModal';
+import CreateCategoryModal from '../modals/CreateCategoryModal';
+import EditCategoryModal from '../modals/EditCategoryModal';
+import DeleteCategoryModal from '../modals/DeleteCategoryModal';
 
 //this component will be used to render all the modals
 const ModalProvider = () => {
@@ -34,6 +37,9 @@ const ModalProvider = () => {
         <DeleteServerModal />
         <DeleteChannelModal />
         <EditChannelModal />
+        <CreateCategoryModal/>
+        <EditCategoryModal/>
+        <DeleteCategoryModal/>
     </>
   )
 }

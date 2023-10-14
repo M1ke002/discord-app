@@ -4,7 +4,7 @@ import Channel from '@/types/Channel';
 import Category from '@/types/Category';
 
 export type ModalType = 'createServer' | 'editServer' | 'leaveServer' | 'deleteServer' | 'members' | 'createChannel' 
-| 'editChannel' | 'deleteChannel' | 'invite';
+| 'editChannel' | 'deleteChannel' | 'createCategory' | 'editCategory' | 'deleteCategory' | 'invite';
 
 interface ModalData {
     server?: Server;

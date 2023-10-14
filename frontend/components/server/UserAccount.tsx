@@ -42,12 +42,6 @@ const UserAccount = ({avatarUrl, username, nickname}: UserAccountProps) => {
                     <LogOut className='h-4 w-4 text-rose-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300'/>
                 </button>
             </TooltipActions>
-
-
-
-
-            
-           
         </div>
     </div>
   )

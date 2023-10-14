@@ -18,6 +18,7 @@ interface Server {
     id: number;
     name: string;
     imageUrl: string;
+    imageKey: string;
     inviteCode: string | null;
     ownerId: number | null;
     createdAt: string | null;

@@ -53,6 +53,7 @@ const FileUpload = ({
             //set the value to the uploaded image url
             onChange(res?.[0].url);
             console.log(res);
+            //need to save res.key to db as well
         }}
         onUploadError={(error: Error) => {
             console.log(error);

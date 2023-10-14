@@ -33,7 +33,7 @@ export const getRoleIcon = (customClasses: string) => {
 
 export enum ChannelType {
   TEXT = "text",
-  AUDIO = "audio",
+  VOICE = "voice",
   VIDEO = "video"
 }
 
@@ -54,7 +54,7 @@ export const dummyServer = {
         name: 'general'
       },
       {
-        type: ChannelType.AUDIO,
+        type: ChannelType.VOICE,
         id: '2',
         name: 'voice chat'
       },

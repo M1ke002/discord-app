@@ -24,6 +24,7 @@ import Category from '@/types/Category';
 import Channel from '@/types/Channel';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { usePathname } from 'next/navigation';
+import ServerSidebarSkeleton from '../skeleton/ServerSidebarSkeleton';
 
 interface ServerSidebarProps {
     serverId: string;
@@ -73,7 +74,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
     fetchServerInfo();
   }, [newPath])
 
-
+  // return <ServerSidebarSkeleton/>
 
   if (session && server) {
     // console.log('got server' + JSON.stringify(server));
@@ -190,7 +191,7 @@ const ServerSidebar = ({serverId}: ServerSidebarProps) => {
         </div>
       )
   } else {
-    return <div>Loading skeleton...</div>
+    return <ServerSidebarSkeleton/>
   }
 }
 

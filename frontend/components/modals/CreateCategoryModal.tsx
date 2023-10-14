@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import * as z from 'zod'
 import {zodResolver} from "@hookform/resolvers/zod"
@@ -10,51 +10,67 @@ import { Dialog, DialogTitle, DialogContent, DialogHeader, DialogFooter, DialogD
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '../ui/form'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
-import FileUpload from '../FileUpload'
 import { useModal } from '@/hooks/useModal'
+import { useRouter, useParams } from 'next/navigation'
+import { useToast } from '../ui/use-toast'
+import useAxiosAuth from '@/hooks/useAxiosAuth'
+
+// enum ChannelType {
+//     Text = "text",
+//     Audio = "audio",
+//     Video = "video"
+// }
 
 //for validation
 const formSchema = z.object({
     name: z.string().min(1, {
-      message: "Server name is required!",
-    }),
-    imageUrl: z.string().optional()
+      message: "Category name is required!",
+    })
   })
 
-const EditServerModal = () => {
+const CreateCategoryModal = () => {
     const {type, isOpen, onClose, data} = useModal();
+    const router = useRouter();
+    const params = useParams();
+    const axiosAuth = useAxiosAuth();
+    const {toast} = useToast(); 
+    const {server,userId} = data;
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            name: "",
-            imageUrl: "",
+            name: ""
         }
     });
 
-    const {server, userId} = data;
-    const isModalOpen = type === "editServer" && isOpen;
+    const isModalOpen = type === "createCategory" && isOpen;
+
     const isLoading = form.formState.isSubmitting;
 
-    useEffect(() => {
-        if (server) {
-            form.setValue("name", server.name);
-            form.setValue("imageUrl", server.imageUrl === null ? "" : server.imageUrl);
-        }
-    }, [server, form])
-
     const onSubmit = async(values: z.infer<typeof formSchema>) => {
-        console.log(values);
+        const res = await axiosAuth.post('/categories', {
+            userId,
+            serverId: server?.id,
+            name: values.name.toLowerCase(),
+        })
+        if (res.status === 200) {
+            toast({
+                title: "New category created!"
+            })
+            console.log(res.data);
+        } else {
+            toast({
+                title: "Something went wrong",
+                variant: "destructive"
+            })
+        }
         handleCloseModal();
+        //to refetch the new data from backend
+        router.push(`/servers/${params?.serverId}`);
     }
 
     const handleCloseModal = () => {
-        // form.reset();
-        //reset the form to the initial server values
-        if (server) {
-            form.setValue("name", server.name);
-            form.setValue("imageUrl", server.imageUrl === null ? "" : server.imageUrl);
-        }
+        form.reset();
         onClose();
     }
 
@@ -63,33 +79,11 @@ const EditServerModal = () => {
         <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
             <DialogContent className="bg-white text-black p-0 overflow-hidden">
                 <DialogHeader className="pt-8 px-6">
-                    <DialogTitle className="text-2xl text-center font-bold">Edit server</DialogTitle>
+                    <DialogTitle className="text-2xl text-center font-bold">Create Category</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <div className="space-y-8 px-6">
-                            <div className="flex items-center text-center justify-center">
-                                <FormField
-                                    control={form.control}
-                                    name='imageUrl'
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel 
-                                                className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>
-                                                Server image
-                                            </FormLabel>
-                                            <FormControl >
-                                                <FileUpload
-                                                    endpoint='serverImage'
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                    
-                                />
-                            </div>
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -97,15 +91,16 @@ const EditServerModal = () => {
                                     <FormItem>
                                       <FormLabel 
                                             className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>
-                                            Server name
+                                            Category name
                                       </FormLabel>
                                       <FormControl>
                                         <Input 
                                             disabled={isLoading} 
                                             className='bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0' 
-                                            placeholder="Enter server name" 
+                                            placeholder="category-name" 
                                             {...field} 
                                         />
+                                       
                                       </FormControl>
                                       <FormMessage />
                                     </FormItem>
@@ -113,7 +108,7 @@ const EditServerModal = () => {
                             />
                         </div>
                         <DialogFooter className="bg-gray-100 px-6 py-4">
-                            <Button disabled={isLoading} variant="primary">Save</Button>
+                            <Button disabled={isLoading} variant="primary">Create Category</Button>
                         </DialogFooter>
                     </form>
                 </Form>
@@ -122,4 +117,4 @@ const EditServerModal = () => {
     )
 }
 
-export default EditServerModal
+export default CreateCategoryModal

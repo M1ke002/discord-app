@@ -1,11 +1,14 @@
+import { getServerSession } from "next-auth";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
  
 const f = createUploadthing();
  
 //auth function runs in middleware before the file can be uploaded to uploadthing
 const handleAuth = async () => {
-    return {userId: 'fakeId'}
-} // Fake auth function
+  const session = await getServerSession();
+  if (!session) throw new Error("Unauthorized");
+  return {userId: session.user.id}
+}
  
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {

@@ -129,10 +129,10 @@ const CreateChannelModal = () => {
                                                         <span>text</span>
                                                     </div>
                                                 </SelectItem>
-                                                <SelectItem className='capitalize' value="audio">
+                                                <SelectItem className='capitalize' value="voice">
                                                     <div className='flex items-center'>
                                                         <Volume2 className='h-4 w-4 mr-1'/>
-                                                        <span>audio</span>
+                                                        <span>voice</span>
                                                     </div>
                                                 </SelectItem>
                                                 <SelectItem className='capitalize' value="video">

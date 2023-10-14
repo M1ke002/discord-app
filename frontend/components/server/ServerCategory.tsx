@@ -4,7 +4,7 @@ import React from 'react'
 import { useState } from 'react';
 import { ChannelType, MemberRole , IServerOptionalProps } from '@/utils/constants';
 import TooltipActions from '../TooltipActions';
-import { ChevronDown, Plus, Settings } from 'lucide-react';
+import { ChevronDown, Plus, Settings, MoreVertical, Edit, Trash } from 'lucide-react';
 import { useModal } from '@/hooks/useModal';
 import Server from '@/types/Server';
 import Category from '@/types/Category';
@@ -17,7 +17,7 @@ interface ServerCategoryProps{
 }
 
 //TODO: rename component to ServerCategory (more precise name?)
-const ServerCategory = ({category, role, userId}: ServerCategoryProps) => {
+const ServerCategory = ({category, role, userId, server}: ServerCategoryProps) => {
   const {onOpen} = useModal();
 
   const [rotateChevron, setRotateChevron] = useState(false);
@@ -42,10 +42,21 @@ const ServerCategory = ({category, role, userId}: ServerCategoryProps) => {
               className='text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition mr-2'
               onClick={(e) => {
                 e.stopPropagation();
-                // onOpen("createChannel", {selectedCategory: category, userId})
+                onOpen("editCategory", {selectedCategory: category, userId, server})
               }}
             >
-              <Settings className='h-4 w-4'/>
+              <Edit className='h-4 w-4'/>
+            </div>
+          </TooltipActions>
+          <TooltipActions label='Delete category' side='top' align='center'>
+            <div 
+              className='text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition mr-2'
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpen("deleteCategory", {selectedCategory: category, userId, server})
+              }}
+            >
+              <Trash className='h-4 w-4'/>
             </div>
           </TooltipActions>
           <TooltipActions label='Create channel' side='top' align='center'>

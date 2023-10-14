@@ -51,7 +51,7 @@ const ServerHeader = ({server, role, categories, userId}: ServerHeaderProps) => 
             {isAdmin && (
                 <DropdownMenuItem 
                     className='px-3 py-2 text-sm cursor-pointer'
-                    onClick={() => onOpen("editServer", {server})}
+                    onClick={() => onOpen("editServer", {server, userId})}
                 >
                     Server settings
                     <Settings className='h-4 w-4 ml-auto'/>
@@ -81,7 +81,7 @@ const ServerHeader = ({server, role, categories, userId}: ServerHeaderProps) => 
             {isModerator && (
                 <DropdownMenuItem 
                     className='px-3 py-2 text-sm cursor-pointer'
-                    onClick={() => onOpen("createChannel")}
+                    onClick={() => onOpen("createCategory", {server, userId})}
                 >
                     Create category
                     <FolderPlus className='h-4 w-4 ml-auto'/>

@@ -9,17 +9,16 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Check, Copy, RefreshCw } from 'lucide-react'
 import { useOrigin } from '@/hooks/useOrigin'
-import { dummyServer } from '@/utils/constants'
-
-const fakeResponse = {
-    data: dummyServer
-}
+import { useRouter } from 'next/navigation'
+import useAxiosAuth from '@/hooks/useAxiosAuth'
 
 const InviteModal = () => {
     const {type, isOpen, onOpen, onClose, data} = useModal();
     const origin = useOrigin();
     const [isCopied, setIsCopied] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const axiosAuth = useAxiosAuth();
+    const router = useRouter();
 
     const isModalOpen = type === "invite" && isOpen;
     const {server} = data;
@@ -34,17 +33,24 @@ const InviteModal = () => {
     }
 
     const generateNewInviteUrl = async () => {
+        setIsLoading(true);
         try {
-            setIsLoading(true);
             //call api to generate new invite url
-            // const response = await axios.patch(`/api/servers/${server?.id}/inviteCode`);
-            const response = fakeResponse;
-            //reopen modal with new invite url
-            // onOpen("invite", {server: response.data}); -----> should be uncommented when api is ready
-        } catch (error) {   
-            
+            const res = await axiosAuth.put(`/servers/${server?.id}/invite-code`);
+            console.log(res.data);
+            if (res.status == 200) {
+                if (server) {
+                    server.inviteCode = res.data.response;
+                    //reopen modal with new invite url
+                    onOpen("invite", {server});
+                    // router.push(`/servers/${server?.id}`);
+                }
+            }
+        } catch (error) {
+            console.log(error);
         } finally {
             setIsLoading(false);
+
         }
     }
 

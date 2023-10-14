@@ -5,6 +5,7 @@ interface User {
     accessToken: string;
     refreshToken: string;
     avatarUrl?: string;
+    imageKey?: string;
 };
 
 export default User;
