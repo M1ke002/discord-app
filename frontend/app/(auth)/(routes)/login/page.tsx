@@ -1,107 +1,110 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import Link from "next/link";
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import * as z from 'zod'
-import {zodResolver} from "@hookform/resolvers/zod"
-import { useForm } from 'react-hook-form'
-
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {useRouter, useSearchParams } from 'next/navigation';
-import { cn } from "@/lib/utils"
-import { signIn } from "next-auth/react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { signIn } from 'next-auth/react';
 import { useToast } from '@/components/ui/use-toast';
-
-
 
 //for validation
 const formSchema = z.object({
   username: z.string().min(1, {
-    message: "username is required!",
+    message: 'username is required!'
   }),
   password: z.string().min(1, {
-    message: "password is required!",
-  }),
-})
+    message: 'password is required!'
+  })
+});
 
 const LoginPage = () => {
-  const searchParams = useSearchParams()
-  const {toast} = useToast(); 
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
   const [message, setMessage] = useState({
     hasMessage: false,
-    content: "",
-    messageType: ""
-  })
+    content: '',
+    messageType: ''
+  });
   const router = useRouter();
 
   useEffect(() => {
-    const isSessionExpired = searchParams.get('message') === "sessionExpired";
-  
+    const isSessionExpired = searchParams.get('message') === 'sessionExpired';
+
     if (isSessionExpired) {
-      console.log('session expired!')
+      console.log('session expired!');
       toast({
-        title: "Session expired!",
-        description: "Please sign in again",
-      })
+        title: 'Session expired!',
+        description: 'Please sign in again'
+      });
     }
-  }, [])
-  
+  }, []);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: ''
     }
   });
 
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = async(values: z.infer<typeof formSchema>) => {
-    const res = await signIn("credentials", {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const res = await signIn('credentials', {
       username: values.username,
       password: values.password,
-      redirect: false,
+      redirect: false
       // callbackUrl: "/",
     });
     if (res?.error) {
       setMessage({
         hasMessage: true,
         content: res.error,
-        messageType: "error"
-      })
+        messageType: 'error'
+      });
       setTimeout(() => {
         setMessage({
           hasMessage: false,
-          content: "",
-          messageType: ""
-        })
+          content: '',
+          messageType: ''
+        });
       }, 3000);
     } else {
       setMessage({
         hasMessage: true,
-        content: "Logged in successfully!",
-        messageType: "success"
-      })
+        content: 'Logged in successfully!',
+        messageType: 'success'
+      });
       setTimeout(() => {
         setMessage({
           hasMessage: false,
-          content: "",
-          messageType: ""
-        })
+          content: '',
+          messageType: ''
+        });
       }, 3000);
-      router.replace("/");
+      router.replace('/');
     }
-
-}
+  };
 
   return (
-    <div className='w-full h-full absolute inset-y-0 flex items-center justify-center'>
+    <div className="w-full h-full absolute inset-y-0 flex items-center justify-center">
       {/* <div className="container mx-auto h-full flex justify-center items-center"> */}
       <div className="md:w-8/12 lg:w-4/12 bg-[#313338] border rounded-md shadow-md px-8 py-6">
-      <Form {...form}>
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex justify-center mb-2 font-semibold text-xl">
               Welcome back!
@@ -109,60 +112,62 @@ const LoginPage = () => {
             <div className="flex justify-center mb-1 font-semibold text-sm text-zinc-400">
               We're so excited to see you again!
             </div>
-            {message.hasMessage && 
-              <p className={cn(
-                "text-center py-2 mt-4 mb-6 rounded",
-                message.messageType === "success" ? "bg-green-300" : "bg-red-300"
-                )}>
-                    {message.content}
+            {message.hasMessage && (
+              <p
+                className={cn(
+                  'text-center py-2 mt-4 mb-6 rounded',
+                  message.messageType === 'success'
+                    ? 'bg-green-300'
+                    : 'bg-red-300'
+                )}
+              >
+                {message.content}
               </p>
-            }
-             <div className="mb-3">
+            )}
+            <div className="mb-3">
               <FormField
                 control={form.control}
-                name='username'
+                name="username"
                 render={({ field }) => (
-                    <FormItem>
-                        <FormLabel 
-                              className='uppercase text-xs font-bold text-zinc-400'>
-                              Username
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                              disabled={isLoading} 
-                              type='text'
-                              className='bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0'  
-                              placeholder="Enter user name" 
-                              {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+                  <FormItem>
+                    <FormLabel className="uppercase text-xs font-bold text-zinc-400">
+                      Username
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        type="text"
+                        className="bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        placeholder="Enter user name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-             </div>
+            </div>
 
-             <div className="mb-2">
+            <div className="mb-2">
               <FormField
                 control={form.control}
-                name='password'
+                name="password"
                 render={({ field }) => (
-                    <FormItem>
-                        <FormLabel 
-                              className='uppercase text-xs font-bold text-zinc-400'>
-                              Password
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                              disabled={isLoading} 
-                              type='password'
-                              className='bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0' 
-                              placeholder="Enter password" 
-                              {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
+                  <FormItem>
+                    <FormLabel className="uppercase text-xs font-bold text-zinc-400">
+                      Password
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        type="password"
+                        className="bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        placeholder="Enter password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </div>
@@ -171,9 +176,7 @@ const LoginPage = () => {
               Forgot password?
             </a>
 
-            <button
-              className="inline-block px-7 py-3 bg-[#5865f2] text-white font-medium text-sm leading-snug rounded shadow-md hover:bg-[#4752c4] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full"
-            >
+            <button className="inline-block px-7 py-3 bg-[#5865f2] text-white font-medium text-sm leading-snug rounded shadow-md hover:bg-[#4752c4] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full">
               Log in
             </button>
 
@@ -183,20 +186,20 @@ const LoginPage = () => {
 
             <a
               className="px-7 py-2 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out w-full flex justify-center items-center mb-2"
-              style={{ backgroundColor: "#3b5998" }}
+              style={{ backgroundColor: '#3b5998' }}
               role="button"
             >
               <img
                 className="pr-2"
                 src="/images/google.svg"
                 alt=""
-                style={{ height: "1.8rem" }}
+                style={{ height: '1.8rem' }}
               />
               Continue with Google
             </a>
 
             <div className="flex items-center justify-center pt-2 text-sm text-zinc-400">
-                Not a member?
+              Not a member?
               <Link
                 href="/register"
                 className="text-blue-500 ml-1 cursor-pointer hover:underline"
@@ -206,10 +209,10 @@ const LoginPage = () => {
             </div>
           </form>
         </Form>
-        </div>
+      </div>
       {/* </div> */}
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

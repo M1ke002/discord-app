@@ -1,20 +1,35 @@
-"use client"
+'use client';
 
-import React from 'react'
-import { useEffect } from 'react'
+import React from 'react';
+import { useEffect, useContext } from 'react';
 
-import * as z from 'zod'
-import {zodResolver} from "@hookform/resolvers/zod"
-import { useForm } from 'react-hook-form'
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { Dialog, DialogTitle, DialogContent, DialogHeader, DialogFooter, DialogDescription } from '../ui/dialog'
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '../ui/form'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { useModal } from '@/hooks/useModal'
-import { useRouter } from 'next/navigation'
-import { useToast } from '../ui/use-toast'
-import useAxiosAuth from '@/hooks/useAxiosAuth'
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogDescription
+} from '../ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '../ui/form';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { useModal } from '@/hooks/useModal';
+import { useRouter } from 'next/navigation';
+import { useToast } from '../ui/use-toast';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { refetchContext } from '../providers/RefetchProvider';
 
 // enum ChannelType {
 //     Text = "text",
@@ -24,105 +39,108 @@ import useAxiosAuth from '@/hooks/useAxiosAuth'
 
 //for validation
 const formSchema = z.object({
-    name: z.string().min(1, {
-      message: "Category name is required!",
-    })
+  name: z.string().min(1, {
+    message: 'Category name is required!'
   })
+});
 
 const EditCategoryModal = () => {
-    const {type, isOpen, onClose, data} = useModal();
-    const router = useRouter();
-    const axiosAuth = useAxiosAuth();
-    const {toast} = useToast(); 
-    const {server, userId, selectedCategory} = data;
+  const { type, isOpen, onClose, data } = useModal();
+  const router = useRouter();
+  const axiosAuth = useAxiosAuth();
+  const { toast } = useToast();
+  const { server, userId, selectedCategory } = data;
+  const { triggerRefetchComponents } = useContext(refetchContext);
 
-    const form = useForm({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            name: ""
-        }
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: ''
+    }
+  });
+
+  useEffect(() => {
+    if (selectedCategory) {
+      form.setValue('name', selectedCategory.name);
+    }
+  }, [selectedCategory, form]);
+
+  const isModalOpen = type === 'editCategory' && isOpen;
+
+  const isLoading = form.formState.isSubmitting;
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const res = await axiosAuth.put(`/categories/${selectedCategory?.id}`, {
+      userId,
+      serverId: server?.id,
+      name: values.name.toLowerCase()
     });
-
-    useEffect(() => {
-        if (selectedCategory) {
-            form.setValue("name", selectedCategory.name);
-        }
-    }, [selectedCategory, form])
-
-    const isModalOpen = type === "editCategory" && isOpen;
-
-    const isLoading = form.formState.isSubmitting;
-
-    const onSubmit = async(values: z.infer<typeof formSchema>) => {
-        const res = await axiosAuth.put(`/categories/${selectedCategory?.id}`, {
-            userId,
-            serverId: server?.id,
-            name: values.name.toLowerCase(),
-        })
-        if (res.status === 200) {
-            toast({
-                title: "Category edited successfully!"
-            })
-            console.log(res.data);
-        } else {
-            toast({
-                title: "Something went wrong",
-                variant: "destructive"
-            })
-        }
-        onClose();
-        //to refetch the new data from backend
-        router.push(`/servers/${server?.id}`);
+    if (res.status === 200) {
+      toast({
+        title: 'Category edited successfully!'
+      });
+      console.log(res.data);
+    } else {
+      toast({
+        title: 'Something went wrong',
+        variant: 'destructive'
+      });
     }
+    onClose();
+    triggerRefetchComponents(['ServerSidebar']);
+    //to refetch the new data from backend
+    // router.push(`/servers/${server?.id}`);
+  };
 
-    const handleCloseModal = () => {
-        if (selectedCategory) {
-            form.setValue("name", selectedCategory.name);
-        }
-        onClose();
+  const handleCloseModal = () => {
+    if (selectedCategory) {
+      form.setValue('name', selectedCategory.name);
     }
+    onClose();
+  };
 
+  return (
+    <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+      <DialogContent className="bg-white text-black p-0 overflow-hidden">
+        <DialogHeader className="pt-8 px-6">
+          <DialogTitle className="text-2xl text-center font-bold">
+            Edit Category
+          </DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="space-y-8 px-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
+                      Category name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0"
+                        placeholder="category-name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter className="bg-gray-100 px-6 py-4">
+              <Button disabled={isLoading} variant="primary">
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
-    return (
-        <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
-            <DialogContent className="bg-white text-black p-0 overflow-hidden">
-                <DialogHeader className="pt-8 px-6">
-                    <DialogTitle className="text-2xl text-center font-bold">Edit Category</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                        <div className="space-y-8 px-6">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel 
-                                            className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>
-                                            Category name
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Input 
-                                            disabled={isLoading} 
-                                            className='bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0' 
-                                            placeholder="category-name" 
-                                            {...field} 
-                                        />
-                                       
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <DialogFooter className="bg-gray-100 px-6 py-4">
-                            <Button disabled={isLoading} variant="primary">Save</Button>
-                        </DialogFooter>
-                    </form>
-                </Form>
-            </DialogContent>
-        </Dialog>
-    )
-}
-
-export default EditCategoryModal
+export default EditCategoryModal;
