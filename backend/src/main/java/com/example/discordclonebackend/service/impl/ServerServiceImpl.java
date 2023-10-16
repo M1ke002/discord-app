@@ -5,6 +5,7 @@ import com.example.discordclonebackend.dto.ChannelDto;
 import com.example.discordclonebackend.dto.ServerDto;
 import com.example.discordclonebackend.dto.ServerMemberDto;
 import com.example.discordclonebackend.dto.request.ServerRequest;
+import com.example.discordclonebackend.dto.response.JoinServerResponse;
 import com.example.discordclonebackend.entity.*;
 import com.example.discordclonebackend.repository.ServerRepository;
 import com.example.discordclonebackend.repository.UserRepository;
@@ -40,6 +41,7 @@ public class ServerServiceImpl implements ServerService {
         Server server = new Server();
         server.setName(serverRequest.getServerName());
         server.setImageUrl(serverRequest.getImageUrl());
+        server.setImageKey(serverRequest.getImageKey());
         //create invite code using uuid
         server.setInviteCode(UUID.randomUUID().toString());
         //create 3 categories by default: text channels, voice channels, video channels
@@ -85,6 +87,7 @@ public class ServerServiceImpl implements ServerService {
         serverDto.setId(server.getId());
         serverDto.setName(server.getName());
         serverDto.setImageUrl(server.getImageUrl());
+        serverDto.setImageKey(server.getImageKey());
         serverDto.setInviteCode(server.getInviteCode());
         serverDto.setOwnerId(server.getOwner().getId());
         serverDto.setCreatedAt(server.getCreatedAt());
@@ -158,6 +161,7 @@ public class ServerServiceImpl implements ServerService {
         serverDto.setId(server.getId());
         serverDto.setName(server.getName());
         serverDto.setImageUrl(server.getImageUrl());
+        serverDto.setImageKey(server.getImageKey());
         serverDto.setInviteCode(server.getInviteCode());
         serverDto.setOwnerId(server.getOwner().getId());
         serverDto.setCreatedAt(server.getCreatedAt());
@@ -253,24 +257,24 @@ public class ServerServiceImpl implements ServerService {
     }
 
     @Override
-    public Boolean joinServer(Long serverId, String inviteCode, Long userId) {
+    public JoinServerResponse joinServer(String inviteCode, Long userId) {
         //check if user exists
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             System.out.println("User not found");
-            return false;
+            return new JoinServerResponse(false, "Invalid userId", null);
         }
         //check if server exists and invite code is valid
-        Server server = serverRepository.findByIdAndInviteCode(serverId, inviteCode);
+        Server server = serverRepository.findByInviteCode(inviteCode);
         if (server == null) {
-            System.out.println("Server not found or invite code is invalid");
-            return false;
+            System.out.println("Invite code is invalid");
+            return new JoinServerResponse(false, "Invalid invite code", null);
         }
         //check if user is already a member of the server
-        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, serverId);
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, server.getId());
         if (userServerMapping != null) {
             System.out.println("User is already a member of the server");
-            return false;
+            return new JoinServerResponse(false, "User is already a member of the server", server.getId());
         }
         //create user server mapping
         UserServerMapping newUserServerMapping = new UserServerMapping(
@@ -278,7 +282,7 @@ public class ServerServiceImpl implements ServerService {
                 server
         );
         userServerMappingRepository.save(newUserServerMapping);
-        return true;
+        return new JoinServerResponse(true, "Joined server successfully", server.getId());
     }
 
     @Override
@@ -291,6 +295,7 @@ public class ServerServiceImpl implements ServerService {
         //update server name and image URL
         server.setName(serverRequest.getServerName());
         server.setImageUrl(serverRequest.getImageUrl());
+        server.setImageKey(serverRequest.getImageKey());
         serverRepository.save(server);
         return true;
     }

@@ -2,6 +2,7 @@ package com.example.discordclonebackend.service;
 
 import com.example.discordclonebackend.dto.ServerDto;
 import com.example.discordclonebackend.dto.request.ServerRequest;
+import com.example.discordclonebackend.dto.response.JoinServerResponse;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public interface ServerService {
 
     public Boolean leaveServer(Long serverId, Long userId);
 
-    public Boolean joinServer(Long serverId, String inviteCode, Long userId);
+    public JoinServerResponse joinServer(String inviteCode, Long userId);
 
     public Boolean updateServer(Long serverId, ServerRequest serverRequest);
 

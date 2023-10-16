@@ -20,6 +20,7 @@ public class Server {
     private Long id;
     private String name;
     private String imageUrl;
+    private String imageKey;
     private String inviteCode;
     @CreationTimestamp
     private Date createdAt;

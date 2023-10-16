@@ -15,6 +15,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .maxAge(duration)
                 .path("/")
+//                .sameSite("None")
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .maxAge(0)
                 .path("/")
+//                .sameSite("None")
                 .build();
     }
 

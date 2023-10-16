@@ -66,6 +66,7 @@ public class UserServiceImpl implements UserService {
                 user.getUsername(),
                 user.getNickname(),
                 user.getAvatarUrl(),
+                user.getImageKey(),
                 serverDtos,
                 user.getCreatedAt(),
                 user.getUpdatedAt()
@@ -84,6 +85,7 @@ public class UserServiceImpl implements UserService {
         }
         if (userRequest.getAvatarUrl() != null) {
             user.setAvatarUrl(userRequest.getAvatarUrl());
+            user.setImageKey(userRequest.getImageKey());
         }
         if (userRequest.getUsername() != null) {
             //check if the new username is already taken
@@ -111,6 +113,7 @@ public class UserServiceImpl implements UserService {
                 user.getUsername(),
                 user.getNickname(),
                 user.getAvatarUrl(),
+                user.getImageKey(),
                 serverDtos,
                 user.getCreatedAt(),
                 user.getUpdatedAt()

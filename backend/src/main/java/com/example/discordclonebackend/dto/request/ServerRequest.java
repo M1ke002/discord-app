@@ -13,4 +13,5 @@ public class ServerRequest {
     private Long serverId;
     private String serverName;
     private String imageUrl;
+    private String imageKey;
 }

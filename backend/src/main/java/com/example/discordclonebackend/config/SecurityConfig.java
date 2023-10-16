@@ -33,7 +33,7 @@ public class SecurityConfig {
     //NOTE: "/api/v1/auth/test" is different from "/api/v1/auth/test/"
     private static final String[] WHITE_LIST_ROUTES = {
             "/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/refreshToken",
-            "/api/v1/auth/test", "/api/v1/public"
+             "/api/v1/public"
     };
 
     @Bean
@@ -60,10 +60,11 @@ public class SecurityConfig {
         return http
                 .cors(httpSecurityCorsConfigurer -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:3000/*"));
+                    configuration.setAllowCredentials(true);
+//                    configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:3000/*"));
+                    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
                     configuration.setAllowedMethods(Arrays.asList("*"));
                     configuration.setAllowedHeaders(Arrays.asList("*"));
-                    configuration.setAllowCredentials(true);
                     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
                     source.registerCorsConfiguration("/**", configuration);
                     httpSecurityCorsConfigurer.configurationSource(source);

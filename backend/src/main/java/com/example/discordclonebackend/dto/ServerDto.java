@@ -14,6 +14,7 @@ public class ServerDto {
     private Long id;
     private String name;
     private String imageUrl;
+    private String imageKey;
     private String inviteCode;
     private Long ownerId;
     private Date createdAt;

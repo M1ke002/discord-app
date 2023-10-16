@@ -22,6 +22,7 @@ public class User {
     private String password;
     private String nickname;
     private String avatarUrl;
+    private String imageKey;
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "user"

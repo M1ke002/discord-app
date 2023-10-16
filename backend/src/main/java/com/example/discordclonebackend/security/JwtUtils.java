@@ -29,16 +29,16 @@ public class JwtUtils {
     public JwtToken generateToken(Authentication authentication, String tokenType) {
         String username = authentication.getName();
         Date currDate = new Date();
+        Date expiryDate = null;
         Long duration = null;
-//        Date expiryDate = null;
         if (tokenType.equals("refreshToken")) {
-            duration = currDate.getTime() + JWT_REFRESH_EXPIRATION_MS;
-//            expiryDate = new Date(currDate.getTime() + JWT_REFRESH_EXPIRATION_MS);
+            expiryDate = new Date(currDate.getTime() + JWT_REFRESH_EXPIRATION_MS);
+            duration = JWT_REFRESH_EXPIRATION_MS / 1000;
         } else {
-            duration = currDate.getTime() + JWT_EXPIRATION_MS;
-//            expiryDate = new Date(currDate.getTime() + JWT_EXPIRATION_MS);
+            expiryDate = new Date(currDate.getTime() + JWT_EXPIRATION_MS);
+            duration = JWT_EXPIRATION_MS / 1000;
         }
-        Date expiryDate = new Date(duration);
+        System.out.println("Duration = " + duration);
         String token = Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(currDate)

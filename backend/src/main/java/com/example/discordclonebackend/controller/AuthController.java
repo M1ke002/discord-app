@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = { "*" })
+//@CrossOrigin(origins = "{http://localhost:3000, http://localhost:3000/**}", allowCredentials = "true")
 public class AuthController {
 
     @Value("${jwt.accessTokenCookieName}")
@@ -59,11 +59,12 @@ public class AuthController {
         //generate jwt token
         JwtToken accessToken = jwtUtils.generateToken(authentication, "accessToken");
         JwtToken refreshToken = jwtUtils.generateToken(authentication, "refreshToken");
-        System.out.println("Access = " + accessToken);
+        System.out.println("accessToken = " + accessToken);
         System.out.println("refreshToken = " + refreshToken);
         HttpHeaders responseHeaders = new HttpHeaders();
         cookieUtil.addTokenCookieToHeader(responseHeaders, accessToken, accessTokenCookieName);
         cookieUtil.addTokenCookieToHeader(responseHeaders, refreshToken, refreshTokenCookieName);
+        System.out.println("responseHeaders = " + responseHeaders);
         return ResponseEntity.ok()
                 .headers(responseHeaders)
                 .body(new AuthResponse(
@@ -87,7 +88,8 @@ public class AuthController {
 
     @PostMapping("/refreshToken")
     public ResponseEntity<?> getRefreshToken(
-            @CookieValue(name = "refreshToken", required = false) String refreshToken) {
+            @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
         //check if the refresh token is valid and not expired
         if (jwtUtils.validateToken(refreshToken)) {
             //get the username from the refresh token

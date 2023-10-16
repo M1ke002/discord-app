@@ -30,6 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //get the jwt token from the request
+        System.out.println("request URI = " + request.getCookies());
         String jwtToken = getJwtToken(request);
         //validate the jwt token
         if (jwtToken != null && jwtUtils.validateToken(jwtToken)) {
@@ -65,6 +66,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (request.getCookies() != null) {
             Cookie[] cookies = request.getCookies();
             for (Cookie cookie : cookies) {
+                System.out.println("cookie name = " + cookie.getName() + ", cookie value = " + cookie.getValue());
                 if (cookie.getName().equals(accessTokenCookieName)) {
                     return cookie.getValue();
                 }

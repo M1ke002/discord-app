@@ -67,6 +67,12 @@ public class CategoryServiceImpl implements CategoryService {
             System.out.println("Server does not exist");
             return null;
         }
+        //check if category name already exists
+        Category categoryFound = categoryRepository.findByNameAndServerId(categoryRequest.getName(), categoryRequest.getServerId());
+        if (categoryFound != null) {
+            System.out.println("Category name already exists");
+            return null;
+        }
         //create category
         Category category = new Category(
                 categoryRequest.getName(),
@@ -100,6 +106,12 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId).orElse(null);
         if (category == null) {
             System.out.println("Category does not exist");
+            return null;
+        }
+        //check if category name already exists
+        Category categoryFound = categoryRepository.findByNameAndServerId(categoryRequest.getName(), categoryRequest.getServerId());
+        if (categoryFound != null && !categoryFound.getId().equals(categoryId)) {
+            System.out.println("Category name already exists");
             return null;
         }
         //edit category

@@ -3,6 +3,7 @@ package com.example.discordclonebackend.controller;
 import com.example.discordclonebackend.dto.ServerDto;
 import com.example.discordclonebackend.dto.request.ChangeRoleRequest;
 import com.example.discordclonebackend.dto.request.ServerRequest;
+import com.example.discordclonebackend.dto.response.JoinServerResponse;
 import com.example.discordclonebackend.dto.response.StringResponse;
 import com.example.discordclonebackend.service.ServerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/servers")
-@CrossOrigin("*")
+//@CrossOrigin(origins = "{http://localhost:3000, http://localhost:3000/**}", allowCredentials = "true")
 public class ServerController {
 
     //TODO: implement role change
@@ -83,17 +84,16 @@ public class ServerController {
         return ResponseEntity.ok(new StringResponse("Left server successfully"));
     }
 
-    //example request: http://localhost:8080/api/v1/servers/1/join/123456?userId=1
-    @PutMapping("/{serverId}/join/{inviteCode}") //TESTED
-    public ResponseEntity<?> joinServer(
-            @PathVariable("serverId") Long serverId,
+    //example request: http://localhost:8080/api/v1/servers/join/123456?userId=1
+    @PutMapping("/join/{inviteCode}") //TESTED
+    public ResponseEntity<JoinServerResponse> joinServer(
             @PathVariable("inviteCode") String inviteCode,
             @RequestParam("userId") Long userId) {
-        Boolean isJoined = serverService.joinServer(serverId, inviteCode, userId);
-        if (!isJoined) {
-            return ResponseEntity.badRequest().body(new StringResponse("Joining server failed"));
+        JoinServerResponse joinServerResponse = serverService.joinServer(inviteCode, userId);
+        if (!joinServerResponse.isSuccess()) {
+            return ResponseEntity.badRequest().body(joinServerResponse);
         }
-        return ResponseEntity.ok(new StringResponse("Joined server successfully"));
+        return ResponseEntity.ok(joinServerResponse);
     }
 
     @DeleteMapping("/{serverId}/kick/{userId}")

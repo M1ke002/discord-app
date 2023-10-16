@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ServerRepository extends JpaRepository<Server, Long> {
-    public Server findByIdAndInviteCode(Long serverId, String inviteCode);
+    public Server findByInviteCode(String inviteCode);
 }
