@@ -6,14 +6,14 @@ import TooltipActions from '../TooltipActions';
 import { useModal } from '@/hooks/useModal';
 
 //button to add a server
-const NavigationAction = () => {
+const NavigationAction = ({ userId }: { userId: number | undefined }) => {
   const { onOpen } = useModal();
   return (
     <div>
       <TooltipActions label="Add a server" side="right" align="center">
         <button
           className="group items-center"
-          onClick={() => onOpen('createServer')}
+          onClick={() => onOpen('createServer', { userId })}
         >
           <div
             className="flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px]

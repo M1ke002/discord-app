@@ -13,21 +13,43 @@ import {
 import { useModal } from '@/hooks/useModal';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { useToast } from '../ui/use-toast';
 
 const LeaveServerModal = () => {
   const { type, isOpen, onOpen, onClose, data } = useModal();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const axiosAuth = useAxiosAuth();
+  const { toast } = useToast();
 
   const isModalOpen = type === 'leaveServer' && isOpen;
-  const { server } = data;
+  const { server, userId } = data;
 
   const leaveServer = async () => {
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
+      const res = await axiosAuth.put(
+        `/servers/${server?.id}/leave?userId=${userId}`
+      );
+      if (res.status === 200) {
+        toast({
+          title: 'Left server successfully!'
+        });
+        console.log(res.data);
+      } else {
+        toast({
+          title: 'Something went wrong',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
     // await axios.put(`/api/servers/${server?.id}/leave`);
-    router.refresh();
-    router.push('/');
+    // router.refresh();
     setIsLoading(false);
+    router.push('/');
     onClose();
   };
 

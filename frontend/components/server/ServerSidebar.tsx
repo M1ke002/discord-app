@@ -93,7 +93,12 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
       console.log('member not found');
       return;
     }
-    const role = member.role === 'ADMIN' ? MemberRole.ADMIN : MemberRole.MEMBER;
+    const role =
+      member.role === 'ADMIN'
+        ? MemberRole.ADMIN
+        : member.role === 'MODERATOR'
+        ? MemberRole.MODERATOR
+        : MemberRole.MEMBER;
 
     return (
       <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">

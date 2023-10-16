@@ -27,11 +27,15 @@ import { useModal } from '@/hooks/useModal';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { Input } from '../ui/input';
+import { useToast } from '../ui/use-toast';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 const DeleteServerModal = () => {
   const { type, isOpen, onOpen, onClose, data } = useModal();
   const [isLoading, setIsLoading] = useState(false);
+  const axiosAuth = useAxiosAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   const isModalOpen = type === 'deleteServer' && isOpen;
   const { server } = data;
@@ -59,11 +63,25 @@ const DeleteServerModal = () => {
   };
 
   const deleteServer = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    setIsLoading(true);
-    // await axios.put(`/api/servers/${server?.id}/leave`);
-    // router.refresh();
-    // router.push('/');
+    try {
+      console.log(values);
+      setIsLoading(true);
+      const res = await axiosAuth.delete(`/servers/${server?.id}`);
+      if (res.status === 200) {
+        toast({
+          title: 'Server deleted successfully!'
+        });
+        console.log(res.data);
+      } else {
+        toast({
+          title: 'Something went wrong',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    router.push('/');
     setIsLoading(false);
     handleCloseModal();
   };
@@ -76,7 +94,7 @@ const DeleteServerModal = () => {
             Delete server
           </DialogTitle>
         </DialogHeader>
-        <DialogDescription className="px-6 text-zinc-500">
+        <div className="px-6 text-zinc-500">
           <Alert variant="destructive">
             <AlertDescription className="text-sm">
               Are you sure you want to delete{' '}
@@ -84,7 +102,7 @@ const DeleteServerModal = () => {
               cannot be undone.
             </AlertDescription>
           </Alert>
-        </DialogDescription>
+        </div>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(deleteServer)}

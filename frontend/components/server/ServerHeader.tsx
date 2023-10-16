@@ -73,7 +73,7 @@ const ServerHeader = ({
         {isAdmin && (
           <DropdownMenuItem
             className="px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('members', { server })}
+            onClick={() => onOpen('members', { server, userId })}
           >
             Manage members
             <Users className="h-4 w-4 ml-auto" />
@@ -115,7 +115,7 @@ const ServerHeader = ({
         {!isAdmin && (
           <DropdownMenuItem
             className="text-rose-500 px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('leaveServer', { server })}
+            onClick={() => onOpen('leaveServer', { server, userId })}
           >
             Leave server
             <LogOut className="h-4 w-4 ml-auto" />

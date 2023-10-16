@@ -1,5 +1,9 @@
-import React from 'react';
-import { redirect } from 'next/navigation';
+'use client';
+
+import React, { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 interface InviteCodePageProps {
   params: {
@@ -7,30 +11,49 @@ interface InviteCodePageProps {
   };
 }
 
-const InviteCodePage = async ({ params }: InviteCodePageProps) => {
-  //   const profile = await getCurrentProfile();
-  const profile = 'fakeProfile';
+const InviteCodePage = ({ params }: InviteCodePageProps) => {
+  const { data: session } = useSession();
+  const axiosAuth = useAxiosAuth();
+  const router = useRouter();
 
-  if (!profile || !params.inviteCode) {
-    return redirect('/');
-  }
+  useEffect(() => {
+    if (!session) {
+      console.log('no session');
+      router.replace('/login');
+      return;
+    }
 
-  //check if the person clicking the invite url is already a member of the server
-  const existingServer = {
-    id: null
-  };
+    if (!params.inviteCode) {
+      router.replace('/');
+      return;
+    }
 
-  //if the person is already a member of the server, redirect to the server page
-  if (existingServer.id) {
-    return redirect(`/servers/${existingServer?.id}`);
-  }
-
-  //update the server with the new member
-  //TODO: call api to update the server with the new member
-  //after that, redirect the user to the newly joined server
+    const joinServer = async () => {
+      try {
+        const res = await axiosAuth.put(
+          `/servers/join/${params.inviteCode}?userId=${session.user.id}`
+        );
+        //if the user successfully joined server OR the user already a member of the server
+        if (res.status == 200) {
+          console.log('Joined server successfully!');
+        }
+        if (res.data.serverId) {
+          router.push(`/servers/${res.data.serverId}`);
+        } else {
+          router.replace('/');
+        }
+      } catch (error) {
+        //problem: 400 (Bad Request) goes here, not the if statement in try block
+        console.log(error);
+        router.replace('/');
+      }
+    };
+    joinServer();
+  }, []);
 
   //this page doesn't render anything
-  return null;
+  // return null;
+  return <div>Joining server...</div>;
 };
 
 export default InviteCodePage;

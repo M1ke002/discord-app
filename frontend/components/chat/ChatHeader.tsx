@@ -3,7 +3,6 @@
 import { Hash } from 'lucide-react';
 import React from 'react';
 import MobileToggle from '../MobileToggle';
-import axios from '@/lib/axiosConfig';
 import { useSession } from 'next-auth/react';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 

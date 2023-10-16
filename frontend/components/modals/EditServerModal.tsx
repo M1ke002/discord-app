@@ -88,8 +88,8 @@ const EditServerModal = () => {
         userId,
         serverId: server?.id,
         serverName: values.name,
-        imageUrl: values.image?.url,
-        imageKey: values.image?.key
+        imageUrl: values.image?.url === '' ? null : values.image?.url,
+        imageKey: values.image?.key === '' ? null : values.image?.key
       });
       if (res.status === 200) {
         toast({

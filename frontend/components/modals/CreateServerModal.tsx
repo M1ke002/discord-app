@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useContext } from 'react';
 
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +26,9 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import FileUpload from '../FileUpload';
 import { useModal } from '@/hooks/useModal';
+import { refetchContext } from '../providers/RefetchProvider';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { useToast } from '../ui/use-toast';
 
 //for validation
 const formSchema = z.object({
@@ -41,7 +44,10 @@ const formSchema = z.object({
 });
 
 const CreateServerModal = () => {
-  const { type, isOpen, onClose } = useModal();
+  const { type, isOpen, onClose, data } = useModal();
+  const { triggerRefetchComponents } = useContext(refetchContext);
+  const axiosAuth = useAxiosAuth();
+  const { toast } = useToast();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -54,13 +60,35 @@ const CreateServerModal = () => {
     }
   });
 
+  const { userId } = data;
   const isModalOpen = type === 'createServer' && isOpen;
 
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
-    handleCloseModal();
+    try {
+      const res = await axiosAuth.post(`/servers`, {
+        userId,
+        serverName: values.name,
+        imageUrl: values.image?.url === '' ? null : values.image?.url,
+        imageKey: values.image?.key === '' ? null : values.image?.key
+      });
+      if (res.status == 200) {
+        toast({
+          title: 'Server created successfully!'
+        });
+        console.log(res.data);
+        triggerRefetchComponents(['Navbar']);
+      } else {
+        toast({
+          title: 'Something went wrong',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    onClose();
   };
 
   const handleCloseModal = () => {

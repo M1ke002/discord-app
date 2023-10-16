@@ -76,7 +76,7 @@ const Navbar = () => {
             </div>
           );
         })}
-        <NavigationAction />
+        <NavigationAction userId={session?.user.id} />
       </ScrollArea>
       <div className="mt-auto flex items-center flex-col gap-y-4">
         <ModeToggle />
