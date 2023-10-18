@@ -10,7 +10,7 @@ import {
   DialogDescription,
   DialogFooter
 } from '../ui/dialog';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';

@@ -11,12 +11,12 @@ import {
   DialogDescription
 } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { refetchContext } from '../providers/RefetchProvider';
 import { useState, useContext } from 'react';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 const DeleteCategoryModal = () => {
   const { type, isOpen, onClose, data } = useModal();
@@ -25,7 +25,7 @@ const DeleteCategoryModal = () => {
   const { toast } = useToast();
   const { server, userId, selectedCategory } = data;
   const [isLoading, setIsLoading] = useState(false);
-  const { triggerRefetchComponents } = useContext(refetchContext);
+  const { triggerRefetchComponents } = useRefetchComponents();
 
   const isModalOpen = type === 'deleteCategory' && isOpen;
 

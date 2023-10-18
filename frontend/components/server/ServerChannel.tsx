@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 import TooltipActions from '../TooltipActions';
 import { Edit, Lock, Trash } from 'lucide-react';
-import { ModalType, useModal } from '@/hooks/useModal';
+import { ModalType, useModal } from '@/hooks/zustand/useModal';
 import Server from '@/types/Server';
 import Channel from '@/types/Channel';
 import Category from '@/types/Category';

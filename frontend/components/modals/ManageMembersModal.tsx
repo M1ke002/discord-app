@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 
 import {
   Dialog,
@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSubTrigger
 } from '../ui/dropdown-menu';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { ScrollArea } from '../ui/scroll-area';
 import UserAvatar from '../UserAvatar';
 import {
@@ -38,7 +38,7 @@ import { MemberRole, getRoleIcon } from '@/utils/constants';
 import Member from '@/types/Member';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { refetchContext } from '../providers/RefetchProvider';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 // const roleIconMap = {
 //     'Member': null,
@@ -52,7 +52,7 @@ const ManageMembersModal = () => {
   const router = useRouter();
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
-  const { triggerRefetchComponents } = useContext(refetchContext);
+  const { triggerRefetchComponents } = useRefetchComponents();
 
   const isModalOpen = type === 'members' && isOpen;
   const { server, userId: adminId } = data;

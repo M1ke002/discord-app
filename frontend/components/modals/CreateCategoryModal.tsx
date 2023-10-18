@@ -24,11 +24,11 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { refetchContext } from '../providers/RefetchProvider';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 // enum ChannelType {
 //     Text = "text",
@@ -50,7 +50,7 @@ const CreateCategoryModal = () => {
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
   const { server, userId } = data;
-  const { triggerRefetchComponents } = useContext(refetchContext);
+  const { triggerRefetchComponents } = useRefetchComponents();
 
   const form = useForm({
     resolver: zodResolver(formSchema),

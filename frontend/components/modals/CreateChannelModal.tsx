@@ -31,13 +31,13 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { Hash, Video, Volume2 } from 'lucide-react';
 import { ChannelType } from '@/utils/constants';
 import { useRouter, useParams } from 'next/navigation';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { refetchContext } from '../providers/RefetchProvider';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 // enum ChannelType {
 //     Text = "text",
@@ -61,7 +61,7 @@ const CreateChannelModal = () => {
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
   const { selectedCategory, categories, userId } = data;
-  const { triggerRefetchComponents } = useContext(refetchContext);
+  const { triggerRefetchComponents } = useRefetchComponents();
 
   const form = useForm({
     resolver: zodResolver(formSchema),

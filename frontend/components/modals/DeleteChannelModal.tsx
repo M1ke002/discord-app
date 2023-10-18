@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 
 import {
   Dialog,
@@ -10,12 +10,12 @@ import {
   DialogDescription,
   DialogFooter
 } from '../ui/dialog';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useToast } from '../ui/use-toast';
-import { refetchContext } from '../providers/RefetchProvider';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 const DeleteChannelModal = () => {
   const { type, isOpen, onClose, data } = useModal();
@@ -23,7 +23,7 @@ const DeleteChannelModal = () => {
   const router = useRouter();
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
-  const { triggerRefetchComponents } = useContext(refetchContext);
+  const { triggerRefetchComponents } = useRefetchComponents();
 
   const isModalOpen = type === 'deleteChannel' && isOpen;
   const { server, channel, userId } = data;

@@ -10,10 +10,10 @@ import { ScrollArea } from '../ui/scroll-area';
 import NavItem from './NavItem';
 import { ModeToggle } from '../ModeToggle';
 import Server from '@/types/Server';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { refetchContext } from '../providers/RefetchProvider';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -21,7 +21,7 @@ const Navbar = () => {
   const [loading, setLoading] = useState(true);
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
-  const { refetchNavbar } = useContext(refetchContext);
+  const { refetchNavbar } = useRefetchComponents();
 
   useEffect(() => {
     if (!session) {

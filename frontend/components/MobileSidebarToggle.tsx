@@ -11,7 +11,7 @@ import React from 'react';
 import Navbar from './navigation/Navbar';
 import ServerSidebar from './server/ServerSidebar';
 
-const MobileToggle = ({ serverId }: { serverId: string }) => {
+const MobileSidebarToggle = ({ serverId }: { serverId: string }) => {
   return (
     <Sheet>
       <SheetTrigger className="md:hidden">
@@ -28,4 +28,4 @@ const MobileToggle = ({ serverId }: { serverId: string }) => {
   );
 };
 
-export default MobileToggle;
+export default MobileSidebarToggle;

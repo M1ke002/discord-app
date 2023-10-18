@@ -18,9 +18,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger
 } from '@/components/ui/collapsible';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { refetchContext } from '../providers/RefetchProvider';
 import ServerChannel from './ServerChannel';
 import UserAccount from './UserAccount';
 import Server from '@/types/Server';
@@ -29,6 +28,7 @@ import Channel from '@/types/Channel';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { usePathname } from 'next/navigation';
 import ServerSidebarSkeleton from '../skeleton/ServerSidebarSkeleton';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 interface ServerSidebarProps {
   serverId: string;
@@ -42,7 +42,7 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
   const [server, setServer] = useState<Server>();
   const axiosAuth = useAxiosAuth();
   const pathName = usePathname();
-  const { refetchServerSidebar } = useContext(refetchContext);
+  const { refetchServerSidebar } = useRefetchComponents();
 
   //this newPath is used as the dependecy to refetch serveInfo from backend
   const newPath = pathName.substring(0, pathName.lastIndexOf('/'));

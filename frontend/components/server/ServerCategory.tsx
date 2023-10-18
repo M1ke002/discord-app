@@ -16,7 +16,7 @@ import {
   Edit,
   Trash
 } from 'lucide-react';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import Server from '@/types/Server';
 import Category from '@/types/Category';
 

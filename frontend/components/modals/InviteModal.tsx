@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogDescription
 } from '../ui/dialog';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';

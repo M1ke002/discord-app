@@ -3,7 +3,7 @@
 import { Plus } from 'lucide-react';
 import React from 'react';
 import TooltipActions from '../TooltipActions';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 
 //button to add a server
 const NavigationAction = ({ userId }: { userId: number | undefined }) => {

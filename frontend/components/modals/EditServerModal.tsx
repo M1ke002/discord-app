@@ -25,10 +25,10 @@ import {
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import FileUpload from '../FileUpload';
-import { useModal } from '@/hooks/useModal';
+import { useModal } from '@/hooks/zustand/useModal';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { refetchContext } from '../providers/RefetchProvider';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 //for validation
 const formSchema = z.object({
@@ -47,7 +47,7 @@ const EditServerModal = () => {
   const { type, isOpen, onClose, data } = useModal();
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
-  const { triggerRefetchComponents } = useContext(refetchContext);
+  const { triggerRefetchComponents } = useRefetchComponents();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
