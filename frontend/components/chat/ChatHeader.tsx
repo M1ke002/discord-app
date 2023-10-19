@@ -8,18 +8,23 @@ import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useMemberList } from '@/hooks/zustand/useMemberList';
 import MobileMemberListToggle from '../MobileMemberListToggle';
 import { useServerChannel } from '@/hooks/zustand/useServerChannel';
+import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
+import TooltipActions from '../TooltipActions';
+import SearchBar from '../server/Searchbar';
+import { cn } from '@/lib/utils';
+import UserAvatar from '../UserAvatar';
 
 interface ChatHeaderProps {
   serverId: string;
-  type: 'channel' | 'conversation';
   imageUrl?: string;
 }
 
-const ChatHeader = ({ serverId, type, imageUrl }: ChatHeaderProps) => {
+const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
-  const { toggleMemberList } = useMemberList();
-  const { channel } = useServerChannel();
+  const { isMemberListOpen, toggleMemberList } = useMemberList();
+  // const { channel } = useServerChannel();
+  const { name, type } = useChatHeaderData();
 
   const testAPI = async () => {
     // const session = await getSession();
@@ -40,21 +45,36 @@ const ChatHeader = ({ serverId, type, imageUrl }: ChatHeaderProps) => {
         {type === 'channel' && (
           <Hash className="w-5 h-5 text-zinc-500 dark:text-zinc-400 mr-2" />
         )}
+        {type === 'conversation' && (
+          <UserAvatar src={imageUrl} username={name} className="w-8 h-8 mr-2" />
+        )}
         <p
           className="font-semibold text-md text-black dark:text-white"
           onClick={testAPI}
         >
-          {channel?.name}
+          {name}
         </p>
       </div>
       {/*  Header actions */}
-      <div>
-        <Users
-          className="hidden md:block w-5 h-5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition cursor-pointer"
-          onClick={toggleMemberList}
-        />
-        <MobileMemberListToggle serverId={serverId} />
-      </div>
+      {type === 'channel' && (
+        <div className="flex items-center mr-2">
+          <TooltipActions
+            label={isMemberListOpen ? 'Hide member list' : 'Show member list'}
+            side="bottom"
+            align="center"
+          >
+            <Users
+              className={cn(
+                'hidden md:block w-5 h-5 mr-4 text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition cursor-pointer',
+                isMemberListOpen && 'text-zinc-600 dark:text-zinc-300'
+              )}
+              onClick={toggleMemberList}
+            />
+          </TooltipActions>
+          <SearchBar />
+          <MobileMemberListToggle serverId={serverId} />
+        </div>
+      )}
     </div>
   );
 };

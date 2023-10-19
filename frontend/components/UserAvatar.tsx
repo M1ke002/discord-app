@@ -10,7 +10,7 @@ interface UserAvatarProps {
 
 const UserAvatar = ({ src, className, username }: UserAvatarProps) => {
   return (
-    <Avatar className={cn('h-7 w-7 md:h-10 md:w-10', className)}>
+    <Avatar className={className}>
       <AvatarImage src={src} />
       <AvatarFallback className="dark:text-white">
         {username?.split('')[0].toUpperCase()}

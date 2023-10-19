@@ -74,7 +74,7 @@ const ManageMembersModal = () => {
             }
             return member;
           });
-          triggerRefetchComponents(['ServerSidebar']);
+          triggerRefetchComponents(['ServerSidebar', 'MemberList']);
           onOpen('members', { server, userId: adminId });
           toast({
             title: "User's role changed!"
@@ -103,7 +103,7 @@ const ManageMembersModal = () => {
           server.users = server.users.filter((member: Member) => {
             if (member.id !== memberId) return member;
           });
-          triggerRefetchComponents(['ServerSidebar']);
+          triggerRefetchComponents(['ServerSidebar', 'MemberList']);
           onOpen('members', { server, userId: adminId });
           toast({
             title: 'User kicked from server!'

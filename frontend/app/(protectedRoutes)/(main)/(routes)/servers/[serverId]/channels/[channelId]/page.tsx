@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import Channel from '@/types/Channel';
 import { useMemberList } from '@/hooks/zustand/useMemberList';
-import { useServerChannel } from '@/hooks/zustand/useServerChannel';
+import ChatInput from '@/components/chat/ChatInput';
+import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
 import { cn } from '@/lib/utils';
+import ChatMessages from '@/components/chat/ChatMessages';
 
 interface ChannelIDpageProps {
   params: {
@@ -20,7 +21,8 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
-  const { channel, setChannel } = useServerChannel();
+  // const { channel, setChannel } = useServerChannel();
+  const { setChatHeaderData } = useChatHeaderData();
   const { isMemberListOpen } = useMemberList();
 
   useEffect(() => {
@@ -34,52 +36,24 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
       try {
         const res = await axiosAuth.get(`/channels/${params.channelId}`);
         if (res.status == 200) {
-          setChannel(res.data);
+          setChatHeaderData(res.data.name, 'channel');
         }
       } catch (error) {}
     };
     fetchChannelData();
   }, []);
 
-  // if (channel) {
   return (
-    <div className={cn('h-full w-full', isMemberListOpen && 'md:pr-[240px]')}>
-      Chat messages Lorem Ipsum is simply dummy text of the printing and
-      typesetting industry. Lorem Ipsum has been the industry's standard dummy
-      text ever since the 1500s, when an unknown printer took a galley of type
-      and scrambled it to make a type specimen book. It has survived not only
-      five centuries, but also the leap into electronic typesetting, remaining
-      essentially unchanged. It was popularised in the 1960s with the release of
-      Letraset sheets containing Lorem Ipsum passages, and more recently with
-      desktop publishing software like Aldus PageMaker including versions of
-      Lorem Ipsum.
+    <div
+      className={cn(
+        'flex flex-col w-full h-full',
+        isMemberListOpen && 'md:pr-[240px]'
+      )}
+    >
+      <ChatMessages />
+      <ChatInput />
     </div>
-
-    // <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
-    //   <ChatHeader
-    //     name={channel ? channel.name : ''}
-    //     type="channel"
-    //     serverId={params.serverId}
-    //   />
-    //   <div className="flex flex-auto justify-between">
-    //     {/* content and member list */}
-    //     <div
-    //       className={cn('h-full w-full', isMemberListOpen && 'md:pr-[240px]')}
-    //     >
-    //       Chat messages Lorem Ipsum is simply dummy text of the printing and
-    //       typesetting industry. Lorem Ipsum has been the industry's standard
-    //       dummy text ever since the 1500s, when an unknown printer took a galley
-    //       of type and scrambled it to make a type specimen book. It has survived
-    //       not only five centuries, but also the leap into electronic
-    //       typesetting, remaining essentially unchanged. It was popularised in
-    //       the 1960s with the release of Letraset sheets containing Lorem Ipsum
-    //       passages, and more recently with desktop publishing software like
-    //       Aldus PageMaker including versions of Lorem Ipsum.
-    //     </div>
-    //   </div>
-    // </div>
   );
-  // }
 };
 
 export default ChannelIDpage;

@@ -27,8 +27,8 @@ const ServerLayout = ({
         </div> */}
 
         <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
-          <ChatHeader type="channel" serverId={params.serverId} />
-          <div className="flex flex-auto justify-between">
+          <ChatHeader serverId={params.serverId} />
+          <div className="flex h-full">
             {children}
             <div className="hidden md:block fixed right-0 h-full z-20">
               <MemberList serverId={params.serverId} />

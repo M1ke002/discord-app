@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 const NavDirectMessages = () => {
   return (
     <div>
-      <TooltipActions label="Direct message" side="right" align="center">
+      <TooltipActions label="Direct messages" side="right" align="center">
         <button className="group relative flex items-center">
           <div
             className={cn(
