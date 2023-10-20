@@ -35,7 +35,7 @@ public class ChannelServiceImpl implements ChannelService {
                 channel.getId(),
                 channel.getName(),
                 channel.getServer().getId(),
-                channel.getCategory().getId(),
+                channel.getCategory() != null ? channel.getCategory().getId() : null,
                 channel.getType(),
                 channel.getCreatedAt(),
                 channel.getUpdatedAt()

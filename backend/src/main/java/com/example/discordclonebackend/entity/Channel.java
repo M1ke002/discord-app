@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -37,6 +39,12 @@ public class Channel {
     private Category category;
     @Enumerated(EnumType.STRING)
     private ChannelType type = ChannelType.TEXT;
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            mappedBy = "channel",
+            fetch = FetchType.EAGER
+    )
+    private List<ChannelMessage> messages = new ArrayList<>();
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;

@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//@Entity
+@Entity
 public class ChannelMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +34,14 @@ public class ChannelMessage {
             referencedColumnName = "id"
     )
     private Channel channel;
+    @ManyToOne(
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(
+            name = "reply_to_id",
+            referencedColumnName = "id"
+    )
+    private ChannelMessage replyToMessage;
     private boolean isDeleted = false;
     @CreationTimestamp
     private Date createdAt;
