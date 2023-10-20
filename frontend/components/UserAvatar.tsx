@@ -6,13 +6,21 @@ interface UserAvatarProps {
   src?: string;
   className?: string;
   username?: string;
+  avatarFallbackClassName?: string;
 }
 
-const UserAvatar = ({ src, className, username }: UserAvatarProps) => {
+const UserAvatar = ({
+  src,
+  className,
+  username,
+  avatarFallbackClassName
+}: UserAvatarProps) => {
   return (
     <Avatar className={className}>
       <AvatarImage src={src} />
-      <AvatarFallback className="dark:text-white">
+      <AvatarFallback
+        className={cn('text-white bg-[#5865f2]', avatarFallbackClassName)}
+      >
         {username?.split('')[0].toUpperCase()}
       </AvatarFallback>
     </Avatar>

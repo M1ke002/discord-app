@@ -65,7 +65,7 @@ const MemberList = ({ serverId }: { serverId: string }) => {
   return (
     <div
       className={cn(
-        'h-full w-full md:min-w-[240px] flex-col dark:bg-[#2B2D31] bg-[#F2F3F5]',
+        'h-full w-full md:w-[240px] flex-col dark:bg-[#2B2D31] bg-[#F2F3F5]',
         (!isMemberListOpen || type === 'conversation') && 'md:hidden'
       )}
     >

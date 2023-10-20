@@ -1,5 +1,7 @@
 import Member from '@/types/Member';
 import UserAvatar from '../UserAvatar';
+import { cn } from '@/lib/utils';
+import { MemberRole } from '@/utils/constants';
 
 interface MemberListItem {
   member: Member;
@@ -11,10 +13,20 @@ const MemberListItem = ({ member }: MemberListItem) => {
       <UserAvatar
         src={member.avatarUrl}
         username={member.nickname}
-        className="h-9 w-9 mr-3"
+        className="h-8 w-8 mr-3"
       />
       <p className="text-[14px] text-black font-semibold dark:text-zinc-400">
-        {member.nickname}
+        <span
+          className={cn(
+            member.role === MemberRole.ADMIN
+              ? 'text-rose-500'
+              : member.role === MemberRole.MODERATOR
+              ? 'text-indigo-500'
+              : ''
+          )}
+        >
+          {member.nickname}
+        </span>
       </p>
     </div>
   );

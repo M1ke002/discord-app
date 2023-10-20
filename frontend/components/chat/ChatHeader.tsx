@@ -39,7 +39,7 @@ const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
   };
 
   return (
-    <div className="text-md font-semibold px-3 flex items-center justify-between h-12 border-neutral-200 dark:border-neutral-800 border-b-2">
+    <div className="text-md font-semibold px-3 flex items-center justify-between min-h-[48px] border-neutral-200 dark:border-neutral-800 border-b-2">
       <div className="flex items-center">
         <MobileSidebarToggle serverId={serverId} />
         {type === 'channel' && (
