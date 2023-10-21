@@ -1,13 +1,13 @@
 'use client';
 
-import { Hash, Users } from 'lucide-react';
+import { Hash, UserCircle, Users } from 'lucide-react';
 import React from 'react';
 import MobileSidebarToggle from '../MobileSidebarToggle';
 import { useSession } from 'next-auth/react';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useMemberList } from '@/hooks/zustand/useMemberList';
+import { useUserProfile } from '@/hooks/zustand/useUserProfile';
 import MobileMemberListToggle from '../MobileMemberListToggle';
-import { useServerChannel } from '@/hooks/zustand/useServerChannel';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
 import TooltipActions from '../TooltipActions';
 import SearchBar from '../server/Searchbar';
@@ -23,7 +23,7 @@ const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const { isMemberListOpen, toggleMemberList } = useMemberList();
-  // const { channel } = useServerChannel();
+  const { isUserProfileOpen, toggleUserProfile } = useUserProfile();
   const { name, type } = useChatHeaderData();
 
   const testAPI = async () => {
@@ -57,7 +57,7 @@ const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
       </div>
       {/*  Header actions */}
       {type === 'channel' && (
-        <div className="flex items-center mr-2">
+        <div className="flex items-center">
           <TooltipActions
             label={isMemberListOpen ? 'Hide member list' : 'Show member list'}
             side="bottom"
@@ -73,6 +73,25 @@ const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
           </TooltipActions>
           <SearchBar />
           <MobileMemberListToggle serverId={serverId} />
+        </div>
+      )}
+      {type === 'conversation' && (
+        <div className="flex items-center">
+          <TooltipActions
+            label={
+              isUserProfileOpen ? 'Hide user profile' : 'Show user profile'
+            }
+            side="bottom"
+            align="center"
+          >
+            <UserCircle
+              className={cn(
+                'hidden md:block w-5 h-5 mr-4 text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition cursor-pointer',
+                isUserProfileOpen && 'text-zinc-600 dark:text-zinc-300'
+              )}
+              onClick={toggleUserProfile}
+            />
+          </TooltipActions>
         </div>
       )}
     </div>

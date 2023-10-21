@@ -50,7 +50,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
         isMemberListOpen && 'md:pr-[240px]'
       )}
     >
-      <ChatMessages />
+      <ChatMessages type="channel" />
       <ChatInput />
     </div>
   );

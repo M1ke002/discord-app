@@ -4,6 +4,7 @@ import ServerSidebar from '@/components/server/ServerSidebar';
 import ChatHeader from '@/components/chat/ChatHeader';
 import React from 'react';
 import MemberList from '@/components/server/MemberList';
+import UserProfile from '@/components/server/UserProfile';
 
 const ServerLayout = ({
   children,
@@ -32,6 +33,7 @@ const ServerLayout = ({
             {children}
             <div className="hidden md:block fixed right-0 h-full z-20">
               <MemberList serverId={params.serverId} />
+              <UserProfile />
             </div>
           </div>
         </div>
