@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useMemberList } from '@/hooks/zustand/useMemberList';
 import ChatInput from '@/components/chat/ChatInput';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
+import { useServerChannel } from '@/hooks/zustand/useServerChannel';
 import { cn } from '@/lib/utils';
 import ChatMessages from '@/components/chat/ChatMessages';
 
@@ -21,7 +22,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
-  // const { channel, setChannel } = useServerChannel();
+  const { channel, setChannel } = useServerChannel();
   const { setChatHeaderData } = useChatHeaderData();
   const { isMemberListOpen } = useMemberList();
 
@@ -37,23 +38,41 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
         const res = await axiosAuth.get(`/channels/${params.channelId}`);
         if (res.status == 200) {
           setChatHeaderData(res.data.name, 'channel');
+          setChannel(res.data);
         }
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchChannelData();
   }, []);
 
-  return (
-    <div
-      className={cn(
-        'flex flex-col w-full h-full',
-        isMemberListOpen && 'md:pr-[240px]'
-      )}
-    >
-      <ChatMessages type="channel" />
-      <ChatInput />
-    </div>
-  );
+  if (channel && session) {
+    return (
+      <div
+        className={cn(
+          'flex flex-col w-full h-full',
+          isMemberListOpen && 'md:pr-[240px]'
+        )}
+      >
+        <ChatMessages
+          type="channel"
+          apiUrl="/messages"
+          paramKey="channelId"
+          paramValue={channel.id.toString()}
+          serverId={params.serverId}
+          chatId={channel.id.toString()}
+          name={channel.name}
+        />
+        <ChatInput
+          apiUrl="/messages"
+          channelId={channel.id.toString()}
+          userId={session.user.id.toString()}
+          serverId={params.serverId}
+        />
+      </div>
+    );
+  }
 };
 
 export default ChannelIDpage;

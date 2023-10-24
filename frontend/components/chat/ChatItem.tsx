@@ -6,13 +6,15 @@ import { Form, FormControl, FormField, FormItem } from '../ui/form';
 import { useForm } from 'react-hook-form';
 import TooltipActions from '../TooltipActions';
 import UserAvatar from '../UserAvatar';
-import { getRoleIcon } from '@/utils/constants';
+import { MemberRole, getRoleIcon } from '@/utils/constants';
 import { cn } from '@/lib/utils';
 import { Edit, Reply, Trash } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { useModal } from '@/hooks/zustand/useModal';
+import { format } from 'date-fns';
+import ChannelMessage from '@/types/ChannelMessage';
 
 // const chatReplyIconClassName =
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
@@ -22,6 +24,7 @@ const chatReplyIconClassName =
 
 interface ChatItemProps {
   type: 'new' | 'continue';
+  message: ChannelMessage;
   isReplyMessage?: boolean;
 }
 
@@ -29,7 +32,11 @@ const formSchema = z.object({
   chatMessage: z.string().min(1)
 });
 
-const ChatItem = ({ type = 'new', isReplyMessage = false }: ChatItemProps) => {
+const ChatItem = ({
+  type = 'new',
+  message,
+  isReplyMessage = false
+}: ChatItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { onOpen } = useModal();
 
@@ -78,13 +85,17 @@ const ChatItem = ({ type = 'new', isReplyMessage = false }: ChatItemProps) => {
                 </div>
               )}
               <div className="cursor-pointer hover:drop-shadow-md">
-                <UserAvatar username="John Doe" />
+                <UserAvatar
+                  src={message.sender.avatarUrl}
+                  username={message.sender.nickname}
+                />
               </div>
             </div>
           ) : (
             <div>
               <p className="hidden group-hover:block text-zinc-400 text-[10px]">
-                2:24 AM
+                {/* 2:24 AM */}
+                {format(new Date(message.createdAt), 'hh:mm a')}
               </p>
             </div>
           )}
@@ -124,27 +135,45 @@ const ChatItem = ({ type = 'new', isReplyMessage = false }: ChatItemProps) => {
             <div className="flex items-center gap-x-2">
               <div className="flex items-center">
                 <p className="font-semibold text-sm hover:underline cursor-pointer">
-                  <span className="text-rose-500">John Doe</span>
+                  <span
+                    className={cn(
+                      message.sender.role === MemberRole.ADMIN
+                        ? 'text-rose-500'
+                        : message.sender.role === MemberRole.MODERATOR
+                        ? 'text-indigo-500'
+                        : 'text-white'
+                    )}
+                  >
+                    {message.sender.nickname}
+                  </span>
                 </p>
-                <TooltipActions label="admin">
+                <TooltipActions
+                  label={
+                    message.sender.role === MemberRole.ADMIN
+                      ? 'Admin'
+                      : message.sender.role === MemberRole.MODERATOR
+                      ? 'Moderator'
+                      : 'Member'
+                  }
+                >
                   <p className="ml-1">
                     {
                       getRoleIcon('h-4 w-4')[
-                        'ADMIN' as keyof typeof getRoleIcon
+                        message.sender.role as keyof typeof getRoleIcon
                       ]
                     }
                   </p>
                 </TooltipActions>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1">
-                  05/12/2022 10:30 PM
+                  {/* 05/12/2022 10:30 PM */}
+                  {format(new Date(message.createdAt), 'MM/dd/yyyy hh:mm a')}
                 </span>
               </div>
             </div>
           )}
           {!isEditing && (
-            <div className="text-black dark:text-zinc-400 text-sm">
-              asd ads ad dad s s relative group flex items-center relative group
-              flex items-center relative
+            <div className="text-black dark:text-zinc-300 text-sm">
+              {message.content}
             </div>
           )}
           {isEditing && (

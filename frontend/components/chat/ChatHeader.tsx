@@ -3,7 +3,6 @@
 import { Hash, UserCircle, Users } from 'lucide-react';
 import React from 'react';
 import MobileSidebarToggle from '../MobileSidebarToggle';
-import { useSession } from 'next-auth/react';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useMemberList } from '@/hooks/zustand/useMemberList';
 import { useUserProfile } from '@/hooks/zustand/useUserProfile';
@@ -20,17 +19,14 @@ interface ChatHeaderProps {
 }
 
 const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
-  const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const { isMemberListOpen, toggleMemberList } = useMemberList();
   const { isUserProfileOpen, toggleUserProfile } = useUserProfile();
   const { name, type } = useChatHeaderData();
 
   const testAPI = async () => {
-    // const session = await getSession();
-    console.log(session);
     try {
-      const res = await axiosAuth.get('/auth/test');
+      const res = await axiosAuth.get('/messages/test');
       console.log(res.data);
       alert(res.data);
     } catch (error) {

@@ -22,14 +22,10 @@ const ServerLayout = ({
         <ServerSidebar serverId={params.serverId} />
       </div>
       <main className="h-full md:pl-60">
-        {/* {children}
-        <div className="hidden md:block fixed right-0 inset-y-0 mt-[48px] h-full z-20">
-          <MemberList serverId={params.serverId} />
-        </div> */}
-
         <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
           <ChatHeader serverId={params.serverId} />
-          <div className="flex h-full">
+          {/* 48px is the height of chat header */}
+          <div className="flex h-[calc(100%-48px)]">
             {children}
             <div className="hidden md:block fixed right-0 h-full z-20">
               <MemberList serverId={params.serverId} />

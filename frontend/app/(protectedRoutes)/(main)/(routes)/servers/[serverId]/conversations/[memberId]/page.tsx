@@ -45,7 +45,13 @@ const MemberIdPage = ({ params }: MemberIdPageProps) => {
         isUserProfileOpen && 'md:pr-[340px]'
       )}
     >
-      <ChatMessages type="conversation" name="Mitty" />
+      <ChatMessages
+        type="conversation"
+        apiUrl="/conversations"
+        paramKey="conversationId"
+        paramValue={params.memberId}
+        name="Mitty"
+      />
       <ChatInput />
     </div>
   );

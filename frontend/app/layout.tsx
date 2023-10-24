@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import ModalProvider from '@/components/providers/ModalProvider';
 import NextAuthProvider from '@/components/providers/NextAuthProvider';
 import { Toaster } from '@/components/ui/toaster';
+import { SocketProvider } from '@/components/providers/SocketProvider';
+import { QueryProvider } from '@/components/providers/QueryProvider';
 
 const font = Open_Sans({ subsets: ['latin'] });
 
@@ -35,9 +37,11 @@ export default async function RootLayout({
             enableSystem={false}
             storageKey="discord-theme"
           >
-            <ModalProvider />
-            <Toaster />
-            {children}
+            <SocketProvider>
+              <ModalProvider />
+              <Toaster />
+              <QueryProvider>{children}</QueryProvider>
+            </SocketProvider>
           </ThemeProvider>
         </NextAuthProvider>
       </body>

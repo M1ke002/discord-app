@@ -25,11 +25,11 @@ const ChatWelcome = ({ type, avatarUrl, name }: ChatWelcomeProps) => {
       )}
 
       <p className="text-xl md:text-2xl font-bold">
-        {type === 'channel' && `Welcome to #general`}
+        {type === 'channel' && `Welcome to #${name}`}
         {type === 'conversation' && `${name}`}
       </p>
       <p className="text-zinc-600 dark:text-zinc-400 text-sm">
-        {type === 'channel' && 'This is the start of the #general channel.'}
+        {type === 'channel' && `This is the start of the #${name} channel.`}
         {type === 'conversation' && (
           <>
             This is the start of your direct message history with{' '}

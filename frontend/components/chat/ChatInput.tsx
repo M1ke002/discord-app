@@ -10,13 +10,22 @@ import {
   FormItem,
   FormMessage
 } from '../ui/form';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 import EmojiPicker from '../EmojiPicker';
+
+interface ChatInputProps {
+  apiUrl: string;
+  channelId?: string;
+  userId?: string;
+  serverId?: string;
+}
 
 const formSchema = z.object({
   content: z.string().min(1)
 });
 
-const ChatInput = () => {
+const ChatInput = ({ apiUrl, channelId, userId, serverId }: ChatInputProps) => {
+  const axiosAuth = useAxiosAuth();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,6 +37,17 @@ const ChatInput = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
+    try {
+      const res = await axiosAuth.post(apiUrl, {
+        content: values.content,
+        channelId,
+        userId,
+        serverId
+      });
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    }
     form.setValue('content', '');
   };
 
@@ -40,10 +60,10 @@ const ChatInput = () => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <div className="relative p-4 pb-6 z-20">
+                <div className="relative px-4 pb-6">
                   <button
                     type="button"
-                    className="absolute top-7 left-8 h-[24px] w-[24px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-1 flex items-center justify-center"
+                    className="absolute top-3 left-8 h-[24px] w-[24px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-1 flex items-center justify-center"
                   >
                     <Plus className="h-4 w-4 text-white dark:text-[#313338]" />
                   </button>
@@ -53,7 +73,7 @@ const ChatInput = () => {
                     placeholder="Message #general"
                     {...field}
                   />
-                  <div className="absolute top-7 right-8">
+                  <div className="absolute top-3 right-8">
                     <EmojiPicker
                       onChange={(emoji: string) =>
                         field.onChange(`${field.value} ${emoji}`)
