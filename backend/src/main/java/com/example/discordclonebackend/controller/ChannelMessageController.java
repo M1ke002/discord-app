@@ -21,10 +21,13 @@ public class ChannelMessageController {
     @Autowired
     private SocketIOServer socketIOServer;
 
-    //example request: http://localhost:8080/api/v1/messages?channelId=1&page=0
+    //example request: http://localhost:8080/api/v1/messages?page=0&channelId=1&serverId=1
     @GetMapping("")
-    public ResponseEntity<?> getMessages(@RequestParam("page") Integer page, @RequestParam("channelId") Long channelId) {
-        ChannelMessageResponse channelMessageResponse = channelMessageService.getMessages(page, channelId);
+    public ResponseEntity<?> getMessages(@RequestParam("page") Integer page, @RequestParam("channelId") Long channelId, @RequestParam("serverId") Long serverId) {
+        ChannelMessageResponse channelMessageResponse = channelMessageService.getMessages(page, channelId, serverId);
+        if (channelMessageResponse == null) {
+            return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
+        }
         return ResponseEntity.ok(channelMessageResponse);
     }
 
@@ -40,7 +43,8 @@ public class ChannelMessageController {
         if (createdChannelMessageDto == null) {
             return ResponseEntity.badRequest().body(new StringResponse("Message creation failed"));
         }
-        socketIOServer.getBroadcastOperations().sendEvent("newMessage", createdChannelMessageDto);
+        String event = "chat:" + channelMessageRequest.getChannelId() + ":new-message";
+        socketIOServer.getBroadcastOperations().sendEvent(event, createdChannelMessageDto);
         return ResponseEntity.ok(createdChannelMessageDto);
     }
 
@@ -50,17 +54,19 @@ public class ChannelMessageController {
         if (updatedChannelMessageDto == null) {
             return ResponseEntity.badRequest().body(new StringResponse("Message update failed"));
         }
-        socketIOServer.getBroadcastOperations().sendEvent("updateMessage", updatedChannelMessageDto);
+        String event = "chat:" + channelMessageRequest.getChannelId() + ":update-message";
+        socketIOServer.getBroadcastOperations().sendEvent(event, updatedChannelMessageDto);
         return ResponseEntity.ok(updatedChannelMessageDto);
     }
 
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<?> deleteMessage(@PathVariable("messageId") Long messageId) {
+    public ResponseEntity<?> deleteMessage(@PathVariable("messageId") Long messageId, @RequestParam("channelId") Long channelId) {
         Boolean isDeleted = channelMessageService.deleteMessage(messageId);
         if (!isDeleted) {
             return ResponseEntity.badRequest().body(new StringResponse("Message deletion failed"));
         }
-        socketIOServer.getBroadcastOperations().sendEvent("deleteMessage", messageId);
+        String event = "chat:" + channelId + ":update-message";
+        socketIOServer.getBroadcastOperations().sendEvent(event, messageId);
         return ResponseEntity.ok(new StringResponse("Message deleted successfully"));
     }
 }

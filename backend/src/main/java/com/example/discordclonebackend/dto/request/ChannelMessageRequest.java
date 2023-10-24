@@ -13,25 +13,5 @@ public class ChannelMessageRequest {
     private Long replyToMessageId; //optional
     private Long channelId;
     private Long userId;
-
-    public ChannelMessageRequest(String content, Long channelId, Long userId) {
-        this.content = content;
-        this.channelId = channelId;
-        this.userId = userId;
-    }
-
-    public ChannelMessageRequest(String content, String fileUrl, Long channelId, Long userId) {
-        this.content = content;
-        this.fileUrl = fileUrl;
-        this.channelId = channelId;
-        this.userId = userId;
-    }
-
-    public ChannelMessageRequest(String content, Long channelId, Long userId, Long replyToMessageId) {
-        this.content = content;
-        this.channelId = channelId;
-        this.userId = userId;
-        this.replyToMessageId = replyToMessageId;
-    }
-
+    private Long serverId;
 }

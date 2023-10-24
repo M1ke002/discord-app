@@ -13,7 +13,7 @@ public class ChannelMessageDto {
     private Long id;
     private String content;
     private String fileUrl;
-    private Long userId;
+    private ServerMemberDto sender;
     private Long channelId;
     private Long replyToMessageId;
     private boolean isDeleted;

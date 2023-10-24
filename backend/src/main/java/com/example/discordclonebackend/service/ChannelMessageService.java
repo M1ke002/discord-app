@@ -7,7 +7,7 @@ import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
 import java.util.List;
 
 public interface ChannelMessageService {
-    public ChannelMessageResponse getMessages(Integer page, Long channelId);
+    public ChannelMessageResponse getMessages(Integer page, Long channelId, Long serverId);
 
     public ChannelMessageDto createMessage(ChannelMessageRequest channelMessageRequest);
 
