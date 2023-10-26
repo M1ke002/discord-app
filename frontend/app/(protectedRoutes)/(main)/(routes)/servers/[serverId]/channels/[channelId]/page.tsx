@@ -59,14 +59,14 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
           type="channel"
           apiUrl="/messages"
           paramKey="channelId"
-          paramValue={channel.id.toString()}
+          paramValue={params.channelId}
           serverId={params.serverId}
-          chatId={channel.id.toString()}
+          chatId={params.channelId}
           name={channel.name}
         />
         <ChatInput
           apiUrl="/messages"
-          channelId={channel.id.toString()}
+          channelId={params.channelId}
           userId={session.user.id.toString()}
           serverId={params.serverId}
         />

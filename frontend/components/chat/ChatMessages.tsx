@@ -2,10 +2,12 @@ import { useChatQuery } from '@/hooks/useChatQuery';
 import ChatItem from './ChatItem';
 import ChatItemSeparator from './ChatItemSeparator';
 import ChatWelcome from './ChatWelcome';
-import { Fragment } from 'react';
+import { Fragment, useRef, useEffect, useState } from 'react';
 import ChannelMessage from '@/types/ChannelMessage';
 import { Loader2, ServerCrash } from 'lucide-react';
 import { useChatSocket } from '@/hooks/useChatSocket';
+import ChatItemSkeleton from '../skeleton/ChatItemSkeleton';
+import { useInView } from 'react-intersection-observer';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
@@ -32,13 +34,40 @@ const ChatMessages = ({
   const createMessageKey = `chat:${chatId}:new-message`;
   const updateMessageKey = `chat:${chatId}:update-message`;
 
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+
+  const chatRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
   //this hook is used to listen to changes in messages and update messages in real time
   useChatSocket({ createMessageKey, updateMessageKey, queryKey });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({ queryKey, apiUrl, paramKey, paramValue, serverId });
 
+  const { ref } = useInView({
+    threshold: 0,
+    onChange: (inView, entry) => {
+      if (inView && !isFetchingNextPage && hasNextPage) {
+        console.log('fetching next page.....');
+        fetchNextPage();
+      }
+    }
+    // triggerOnce: true
+  });
+
+  //scroll to bottom when page is first loaded
+  useEffect(() => {
+    if (bottomRef.current && data && !hasScrolledToBottom) {
+      bottomRef.current?.scrollIntoView({
+        behavior: 'instant'
+      });
+      setHasScrolledToBottom(true);
+    }
+  }, [bottomRef, data, hasScrolledToBottom]);
+
   if (status === 'pending') {
+    console.log('loading messages...');
     return (
       <div className="flex flex-col flex-1 justify-center items-center">
         <Loader2 className="h-7 w-7 text-zinc-500 animate-spin my-4" />
@@ -61,35 +90,72 @@ const ChatMessages = ({
   }
 
   return (
-    <div className="flex flex-col flex-1 py-4 overflow-y-auto">
-      <div className="flex-1" />
-      <ChatWelcome type={type} name={name} avatarUrl={avatarUrl} />
+    <div ref={chatRef} className="flex flex-col flex-1 py-4 overflow-y-auto">
+      {!hasNextPage && <div className="flex-1" />}
+      {!hasNextPage && (
+        <ChatWelcome type={type} name={name} avatarUrl={avatarUrl} />
+      )}
+
       <div className="flex flex-col-reverse mt-auto">
         {data?.pages?.map((page, i) => (
           <Fragment key={i}>
-            {page?.messages.map((message: ChannelMessage) => (
-              <ChatItem
-                type={message.id === 9 ? 'continue' : 'new'}
-                message={message}
-                key={message.id}
-              />
-            ))}
+            {page?.messages.map((message: ChannelMessage, index: number) => {
+              //check the sender of the current message and the next message.
+              //If next message is not found (null) maybe it is the end of this page -> check the first message of the next page
+              const prevMessage =
+                page?.messages[index + 1] || data?.pages[i + 1]?.messages[0];
+              const prevMessageSenderId = prevMessage?.sender.id;
+              const isSameSender = message.sender.id === prevMessageSenderId;
+
+              const currMessageDate = new Date(message.createdAt);
+              const prevMessageDate = new Date(prevMessage?.createdAt);
+              const isLessThanFiveMinutes =
+                currMessageDate.getTime() - prevMessageDate.getTime() <
+                5 * 60 * 1000;
+              const isContinue = isSameSender && isLessThanFiveMinutes;
+              const currYear = currMessageDate.getFullYear(),
+                currMonth = currMessageDate.getMonth(),
+                currDay = currMessageDate.getDate();
+              const prevYear = prevMessageDate.getFullYear(),
+                prevMonth = prevMessageDate.getMonth(),
+                prevDay = prevMessageDate.getDate();
+              const isNewDay =
+                currYear !== prevYear ||
+                currMonth !== prevMonth ||
+                currDay !== prevDay;
+              // console.log(
+              //   `message: ${index} ${
+              //     message.content
+              //   }, curr time: ${currMessageDate.getTime()} prev time: ${prevMessageDate.getTime()}`
+              // );
+              return (
+                <Fragment key={index}>
+                  <ChatItem
+                    type={isContinue ? 'continue' : 'new'}
+                    message={message}
+                  />
+                  {isNewDay && <ChatItemSeparator date={message.createdAt} />}
+                </Fragment>
+              );
+            })}
           </Fragment>
         ))}
-
-        {/* <ChatItem type="new" />
-        <ChatItem type="new" />
-        <ChatItem type="new" />
-        <ChatItem type="new" />
-        <ChatItem type="new" />
-        <ChatItem type="new" />
-        <ChatItem type="new" />
-        <ChatItemSeparator />
-        <ChatItem type="new" isReplyMessage={true} />
-        <ChatItem type="continue" />
-        <ChatItem type="new" />
-        <ChatItemSeparator /> */}
+        {hasNextPage && (
+          <div ref={ref}>
+            <ChatItemSkeleton variant={1} />
+            <ChatItemSkeleton variant={2} />
+            <ChatItemSkeleton variant={3} />
+            <ChatItemSkeleton variant={4} />
+            <ChatItemSkeleton variant={5} />
+            <ChatItemSkeleton variant={6} />
+            <ChatItemSkeleton variant={7} />
+            <ChatItemSkeleton variant={8} />
+            <ChatItemSkeleton variant={2} />
+            <ChatItemSkeleton variant={5} />
+          </div>
+        )}
       </div>
+      <div ref={bottomRef} />
     </div>
   );
 };

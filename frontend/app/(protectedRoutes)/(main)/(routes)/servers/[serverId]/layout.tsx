@@ -13,7 +13,7 @@ const ServerLayout = ({
   children: React.ReactNode;
   params: { serverId: string };
 }) => {
-  console.log('in server layout');
+  // console.log('in server layout');
 
   return (
     <div className="h-full">

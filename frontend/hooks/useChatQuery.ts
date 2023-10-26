@@ -19,6 +19,7 @@ export const useChatQuery = ({
 }: useChatQueryProps) => {
   const axiosAuth = useAxiosAuth();
   const { isConnected } = useSocket();
+  // console.log('in useChatQuery ');
 
   //TODO: bug -> fetchMessages is called twice when the page is loaded
   const fetchMessages = async (pageParam: number) => {
@@ -38,12 +39,13 @@ export const useChatQuery = ({
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useInfiniteQuery({
-      queryKey: [queryKey],
+      queryKey: [queryKey], //the cached data is stored under this key name
       queryFn: ({ pageParam }) => fetchMessages(pageParam),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage?.nextPage,
       refetchInterval: isConnected ? false : 1000,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      refetchOnMount: false
     });
 
   return {

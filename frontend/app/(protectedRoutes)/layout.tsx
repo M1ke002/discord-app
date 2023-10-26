@@ -9,7 +9,7 @@ export default function ProtectedRoutes({
 }: {
   children: React.ReactNode;
 }) {
-  console.log('useSession in protected routes');
+  // console.log('useSession in protected routes');
   const { data: session, status } = useSession();
   const router = useRouter();
   // console.log('session in ProtectedRoutes: ' + JSON.stringify(session));
