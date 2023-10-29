@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -42,9 +44,22 @@ public class ChannelMessage {
             referencedColumnName = "id"
     )
     private ChannelMessage replyToMessage;
-    private boolean isDeleted = false;
+    private boolean hasReplyMessage;
+    //list of replies to this message
+    @OneToMany(
+            mappedBy = "replyToMessage",
+            fetch = FetchType.LAZY
+    )
+    private List<ChannelMessage> replies = new ArrayList<>();
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;
+
+    @PreRemove
+    private void removeMessageFromReplies() {
+        for (ChannelMessage reply : replies) {
+            reply.setReplyToMessage(null);
+        }
+    }
 
 }

@@ -13,5 +13,5 @@ public interface ChannelMessageService {
 
     public ChannelMessageDto updateMessage(Long messageId, ChannelMessageRequest channelMessageRequest);
 
-    public Boolean deleteMessage(Long messageId);
+    public Boolean deleteMessage(Long messageId, Long userId, Long serverId);
 }

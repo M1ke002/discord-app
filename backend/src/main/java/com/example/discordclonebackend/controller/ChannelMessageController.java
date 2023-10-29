@@ -59,13 +59,18 @@ public class ChannelMessageController {
         return ResponseEntity.ok(updatedChannelMessageDto);
     }
 
+    //example request: http://localhost:8080/api/v1/messages/1?userId=1&channelId=1&serverId=1
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<?> deleteMessage(@PathVariable("messageId") Long messageId, @RequestParam("channelId") Long channelId) {
-        Boolean isDeleted = channelMessageService.deleteMessage(messageId);
+    public ResponseEntity<?> deleteMessage(
+            @PathVariable("messageId") Long messageId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("channelId") Long channelId,
+            @RequestParam("serverId") Long serverId) {
+        Boolean isDeleted = channelMessageService.deleteMessage(messageId, userId, serverId);
         if (!isDeleted) {
             return ResponseEntity.badRequest().body(new StringResponse("Message deletion failed"));
         }
-        String event = "chat:" + channelId + ":update-message";
+        String event = "chat:" + channelId + ":delete-message";
         socketIOServer.getBroadcastOperations().sendEvent(event, messageId);
         return ResponseEntity.ok(new StringResponse("Message deleted successfully"));
     }

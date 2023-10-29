@@ -4,10 +4,7 @@ import com.example.discordclonebackend.dto.ChannelMessageDto;
 import com.example.discordclonebackend.dto.ServerMemberDto;
 import com.example.discordclonebackend.dto.request.ChannelMessageRequest;
 import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
-import com.example.discordclonebackend.entity.Channel;
-import com.example.discordclonebackend.entity.ChannelMessage;
-import com.example.discordclonebackend.entity.User;
-import com.example.discordclonebackend.entity.UserServerMapping;
+import com.example.discordclonebackend.entity.*;
 import com.example.discordclonebackend.repository.*;
 import com.example.discordclonebackend.service.ChannelMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +14,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ChannelMessageServiceImpl implements ChannelMessageService {
 
-    private final static Integer PAGE_SIZE = 10;
+    private final static Integer PAGE_SIZE = 15;
 
     @Autowired
     private ChannelMessageRepository channelMessageRepository;
@@ -67,9 +65,32 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             ));
             channelMessageDto.setFileUrl(channelMessage.getFileUrl());
             channelMessageDto.setContent(channelMessage.getContent());
-            channelMessageDto.setReplyToMessageId(channelMessage.getReplyToMessage() != null ? channelMessage.getReplyToMessage().getId() : null);
+
+            //get the replyToMessage if it exists
+            ChannelMessage replyToMessage = channelMessage.getReplyToMessage();
+            if (replyToMessage != null) {
+                User replyToMessageSender = replyToMessage.getUser();
+                UserServerMapping replyToMessageUserServerMapping = userServerMappingRepository.findByUserIdAndServerId(replyToMessageSender.getId(), serverId);
+                channelMessageDto.setReplyToMessage(new ChannelMessageDto(
+                        replyToMessage.getId(),
+                        replyToMessage.getContent(),
+                        replyToMessage.getFileUrl(),
+                        new ServerMemberDto(
+                                replyToMessageSender.getId(),
+                                replyToMessageSender.getUsername(),
+                                replyToMessageSender.getNickname(),
+                                replyToMessageSender.getAvatarUrl(),
+                                replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
+                                replyToMessageSender.getCreatedAt(),
+                                replyToMessageSender.getUpdatedAt()
+                        )
+                ));
+            } else {
+                channelMessageDto.setReplyToMessage(null);
+            }
+            channelMessageDto.setHasReplyMessage(channelMessage.isHasReplyMessage());
             channelMessageDto.setCreatedAt(channelMessage.getCreatedAt());
-            channelMessageDto.setDeleted(channelMessage.isDeleted());
+            channelMessageDto.setUpdatedAt(channelMessage.getUpdatedAt());
             return channelMessageDto;
         }).collect(Collectors.toList());
         ChannelMessageResponse channelMessageResponse = new ChannelMessageResponse();
@@ -111,7 +132,9 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         ChannelMessage channelMessage = new ChannelMessage();
         channelMessage.setContent(channelMessageRequest.getContent());
         channelMessage.setFileUrl(channelMessageRequest.getFileUrl());
-        channelMessage.setReplyToMessage(channelMessageRequest.getReplyToMessageId() != null ? channelMessageRepository.findById(channelMessageRequest.getReplyToMessageId()).orElse(null) : null);
+        ChannelMessage replyToMessage = channelMessageRequest.getReplyToMessageId() != null ? channelMessageRepository.findById(channelMessageRequest.getReplyToMessageId()).orElse(null) : null;
+        channelMessage.setReplyToMessage(replyToMessage);
+        channelMessage.setHasReplyMessage(replyToMessage != null);
         channelMessage.setChannel(channel);
         channelMessage.setUser(user);
         channelMessage = channelMessageRepository.save(channelMessage);
@@ -131,8 +154,29 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         );
         channelMessageDto.setContent(channelMessage.getContent());
         channelMessageDto.setFileUrl(channelMessage.getFileUrl());
-        channelMessageDto.setReplyToMessageId(channelMessage.getReplyToMessage() != null ? channelMessage.getReplyToMessage().getId() : null);
-        channelMessageDto.setDeleted(channelMessage.isDeleted());
+
+        //get the replyToMessage if it exists
+        if (replyToMessage != null) {
+            User replyToMessageSender = replyToMessage.getUser();
+            UserServerMapping replyToMessageUserServerMapping = userServerMappingRepository.findByUserIdAndServerId(replyToMessageSender.getId(), channelMessageRequest.getServerId());
+            channelMessageDto.setReplyToMessage(new ChannelMessageDto(
+                    replyToMessage.getId(),
+                    replyToMessage.getContent(),
+                    replyToMessage.getFileUrl(),
+                    new ServerMemberDto(
+                            replyToMessageSender.getId(),
+                            replyToMessageSender.getUsername(),
+                            replyToMessageSender.getNickname(),
+                            replyToMessageSender.getAvatarUrl(),
+                            replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
+                            replyToMessageSender.getCreatedAt(),
+                            replyToMessageSender.getUpdatedAt()
+                    )
+            ));
+        } else {
+            channelMessageDto.setReplyToMessage(null);
+        }
+        channelMessageDto.setHasReplyMessage(channelMessage.isHasReplyMessage());
         channelMessageDto.setCreatedAt(channelMessage.getCreatedAt());
         return channelMessageDto;
     }
@@ -141,7 +185,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
     public ChannelMessageDto updateMessage(Long messageId, ChannelMessageRequest channelMessageRequest) {
         //check if message exists
         ChannelMessage channelMessage = channelMessageRepository.findById(messageId).orElse(null);
-        if (channelMessage == null || channelMessage.isDeleted()) {
+        if (channelMessage == null) {
             System.out.println("Message does not exist");
             return null;
         }
@@ -152,9 +196,17 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             return null;
         }
 
+        //check if user is the message's sender
+        if (!channelMessage.getUser().getId().equals(channelMessageRequest.getUserId())) {
+            System.out.println("User is not authorized to update this message");
+            return null;
+        }
+
         //update message content
+        //TODO: should we allow users to update the fileUrl?
         channelMessage.setContent(channelMessageRequest.getContent());
         channelMessage.setFileUrl(channelMessageRequest.getFileUrl());
+        channelMessage.setUpdatedAt(new Date());
         channelMessage = channelMessageRepository.save(channelMessage);
         ChannelMessageDto channelMessageDto = new ChannelMessageDto();
         channelMessageDto.setId(channelMessage.getId());
@@ -173,24 +225,59 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         );
         channelMessageDto.setContent(channelMessage.getContent());
         channelMessageDto.setFileUrl(channelMessage.getFileUrl());
-        channelMessageDto.setReplyToMessageId(channelMessage.getReplyToMessage() != null ? channelMessage.getReplyToMessage().getId() : null);
-        channelMessageDto.setDeleted(channelMessage.isDeleted());
+
+        //get the replyToMessage if it exists
+        ChannelMessage replyToMessage = channelMessage.getReplyToMessage();
+        if (replyToMessage != null) {
+            User replyToMessageSender = replyToMessage.getUser();
+            UserServerMapping replyToMessageUserServerMapping = userServerMappingRepository.findByUserIdAndServerId(replyToMessageSender.getId(), channelMessageRequest.getServerId());
+            channelMessageDto.setReplyToMessage(new ChannelMessageDto(
+                    replyToMessage.getId(),
+                    replyToMessage.getContent(),
+                    replyToMessage.getFileUrl(),
+                    new ServerMemberDto(
+                            replyToMessageSender.getId(),
+                            replyToMessageSender.getUsername(),
+                            replyToMessageSender.getNickname(),
+                            replyToMessageSender.getAvatarUrl(),
+                            replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
+                            replyToMessageSender.getCreatedAt(),
+                            replyToMessageSender.getUpdatedAt()
+                    )
+            ));
+        } else {
+            channelMessageDto.setReplyToMessage(null);
+        }
+        channelMessageDto.setHasReplyMessage(channelMessage.isHasReplyMessage());
         channelMessageDto.setCreatedAt(channelMessage.getCreatedAt());
+        channelMessageDto.setUpdatedAt(channelMessage.getUpdatedAt());
         return channelMessageDto;
 
     }
 
     @Override
-    public Boolean deleteMessage(Long messageId) {
+    public Boolean deleteMessage(Long messageId, Long userId, Long serverId) {
         //check if message exists
         ChannelMessage channelMessage = channelMessageRepository.findById(messageId).orElse(null);
-        if (channelMessage == null || channelMessage.isDeleted()) {
+        if (channelMessage == null) {
             System.out.println("Message does not exist");
             return false;
         }
+
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(userId, serverId);
+        if (userServerMapping == null) {
+            System.out.println("Cannot find user's role in server");
+            return false;
+        }
+
+        //check if user is the ADMIN, MODERATOR or the message's sender
+        if (!userServerMapping.getRole().equals(UserRole.ADMIN) && !userServerMapping.getRole().equals(UserRole.MODERATOR) && !channelMessage.getUser().getId().equals(userId)) {
+            System.out.println("User is not authorized to delete this message");
+            return false;
+        }
+
         //delete message
-        channelMessage.setDeleted(true);
-        channelMessageRepository.save(channelMessage);
+        channelMessageRepository.delete(channelMessage);
         return true;
     }
 }
