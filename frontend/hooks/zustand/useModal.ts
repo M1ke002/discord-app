@@ -20,10 +20,13 @@ export type ModalType =
 
 interface ModalData {
   server?: Server;
+  serverId?: string;
   categories?: Category[];
   selectedCategory?: Category;
   channel?: Channel;
-  userId?: number;
+  channelId?: string;
+  userId?: string;
+  messageId?: string;
 }
 
 interface ModalStore {

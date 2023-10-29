@@ -12,26 +12,35 @@ import {
 } from '../ui/dialog';
 import { useModal } from '@/hooks/zustand/useModal';
 import { Button } from '../ui/button';
-import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useToast } from '../ui/use-toast';
-import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
 const DeleteMessageModal = () => {
   const { type, isOpen, onClose, data } = useModal();
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const axiosAuth = useAxiosAuth();
-  const { toast } = useToast();
 
   const isModalOpen = type === 'deleteMessage' && isOpen;
-  const { server, channel, userId } = data;
+  const { userId, serverId, channelId, messageId } = data;
 
   const handleCloseModal = () => {
     onClose();
   };
 
-  const deleteMessage = async () => {};
+  const deleteMessage = async () => {
+    console.log(userId, serverId, channelId, messageId);
+    try {
+      setIsLoading(true);
+      const res = await axiosAuth.delete(
+        `/messages/${messageId}?userId=${userId}&channelId=${channelId}&serverId=${serverId}`
+      );
+      console.log(res.data);
+    } catch (error) {
+      console.log('[delete message modal]: ' + error);
+    }
+    setIsLoading(false);
+    handleCloseModal();
+  };
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>

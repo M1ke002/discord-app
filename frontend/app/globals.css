@@ -7,6 +7,25 @@ body,
 :root {
   height: 100%;
 }
+
+/* custom scrollbar */
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #2B2D31;
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #1E1F22;
+  border-radius: 5px;
+  background-clip: padding-box;
+}
  
 @layer base {
   :root {

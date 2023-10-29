@@ -6,12 +6,14 @@ import { useEffect } from 'react';
 interface useChatSocketProps {
   createMessageKey: string;
   updateMessageKey: string;
+  deleteMessageKey: string;
   queryKey: string;
 }
 
 export const useChatSocket = ({
   createMessageKey,
   updateMessageKey,
+  deleteMessageKey,
   queryKey
 }: useChatSocketProps) => {
   const queryClient = useQueryClient();
@@ -84,9 +86,57 @@ export const useChatSocket = ({
       });
     });
 
+    //listen to delete message event
+    socket.on(deleteMessageKey, (messageId: number) => {
+      console.log(
+        '[deleteMessageKey] received message from socket, id: ' + messageId
+      );
+      queryClient.setQueryData([queryKey], (oldData: any) => {
+        if (!oldData || !oldData.pages || oldData.pages.length === 0) {
+          return oldData;
+        }
+
+        const newPages = oldData.pages.map((page: any) => {
+          return {
+            ...page,
+            messages: page.messages
+              .filter(
+                (currMessage: ChannelMessage) => currMessage.id !== messageId
+              )
+              .map((currMessage: ChannelMessage) => {
+                if (
+                  currMessage.hasReplyMessage &&
+                  currMessage.replyToMessage &&
+                  currMessage.replyToMessage.id === messageId
+                ) {
+                  return {
+                    ...currMessage,
+                    replyToMessage: null
+                  };
+                }
+                return currMessage;
+              })
+          };
+        });
+
+        return {
+          ...oldData,
+          pages: newPages
+        };
+      });
+    });
+
     return () => {
       socket.off(createMessageKey);
       socket.off(updateMessageKey);
+      socket.off(deleteMessageKey);
     };
-  }, [socket, createMessageKey, updateMessageKey, queryKey, queryClient]);
+  }, [
+    socket,
+    createMessageKey,
+    updateMessageKey,
+    deleteMessageKey,
+    queryKey,
+    queryClient
+  ]);
 };

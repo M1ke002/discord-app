@@ -16,13 +16,11 @@ interface ServerSearchProps {
   data: {
     category: string;
     type: 'channels' | 'members';
-    items:
-      | {
-          icon: React.ReactNode;
-          name: string;
-          id: number;
-        }[]
-      | undefined;
+    items: {
+      icon: React.ReactNode;
+      name: string;
+      id: number;
+    }[];
   }[];
 }
 

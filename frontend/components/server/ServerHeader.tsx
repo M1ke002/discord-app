@@ -63,7 +63,9 @@ const ServerHeader = ({
         {isAdmin && (
           <DropdownMenuItem
             className="px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('editServer', { server, userId })}
+            onClick={() =>
+              onOpen('editServer', { server, userId: userId.toString() })
+            }
           >
             Server settings
             <Settings className="h-4 w-4 ml-auto" />
@@ -73,7 +75,9 @@ const ServerHeader = ({
         {isAdmin && (
           <DropdownMenuItem
             className="px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('members', { server, userId })}
+            onClick={() =>
+              onOpen('members', { server, userId: userId.toString() })
+            }
           >
             Manage members
             <Users className="h-4 w-4 ml-auto" />
@@ -83,7 +87,9 @@ const ServerHeader = ({
         {isModerator && (
           <DropdownMenuItem
             className="px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('createChannel', { categories, userId })}
+            onClick={() =>
+              onOpen('createChannel', { categories, userId: userId.toString() })
+            }
           >
             Create channel
             <PlusCircle className="h-4 w-4 ml-auto" />
@@ -93,7 +99,9 @@ const ServerHeader = ({
         {isModerator && (
           <DropdownMenuItem
             className="px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('createCategory', { server, userId })}
+            onClick={() =>
+              onOpen('createCategory', { server, userId: userId.toString() })
+            }
           >
             Create category
             <FolderPlus className="h-4 w-4 ml-auto" />
@@ -115,7 +123,9 @@ const ServerHeader = ({
         {!isAdmin && (
           <DropdownMenuItem
             className="text-rose-500 px-3 py-2 text-sm cursor-pointer"
-            onClick={() => onOpen('leaveServer', { server, userId })}
+            onClick={() =>
+              onOpen('leaveServer', { server, userId: userId.toString() })
+            }
           >
             Leave server
             <LogOut className="h-4 w-4 ml-auto" />

@@ -8,6 +8,8 @@ import { Loader2, ServerCrash } from 'lucide-react';
 import { useChatSocket } from '@/hooks/useChatSocket';
 import ChatItemSkeleton from '../skeleton/ChatItemSkeleton';
 import { useInView } from 'react-intersection-observer';
+import Member from '@/types/Member';
+import { checkIsNewDay } from '@/utils/utils';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
@@ -15,7 +17,10 @@ interface ChatMessagesProps {
   paramKey: 'channelId' | 'conversationId';
   paramValue: string;
   chatId: string;
+  currMember: Member;
+  userId: string;
   serverId?: string;
+  channelId?: string;
   avatarUrl?: string;
   name?: string;
 }
@@ -26,21 +31,31 @@ const ChatMessages = ({
   paramKey,
   paramValue,
   chatId,
+  currMember,
+  userId,
   serverId,
+  channelId,
   name,
   avatarUrl
 }: ChatMessagesProps) => {
   const queryKey = `chat:${chatId}`;
   const createMessageKey = `chat:${chatId}:new-message`;
   const updateMessageKey = `chat:${chatId}:update-message`;
+  const deleteMessageKey = `chat:${chatId}:delete-message`;
 
+  const [editingMessageId, setEditingMessageId] = useState('');
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   //this hook is used to listen to changes in messages and update messages in real time
-  useChatSocket({ createMessageKey, updateMessageKey, queryKey });
+  useChatSocket({
+    createMessageKey,
+    updateMessageKey,
+    deleteMessageKey,
+    queryKey
+  });
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
     useChatQuery({ queryKey, apiUrl, paramKey, paramValue, serverId });
@@ -59,6 +74,8 @@ const ChatMessages = ({
   //scroll to bottom when page is first loaded
   useEffect(() => {
     if (bottomRef.current && data && !hasScrolledToBottom) {
+      console.log('scrolling to bottom...');
+
       bottomRef.current?.scrollIntoView({
         behavior: 'instant'
       });
@@ -104,8 +121,7 @@ const ChatMessages = ({
               //If next message is not found (null) maybe it is the end of this page -> check the first message of the next page
               const prevMessage =
                 page?.messages[index + 1] || data?.pages[i + 1]?.messages[0];
-              const prevMessageSenderId = prevMessage?.sender.id;
-              const isSameSender = message.sender.id === prevMessageSenderId;
+              const isSameSender = message.sender.id === prevMessage?.sender.id;
 
               const currMessageDate = new Date(message.createdAt);
               const prevMessageDate = new Date(prevMessage?.createdAt);
@@ -113,16 +129,7 @@ const ChatMessages = ({
                 currMessageDate.getTime() - prevMessageDate.getTime() <
                 5 * 60 * 1000;
               const isContinue = isSameSender && isLessThanFiveMinutes;
-              const currYear = currMessageDate.getFullYear(),
-                currMonth = currMessageDate.getMonth(),
-                currDay = currMessageDate.getDate();
-              const prevYear = prevMessageDate.getFullYear(),
-                prevMonth = prevMessageDate.getMonth(),
-                prevDay = prevMessageDate.getDate();
-              const isNewDay =
-                currYear !== prevYear ||
-                currMonth !== prevMonth ||
-                currDay !== prevDay;
+              const isNewDay = checkIsNewDay(currMessageDate, prevMessageDate);
               // console.log(
               //   `message: ${index} ${
               //     message.content
@@ -133,6 +140,12 @@ const ChatMessages = ({
                   <ChatItem
                     type={isContinue ? 'continue' : 'new'}
                     message={message}
+                    editingMessageId={editingMessageId}
+                    setEditingMessageId={setEditingMessageId}
+                    currMember={currMember}
+                    userId={userId}
+                    serverId={serverId}
+                    channelId={channelId}
                   />
                   {isNewDay && <ChatItemSeparator date={message.createdAt} />}
                 </Fragment>

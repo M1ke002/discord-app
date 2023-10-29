@@ -15,3 +15,15 @@ export const getConversationIdFromUrl = (url: string) => {
 
   return conversationId;
 };
+
+export const checkIsNewDay = (currMessageDate: Date, prevMessageDate: Date) => {
+  const currYear = currMessageDate.getFullYear(),
+    currMonth = currMessageDate.getMonth(),
+    currDay = currMessageDate.getDate();
+  const prevYear = prevMessageDate.getFullYear(),
+    prevMonth = prevMessageDate.getMonth(),
+    prevDay = prevMessageDate.getDate();
+  const isNewDay =
+    currYear !== prevYear || currMonth !== prevMonth || currDay !== prevDay;
+  return isNewDay;
+};

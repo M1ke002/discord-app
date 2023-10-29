@@ -7,9 +7,11 @@ import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useMemberList } from '@/hooks/zustand/useMemberList';
 import ChatInput from '@/components/chat/ChatInput';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
-import { useServerChannel } from '@/hooks/zustand/useServerChannel';
+import { useServerChannelData } from '@/hooks/zustand/useServerChannelData';
+import { useServerData } from '@/hooks/zustand/useServerData';
 import { cn } from '@/lib/utils';
 import ChatMessages from '@/components/chat/ChatMessages';
+import { MemberRole } from '@/utils/constants';
 
 interface ChannelIDpageProps {
   params: {
@@ -22,8 +24,9 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
-  const { channel, setChannel } = useServerChannel();
   const { setChatHeaderData } = useChatHeaderData();
+  const { channel, setChannel } = useServerChannelData();
+  const { server, setServer } = useServerData();
   const { isMemberListOpen } = useMemberList();
 
   useEffect(() => {
@@ -35,10 +38,18 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
 
     const fetchChannelData = async () => {
       try {
-        const res = await axiosAuth.get(`/channels/${params.channelId}`);
-        if (res.status == 200) {
-          setChatHeaderData(res.data.name, 'channel');
-          setChannel(res.data);
+        const channelResponse = await axiosAuth.get(
+          `/channels/${params.channelId}`
+        );
+        if (channelResponse.status == 200) {
+          setChatHeaderData(channelResponse.data.name, 'channel');
+          setChannel(channelResponse.data);
+        }
+        const serverResponse = await axiosAuth.get(
+          `/servers/${params.serverId}`
+        );
+        if (serverResponse.status == 200) {
+          setServer(serverResponse.data);
         }
       } catch (error) {
         console.log(error);
@@ -47,12 +58,18 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
     fetchChannelData();
   }, []);
 
-  if (channel && session) {
+  if (channel && server && session) {
+    const member = server.users.find((member) => member.id === session.user.id);
+    if (!member) {
+      console.log('member not found');
+      return;
+    }
+
     return (
       <div
         className={cn(
-          'flex flex-col w-full h-full',
-          isMemberListOpen && 'md:pr-[240px]'
+          'flex flex-col w-full h-full md:pr-[3px]',
+          isMemberListOpen && 'md:pr-[243px]'
         )}
       >
         <ChatMessages
@@ -61,8 +78,11 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
           paramKey="channelId"
           paramValue={params.channelId}
           serverId={params.serverId}
+          channelId={params.channelId}
+          userId={session.user.id.toString()}
           chatId={params.channelId}
           name={channel.name}
+          currMember={member}
         />
         <ChatInput
           apiUrl="/messages"

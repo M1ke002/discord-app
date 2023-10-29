@@ -9,6 +9,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Channel from '@/types/Channel';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
+import LoadingScreen from '@/components/LoadingScreen';
 
 //the home page
 const SetupPage = () => {
@@ -85,7 +86,7 @@ const SetupPage = () => {
     return <CreateServerModal />;
   }
 
-  return <div>LOADING...</div>;
+  return <LoadingScreen />;
 
   // console.log('in SetupPage')
   // const session = await getServerSession(authOptions)

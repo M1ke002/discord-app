@@ -61,7 +61,7 @@ const ServerCategory = ({
                 e.stopPropagation();
                 onOpen('editCategory', {
                   selectedCategory: category,
-                  userId,
+                  userId: userId.toString(),
                   server
                 });
               }}
@@ -76,7 +76,7 @@ const ServerCategory = ({
                 e.stopPropagation();
                 onOpen('deleteCategory', {
                   selectedCategory: category,
-                  userId,
+                  userId: userId.toString(),
                   server
                 });
               }}
@@ -89,7 +89,10 @@ const ServerCategory = ({
               className="text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300 transition"
               onClick={(e) => {
                 e.stopPropagation();
-                onOpen('createChannel', { selectedCategory: category, userId });
+                onOpen('createChannel', {
+                  selectedCategory: category,
+                  userId: userId.toString()
+                });
               }}
             >
               <Plus className="h-4 w-4" />

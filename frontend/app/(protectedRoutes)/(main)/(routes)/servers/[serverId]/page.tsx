@@ -1,7 +1,5 @@
 'use client';
 
-import { dummyServer } from '@/utils/constants';
-import axios from '@/lib/axiosConfig';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';

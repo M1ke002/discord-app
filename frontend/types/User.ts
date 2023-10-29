@@ -1,6 +1,6 @@
 interface User {
   id: number;
-  username?: string;
+  username: string;
   nickname: string;
   avatarUrl?: string;
   imageKey?: string;

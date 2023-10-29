@@ -6,8 +6,8 @@ interface ChannelMessage {
   fileUrl: string | null;
   sender: Member;
   channelId: number;
-  replyToMessageId: number | null;
-  isDeleted: boolean;
+  replyToMessage: ChannelMessage | null;
+  hasReplyMessage: boolean;
   createdAt: string;
   updatedAt: string | null;
 }
