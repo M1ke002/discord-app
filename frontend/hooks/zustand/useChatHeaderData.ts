@@ -2,8 +2,11 @@ import { create } from 'zustand';
 
 interface ChatHeaderDataStore {
   name: string;
-  type: 'channel' | 'conversation';
-  setChatHeaderData: (name: string, type: 'channel' | 'conversation') => void;
+  type: 'channel' | 'conversations' | 'conversation';
+  setChatHeaderData: (
+    name: string,
+    type: 'channel' | 'conversations' | 'conversation'
+  ) => void;
 }
 
 export const useChatHeaderData = create<ChatHeaderDataStore>((set) => ({

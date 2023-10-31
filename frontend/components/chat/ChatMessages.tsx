@@ -10,19 +10,21 @@ import ChatItemSkeleton from '../skeleton/ChatItemSkeleton';
 import { useInView } from 'react-intersection-observer';
 import Member from '@/types/Member';
 import { checkIsNewDay } from '@/utils/utils';
+import User from '@/types/User';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
   apiUrl: string;
-  paramKey: 'channelId' | 'conversationId';
+  paramKey: 'channelId' | 'userId';
   paramValue: string;
   chatId: string;
-  currMember: Member;
   userId: string;
+  currMember?: Member;
+  currUser?: User;
   serverId?: string;
   channelId?: string;
-  avatarUrl?: string;
   name?: string;
+  avatarUrl?: string;
 }
 
 const ChatMessages = ({
@@ -32,13 +34,16 @@ const ChatMessages = ({
   paramValue,
   chatId,
   currMember,
+  currUser,
   userId,
   serverId,
   channelId,
   name,
   avatarUrl
 }: ChatMessagesProps) => {
-  const queryKey = `chat:${chatId}`;
+  const queryKey = currMember
+    ? `chat:${chatId}`
+    : `chat-direct-message:${chatId}`;
   const createMessageKey = `chat:${chatId}:new-message`;
   const updateMessageKey = `chat:${chatId}:update-message`;
   const deleteMessageKey = `chat:${chatId}:delete-message`;
@@ -143,6 +148,8 @@ const ChatMessages = ({
                     editingMessageId={editingMessageId}
                     setEditingMessageId={setEditingMessageId}
                     currMember={currMember}
+                    currUser={currUser}
+                    apiUrl={apiUrl}
                     userId={userId}
                     serverId={serverId}
                     channelId={channelId}

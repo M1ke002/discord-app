@@ -11,7 +11,6 @@ import { useServerChannelData } from '@/hooks/zustand/useServerChannelData';
 import { useServerData } from '@/hooks/zustand/useServerData';
 import { cn } from '@/lib/utils';
 import ChatMessages from '@/components/chat/ChatMessages';
-import { MemberRole } from '@/utils/constants';
 
 interface ChannelIDpageProps {
   params: {
@@ -24,7 +23,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
-  const { setChatHeaderData } = useChatHeaderData();
+  const { type, setChatHeaderData } = useChatHeaderData();
   const { channel, setChannel } = useServerChannelData();
   const { server, setServer } = useServerData();
   const { isMemberListOpen } = useMemberList();
@@ -69,7 +68,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
       <div
         className={cn(
           'flex flex-col w-full h-full md:pr-[3px]',
-          isMemberListOpen && 'md:pr-[243px]'
+          isMemberListOpen && type === 'channel' && 'md:pr-[243px]'
         )}
       >
         <ChatMessages
@@ -77,10 +76,10 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
           apiUrl="/messages"
           paramKey="channelId"
           paramValue={params.channelId}
+          chatId={params.channelId}
+          userId={session.user.id.toString()}
           serverId={params.serverId}
           channelId={params.channelId}
-          userId={session.user.id.toString()}
-          chatId={params.channelId}
           name={channel.name}
           currMember={member}
         />

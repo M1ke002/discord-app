@@ -1,6 +1,6 @@
 'use client';
 
-import { Hash, UserCircle, Users } from 'lucide-react';
+import { Hash, MessagesSquare, UserCircle, Users } from 'lucide-react';
 import React from 'react';
 import MobileSidebarToggle from '../MobileSidebarToggle';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
@@ -41,8 +41,16 @@ const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
         {type === 'channel' && (
           <Hash className="w-5 h-5 text-zinc-500 dark:text-zinc-400 mr-2" />
         )}
+        {type === 'conversations' && (
+          <MessagesSquare className="w-5 h-5 text-zinc-500 dark:text-zinc-400 mr-2" />
+        )}
         {type === 'conversation' && (
-          <UserAvatar src={imageUrl} username={name} className="w-8 h-8 mr-2" />
+          <UserAvatar
+            src={imageUrl}
+            username={name}
+            className="w-6 h-6 mr-2 ml-1"
+            avatarFallbackClassName="text-xs"
+          />
         )}
         <p
           className="font-semibold text-md text-black dark:text-white"

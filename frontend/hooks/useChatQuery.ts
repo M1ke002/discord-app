@@ -4,8 +4,8 @@ import useAxiosAuth from './useAxiosAuth';
 
 interface useChatQueryProps {
   queryKey: string;
-  apiUrl: string; // /messages or /conversations
-  paramKey: 'channelId' | 'conversationId';
+  apiUrl: string; // /messages or /direct-messages
+  paramKey: 'channelId' | 'userId';
   paramValue: string;
   serverId?: string;
 }
@@ -28,6 +28,7 @@ export const useChatQuery = ({
     if (serverId) {
       queryString += `&serverId=${serverId}`;
     }
+    console.log('queryString: ' + queryString);
     try {
       const res = await axiosAuth.get(queryString);
       return res.data;

@@ -66,7 +66,10 @@ const MemberList = ({ serverId }: { serverId: string }) => {
     <div
       className={cn(
         'h-full w-full md:w-[240px] flex-col dark:bg-[#2B2D31] bg-[#F2F3F5]',
-        (!isMemberListOpen || type === 'conversation') && 'md:hidden'
+        (!isMemberListOpen ||
+          type === 'conversation' ||
+          type === 'conversations') &&
+          'md:hidden'
       )}
     >
       <ScrollArea className="px-3 pb-4 pt-6">

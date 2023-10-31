@@ -3,7 +3,6 @@
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { useLoadingScreen } from '@/hooks/zustand/useLoadingScreen';
 import LoadingScreen from '@/components/LoadingScreen';
 
 export default function ProtectedRoutes({

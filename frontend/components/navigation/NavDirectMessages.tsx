@@ -1,13 +1,18 @@
 import React from 'react';
 import TooltipActions from '../TooltipActions';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 //button to add a server
 const NavDirectMessages = () => {
+  const router = useRouter();
   return (
     <div>
       <TooltipActions label="Direct messages" side="right" align="center">
-        <button className="group relative flex items-center">
+        <button
+          className="group relative flex items-center"
+          onClick={() => router.push('/conversations')}
+        >
           <div
             className={cn(
               'absolute left-0 bg-primary rounded-r-full transition-all h-[8px] w-[4px] group-hover:h-[20px] '

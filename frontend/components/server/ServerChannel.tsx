@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { MemberRole, IServerProps, getChannelIcon } from '@/utils/constants';
+import { MemberRole, getChannelIcon } from '@/utils/constants';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 import TooltipActions from '../TooltipActions';

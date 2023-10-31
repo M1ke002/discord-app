@@ -104,7 +104,7 @@ export const authOptions = {
         return {
           ...token,
           id: user.userId,
-          name: user.username,
+          username: user.username,
           nickname: user.nickname,
           avatarUrl: user.avatarUrl,
           accessToken: user.accessToken,
@@ -154,7 +154,7 @@ export const authOptions = {
     },
     async session({ session, token }) {
       session.user.id = token.id;
-      session.user.name = token.name;
+      session.user.username = token.username;
       session.user.nickname = token.nickname;
       session.user.avatarUrl = token.avatarUrl;
       session.accessToken = token.accessToken;

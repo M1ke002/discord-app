@@ -4,15 +4,11 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import ServerHeader from './ServerHeader';
 import { ScrollArea } from '../ui/scroll-area';
-import ServerSearch from './ServerSearch';
+import SidebarSearch from './SidebarSearch';
 import { Separator } from '../ui/separator';
 import ServerCategory from './ServerCategory';
 import { getChannelIcon, getRoleIcon } from '@/utils/constants';
-import {
-  dummyServer as server,
-  ChannelType,
-  MemberRole
-} from '@/utils/constants';
+import { ChannelType, MemberRole } from '@/utils/constants';
 import {
   Collapsible,
   CollapsibleContent,
@@ -103,6 +99,7 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
     return (
       <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
         <ServerHeader
+          type="server"
           server={server}
           role={role}
           categories={categories}
@@ -110,8 +107,9 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
         />
         <ScrollArea className="flex-1 px-3">
           <div className="mt-2">
-            <ServerSearch
-              data={[
+            <SidebarSearch
+              sidebarType="server"
+              serverData={[
                 ...categories.map((category: Category) => ({
                   category: category.name,
                   type: 'channels' as const,
@@ -205,9 +203,9 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
           ))}
         </ScrollArea>
         <UserAccount
-          avatarUrl={member?.avatarUrl || ''}
-          username={member?.username || ''}
-          nickname={member?.nickname || ''}
+          avatarUrl={session.user.avatarUrl || ''}
+          username={session.user.username || ''}
+          nickname={session.user.nickname || ''}
         />
       </div>
     );

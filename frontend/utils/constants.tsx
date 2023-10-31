@@ -50,109 +50,41 @@ export enum MemberRole {
   MEMBER = 'MEMBER'
 }
 
-//fake data used for generating the server sidebar (including the server header and channels)
-export const dummyServer = {
-  name: 'csgo',
-  channels: [
-    {
-      type: ChannelType.TEXT,
-      id: '1',
-      name: 'general'
-    },
-    {
-      type: ChannelType.VOICE,
-      id: '2',
-      name: 'voice chat'
-    },
-    {
-      type: ChannelType.VIDEO,
-      id: '3',
-      name: 'video chat'
-    },
-    {
-      type: ChannelType.TEXT,
-      id: '4',
-      name: 'trash'
-    }
-  ],
-  members: [
-    {
-      profileId: '1',
-      name: 'member1',
-      nickname: 'Member1',
-      role: MemberRole.MODERATOR,
-      avatarUrl:
-        'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-    },
-    {
-      profileId: '2',
-      name: 'member2',
-      nickname: 'Member2',
-      role: MemberRole.ADMIN,
-      avatarUrl:
-        'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-    },
-    {
-      profileId: '3',
-      name: 'member3',
-      nickname: 'Member3',
-      role: MemberRole.MEMBER,
-      avatarUrl:
-        'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-    }
-  ],
-  inviteCode: '123abcd',
-  imageUrl: 'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
-  // imageUrl: null
-};
-
-//fake data used for generating a list of servers of a user, in the navigation bar
-export const dummyServerList = [
+export const dummyConversationList = [
   {
-    id: '123',
-    name: 'dsds',
-    imageUrl:
-      'https://utfs.io/f/14bd6e96-89b9-4a8b-9446-d6ca74fa5949-k4kllm.jpg'
+    id: 2,
+    name: 'John Doe',
+    avatarUrl:
+      'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg'
   },
   {
-    id: '245',
-    name: 'csgo',
-    imageUrl:
-      'https://utfs.io/f/9455970e-4afb-4fde-afa2-f4a4f7fee873-3kvko5.png'
+    id: 3,
+    name: 'John Doe2',
+    avatarUrl:
+      'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg'
   },
   {
-    id: '2456',
-    name: 'dsds',
-    imageUrl: null
+    id: 4,
+    name: 'John Doe3',
+    avatarUrl:
+      'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg'
+  },
+  {
+    id: 5,
+    name: 'John Doe45',
+    avatarUrl:
+      'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg'
+  },
+  {
+    id: 6,
+    name: 'John Doe5',
+    avatarUrl:
+      'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg'
+  },
+  {
+    id: 7,
+    name: 'John Doe6',
+    avatarUrl:
+      'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg'
   }
 ];
-
-export interface IServerOptionalProps {
-  server?: {
-    name: string;
-    channels: { type: string }[];
-    members: {
-      profileId: string;
-      name: string;
-      role: string;
-      avatarUrl: string;
-    }[];
-    inviteCode: string;
-    imageUrl: string | null;
-  };
-}
-
-export interface IServerProps {
-  server: {
-    name: string;
-    channels: { type: string }[];
-    members: {
-      profileId: string;
-      name: string;
-      role: string;
-      avatarUrl: string;
-    }[];
-    inviteCode: string;
-    imageUrl: string | null;
-  };
-}

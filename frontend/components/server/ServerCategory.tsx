@@ -2,11 +2,7 @@
 
 import React from 'react';
 import { useState } from 'react';
-import {
-  ChannelType,
-  MemberRole,
-  IServerOptionalProps
-} from '@/utils/constants';
+import { ChannelType, MemberRole } from '@/utils/constants';
 import TooltipActions from '../TooltipActions';
 import {
   ChevronDown,

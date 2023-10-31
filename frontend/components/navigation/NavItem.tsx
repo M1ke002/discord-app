@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import TooltipActions from '../TooltipActions';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import Channel from '@/types/Channel';
 
 interface NavItemProps {
   id: string;
@@ -15,12 +17,34 @@ interface NavItemProps {
 const NavItem = ({ id, imageUrl, name }: NavItemProps) => {
   const router = useRouter();
   const params = useParams();
+  const axiosAuth = useAxiosAuth();
+
+  const navigateToServer = async () => {
+    try {
+      console.log('getting the server...');
+      const response = await axiosAuth.get(`/servers/${id}`);
+      const server = response.data;
+
+      //find the 'general' channel's id of the server
+      const generalChannelId = server.channels.find(
+        (channel: Channel) => channel.name === 'general'
+      )?.id;
+      console.log('general channel ID: ' + generalChannelId);
+      if (generalChannelId) {
+        // router.refresh();
+        router.push(`/servers/${id}/channels/${generalChannelId}`);
+      }
+    } catch (error) {
+      console.log('[serverId] sussy: ' + error);
+    }
+  };
 
   return (
     <TooltipActions label={name} side="right" align="center">
       <button
         onClick={() => {
-          router.push(`/servers/${id}`);
+          navigateToServer();
+          // router.push(`/servers/${id}`);
         }}
         className="group relative flex items-center"
       >

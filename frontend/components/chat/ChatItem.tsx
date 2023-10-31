@@ -18,6 +18,7 @@ import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { format } from 'date-fns';
 import ChannelMessage from '@/types/ChannelMessage';
 import Member from '@/types/Member';
+import User from '@/types/User';
 
 // const chatReplyIconClassName =
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
@@ -30,7 +31,9 @@ interface ChatItemProps {
   message: ChannelMessage;
   editingMessageId: string;
   setEditingMessageId: (id: string) => void;
-  currMember: Member;
+  currMember?: Member;
+  currUser?: User;
+  apiUrl: string;
   userId: string;
   serverId?: string;
   channelId?: string;
@@ -46,6 +49,8 @@ const ChatItem = ({
   editingMessageId,
   setEditingMessageId,
   currMember,
+  currUser,
+  apiUrl,
   userId,
   serverId,
   channelId
@@ -89,7 +94,7 @@ const ChatItem = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
     try {
-      const res = await axiosAuth.put(`/messages/${message.id}`, {
+      const res = await axiosAuth.put(`${apiUrl}/${message.id}`, {
         content: values.chatMessage,
         userId,
         serverId,
@@ -102,9 +107,9 @@ const ChatItem = ({
     setEditingMessageId('');
   };
 
-  const isAdmin = currMember.role === MemberRole.ADMIN;
-  const isModerator = currMember.role === MemberRole.MODERATOR;
-  const isMessageSender = currMember.id === message.sender.id;
+  const isAdmin = currMember?.role === MemberRole.ADMIN;
+  const isModerator = currMember?.role === MemberRole.MODERATOR;
+  const isMessageSender = currMember?.id === message.sender.id;
   const canDeleteMessage = isAdmin || isModerator || isMessageSender;
   const canEditMessage = isMessageSender;
 
@@ -135,7 +140,7 @@ const ChatItem = ({
               )}
               <div className="cursor-pointer hover:drop-shadow-md">
                 <UserAvatar
-                  src={message.sender.avatarUrl}
+                  src={message.sender.avatarUrl || ''}
                   username={message.sender.nickname}
                 />
               </div>

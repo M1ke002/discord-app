@@ -14,6 +14,8 @@ import {
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import EmojiPicker from '../EmojiPicker';
 import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface ChatInputProps {
   apiUrl: string;
@@ -27,6 +29,7 @@ const formSchema = z.object({
 });
 
 const ChatInput = ({ apiUrl, channelId, userId, serverId }: ChatInputProps) => {
+  const pathName = usePathname();
   const { message: replyToMessage, setMessage } = useReplyToMessage();
   const axiosAuth = useAxiosAuth();
   const form = useForm({
@@ -35,6 +38,12 @@ const ChatInput = ({ apiUrl, channelId, userId, serverId }: ChatInputProps) => {
       content: ''
     }
   });
+
+  useEffect(() => {
+    if (replyToMessage) {
+      setMessage(null);
+    }
+  }, [pathName]);
 
   const isLoading = form.formState.isSubmitting;
 

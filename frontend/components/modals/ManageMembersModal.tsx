@@ -137,7 +137,10 @@ const ManageMembersModal = () => {
         <ScrollArea className="mt-8 max-h-[420px] pr-6">
           {server?.users.map((member: Member) => (
             <div key={member.id} className="flex items-center gap-x-2 mb-6">
-              <UserAvatar username={member.username} src={member.avatarUrl} />
+              <UserAvatar
+                username={member.username}
+                src={member.avatarUrl || ''}
+              />
               <div className="flex flex-col gap-y-1">
                 <div className="text-xs font-semibold flex items-center gap-x-1">
                   {member.username}
