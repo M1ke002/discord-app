@@ -81,7 +81,13 @@ const SidebarSearch = ({
         </kbd>
       </button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search all channels and members" />
+        <CommandInput
+          placeholder={
+            sidebarType === 'server'
+              ? 'Search all channels and members'
+              : 'Search all conversations'
+          }
+        />
         <CommandList>
           <CommandEmpty>No results found</CommandEmpty>
           {sidebarType === 'server' &&

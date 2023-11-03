@@ -81,7 +81,7 @@ const DeleteServerModal = () => {
     } catch (error) {
       console.log(error);
     }
-    router.push('/');
+    router.push('/conversations');
     setIsLoading(false);
     handleCloseModal();
   };

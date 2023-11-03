@@ -26,6 +26,8 @@ interface ModalData {
   channel?: Channel;
   channelId?: string;
   userId?: string;
+  otherUserId?: string;
+  messageType?: 'channelMessage' | 'directMessage';
   messageId?: string;
 }
 

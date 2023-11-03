@@ -11,39 +11,31 @@ import { useInView } from 'react-intersection-observer';
 import Member from '@/types/Member';
 import { checkIsNewDay } from '@/utils/utils';
 import User from '@/types/User';
+import DirectMessage from '@/types/DirectMessage';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
   apiUrl: string;
-  paramKey: 'channelId' | 'userId';
-  paramValue: string;
-  chatId: string;
-  userId: string;
-  currMember?: Member;
-  currUser?: User;
+  chatWelcomeName: string;
+  currUser: User | Member;
+  otherUser?: User;
   serverId?: string;
   channelId?: string;
-  name?: string;
-  avatarUrl?: string;
 }
 
 const ChatMessages = ({
   type,
   apiUrl,
-  paramKey,
-  paramValue,
-  chatId,
-  currMember,
+  chatWelcomeName,
   currUser,
-  userId,
+  otherUser,
   serverId,
-  channelId,
-  name,
-  avatarUrl
+  channelId
 }: ChatMessagesProps) => {
-  const queryKey = currMember
-    ? `chat:${chatId}`
-    : `chat-direct-message:${chatId}`;
+  const chatId =
+    type === 'channel' ? channelId : `${currUser.id}-${otherUser?.id}`;
+  const queryKey =
+    type === 'channel' ? `chat:${chatId}` : `chat-direct-message:${chatId}`;
   const createMessageKey = `chat:${chatId}:new-message`;
   const updateMessageKey = `chat:${chatId}:update-message`;
   const deleteMessageKey = `chat:${chatId}:delete-message`;
@@ -62,8 +54,18 @@ const ChatMessages = ({
     queryKey
   });
 
+  const messageType = type === 'channel' ? 'channelMessages' : 'directMessages';
+
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useChatQuery({ queryKey, apiUrl, paramKey, paramValue, serverId });
+    useChatQuery({
+      messageType,
+      queryKey,
+      apiUrl,
+      serverId,
+      channelId,
+      userId1: currUser?.id.toString(),
+      userId2: otherUser?.id.toString()
+    });
 
   const { ref } = useInView({
     threshold: 0,
@@ -115,49 +117,58 @@ const ChatMessages = ({
     <div ref={chatRef} className="flex flex-col flex-1 py-4 overflow-y-auto">
       {!hasNextPage && <div className="flex-1" />}
       {!hasNextPage && (
-        <ChatWelcome type={type} name={name} avatarUrl={avatarUrl} />
+        <ChatWelcome
+          type={type}
+          name={chatWelcomeName}
+          avatarUrl={otherUser?.avatarUrl || ''}
+        />
       )}
 
       <div className="flex flex-col-reverse mt-auto">
         {data?.pages?.map((page, i) => (
           <Fragment key={i}>
-            {page?.messages.map((message: ChannelMessage, index: number) => {
-              //check the sender of the current message and the next message.
-              //If next message is not found (null) maybe it is the end of this page -> check the first message of the next page
-              const prevMessage =
-                page?.messages[index + 1] || data?.pages[i + 1]?.messages[0];
-              const isSameSender = message.sender.id === prevMessage?.sender.id;
+            {page?.messages.map(
+              (message: ChannelMessage | DirectMessage, index: number) => {
+                //check the sender of the current message and the next message.
+                //If next message is not found (null) maybe it is the end of this page -> check the first message of the next page
+                const prevMessage =
+                  page?.messages[index + 1] || data?.pages[i + 1]?.messages[0];
+                const isSameSender =
+                  message.sender.id === prevMessage?.sender.id;
 
-              const currMessageDate = new Date(message.createdAt);
-              const prevMessageDate = new Date(prevMessage?.createdAt);
-              const isLessThanFiveMinutes =
-                currMessageDate.getTime() - prevMessageDate.getTime() <
-                5 * 60 * 1000;
-              const isContinue = isSameSender && isLessThanFiveMinutes;
-              const isNewDay = checkIsNewDay(currMessageDate, prevMessageDate);
-              // console.log(
-              //   `message: ${index} ${
-              //     message.content
-              //   }, curr time: ${currMessageDate.getTime()} prev time: ${prevMessageDate.getTime()}`
-              // );
-              return (
-                <Fragment key={index}>
-                  <ChatItem
-                    type={isContinue ? 'continue' : 'new'}
-                    message={message}
-                    editingMessageId={editingMessageId}
-                    setEditingMessageId={setEditingMessageId}
-                    currMember={currMember}
-                    currUser={currUser}
-                    apiUrl={apiUrl}
-                    userId={userId}
-                    serverId={serverId}
-                    channelId={channelId}
-                  />
-                  {isNewDay && <ChatItemSeparator date={message.createdAt} />}
-                </Fragment>
-              );
-            })}
+                const currMessageDate = new Date(message.createdAt);
+                const prevMessageDate = new Date(prevMessage?.createdAt);
+                const isLessThanFiveMinutes =
+                  currMessageDate.getTime() - prevMessageDate.getTime() <
+                  5 * 60 * 1000;
+                const isContinue = isSameSender && isLessThanFiveMinutes;
+                const isNewDay = checkIsNewDay(
+                  currMessageDate,
+                  prevMessageDate
+                );
+                // console.log(
+                //   `message: ${index} ${
+                //     message.content
+                //   }, curr time: ${currMessageDate.getTime()} prev time: ${prevMessageDate.getTime()}`
+                // );
+                return (
+                  <Fragment key={index}>
+                    <ChatItem
+                      type={isContinue ? 'continue' : 'new'}
+                      message={message}
+                      editingMessageId={editingMessageId}
+                      setEditingMessageId={setEditingMessageId}
+                      currUser={currUser}
+                      otherUser={otherUser}
+                      apiUrl={apiUrl}
+                      serverId={serverId}
+                      channelId={channelId}
+                    />
+                    {isNewDay && <ChatItemSeparator date={message.createdAt} />}
+                  </Fragment>
+                );
+              }
+            )}
           </Fragment>
         ))}
         {hasNextPage && (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
@@ -9,6 +9,7 @@ import { useUserProfile } from '@/hooks/zustand/useUserProfile';
 import ChatInput from '@/components/chat/ChatInput';
 import ChatMessages from '@/components/chat/ChatMessages';
 import { cn } from '@/lib/utils';
+import User from '@/types/User';
 
 interface ConversationPageProps {
   params: {
@@ -22,6 +23,7 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
   const axiosAuth = useAxiosAuth();
   const { type, setChatHeaderData } = useChatHeaderData();
   const { isUserProfileOpen } = useUserProfile();
+  const [otherUser, setOtherUser] = useState<User>();
 
   useEffect(() => {
     if (!session) {
@@ -30,13 +32,26 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
       return;
     }
 
-    const fetchConversationData = async () => {};
-
+    //fetch the info of the other user you are chatting with
+    const fetchOtherUserInfo = async () => {
+      try {
+        const res = await axiosAuth.get(`/users/${params.userId}`);
+        setOtherUser(res.data);
+        setChatHeaderData(
+          'conversation',
+          res.data.nickname,
+          res.data.avatarUrl
+        );
+        console.log(res.data);
+      } catch (error) {
+        console.log('[fetchChatUser]', error);
+      }
+    };
     console.log('in conversation page');
-    setChatHeaderData('user name', 'conversation');
+    fetchOtherUserInfo();
   }, []);
 
-  if (session) {
+  if (otherUser && session) {
     return (
       <div
         className={cn(
@@ -47,15 +62,15 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
         <ChatMessages
           type="conversation"
           apiUrl="/direct-messages"
-          paramKey="userId"
-          paramValue={params.userId}
-          chatId={params.userId}
-          userId={session.user.id.toString()}
           currUser={session.user}
-          name="Mitty"
-          avatarUrl={session.user.avatarUrl || ''}
+          otherUser={otherUser}
+          chatWelcomeName={otherUser?.nickname || ''}
         />
-        <ChatInput apiUrl="/direct-messages" />
+        <ChatInput
+          apiUrl="/direct-messages"
+          userId={session.user.id.toString()}
+          otherUserId={params.userId}
+        />
       </div>
     );
   }

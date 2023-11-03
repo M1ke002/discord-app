@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 interface ClientStore {
   refetchServerSidebar: object;
+  refetchConversationSidebar: object;
   refetchNavbar: object;
   refetchMemberList: object;
   triggerRefetchComponents: (componentNames: string[]) => void;
@@ -9,6 +10,7 @@ interface ClientStore {
 
 export const useRefetchComponents = create<ClientStore>((set) => ({
   refetchServerSidebar: {},
+  refetchConversationSidebar: {},
   refetchNavbar: {},
   refetchMemberList: {},
   triggerRefetchComponents: (componentNames) => {
@@ -22,6 +24,8 @@ export const useRefetchComponents = create<ClientStore>((set) => ({
         set((state) => ({ ...state, refetchNavbar: {} }));
       } else if (componentName === 'MemberList') {
         set((state) => ({ ...state, refetchMemberList: {} }));
+      } else if (componentName === 'ConversationSidebar') {
+        set((state) => ({ ...state, refetchConversationSidebar: {} }));
       }
     });
   }

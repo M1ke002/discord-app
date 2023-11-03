@@ -11,6 +11,7 @@ import {
   FormItem,
   FormMessage
 } from '../ui/form';
+import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import EmojiPicker from '../EmojiPicker';
 import { cn } from '@/lib/utils';
@@ -19,8 +20,9 @@ import { usePathname } from 'next/navigation';
 
 interface ChatInputProps {
   apiUrl: string;
+  userId: string;
+  otherUserId?: string;
   channelId?: string;
-  userId?: string;
   serverId?: string;
 }
 
@@ -28,7 +30,14 @@ const formSchema = z.object({
   content: z.string()
 });
 
-const ChatInput = ({ apiUrl, channelId, userId, serverId }: ChatInputProps) => {
+const ChatInput = ({
+  apiUrl,
+  channelId,
+  userId,
+  otherUserId,
+  serverId
+}: ChatInputProps) => {
+  const { triggerRefetchComponents } = useRefetchComponents();
   const pathName = usePathname();
   const { message: replyToMessage, setMessage } = useReplyToMessage();
   const axiosAuth = useAxiosAuth();
@@ -51,14 +60,27 @@ const ChatInput = ({ apiUrl, channelId, userId, serverId }: ChatInputProps) => {
     if (values.content.trim() === '') return;
     console.log(values);
     try {
-      const res = await axiosAuth.post(apiUrl, {
+      const requestBody: any = {
         content: values.content,
-        channelId,
-        userId,
-        serverId,
         replyToMessageId: replyToMessage?.id
-      });
+      };
+      if (otherUserId) {
+        requestBody.userId1 = userId;
+        requestBody.userId2 = otherUserId;
+        requestBody.senderId = userId;
+      } else {
+        requestBody.userId = userId;
+        requestBody.channelId = channelId;
+        requestBody.serverId = serverId;
+      }
+      const res = await axiosAuth.post(apiUrl, requestBody);
       console.log(res.data);
+
+      if (otherUserId && res.data.newConversation) {
+        //refetch the conversations sidebar
+        console.log('new conversation created!');
+        triggerRefetchComponents(['ConversationSidebar']);
+      }
     } catch (error) {
       console.log(error);
     }

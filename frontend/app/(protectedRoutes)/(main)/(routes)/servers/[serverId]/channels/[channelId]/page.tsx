@@ -41,7 +41,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
           `/channels/${params.channelId}`
         );
         if (channelResponse.status == 200) {
-          setChatHeaderData(channelResponse.data.name, 'channel');
+          setChatHeaderData('channel', channelResponse.data.name);
           setChannel(channelResponse.data);
         }
         const serverResponse = await axiosAuth.get(
@@ -52,6 +52,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
         }
       } catch (error) {
         console.log(error);
+        router.replace(`/servers/${params.serverId}`);
       }
     };
     fetchChannelData();
@@ -74,19 +75,15 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
         <ChatMessages
           type="channel"
           apiUrl="/messages"
-          paramKey="channelId"
-          paramValue={params.channelId}
-          chatId={params.channelId}
-          userId={session.user.id.toString()}
+          currUser={member}
           serverId={params.serverId}
           channelId={params.channelId}
-          name={channel.name}
-          currMember={member}
+          chatWelcomeName={channel.name}
         />
         <ChatInput
           apiUrl="/messages"
-          channelId={params.channelId}
           userId={session.user.id.toString()}
+          channelId={params.channelId}
           serverId={params.serverId}
         />
       </div>

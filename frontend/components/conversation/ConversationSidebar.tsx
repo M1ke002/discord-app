@@ -5,23 +5,15 @@ import { useRouter } from 'next/navigation';
 import ServerHeader from '../server/ServerHeader';
 import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
-import { getChannelIcon, getRoleIcon } from '@/utils/constants';
-import { ChannelType, MemberRole } from '@/utils/constants';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger
-} from '@/components/ui/collapsible';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { usePathname } from 'next/navigation';
 import ServerSidebarSkeleton from '../skeleton/ServerSidebarSkeleton';
 import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
-import { dummyConversationList } from '@/utils/constants';
 import SidebarSearch from '../server/SidebarSearch';
 import ConversationItem from './ConversationItem';
 import UserAccount from '../server/UserAccount';
+import Conversation from '@/types/Conversation';
 
 //maps channel type to icon
 
@@ -29,10 +21,8 @@ const ConversationSidebar = () => {
   const { data: session } = useSession();
   const router = useRouter();
   const axiosAuth = useAxiosAuth();
-  const pathName = usePathname();
-
-  //this newPath is used as the dependecy to refetch serveInfo from backend
-  const newPath = pathName.substring(0, pathName.lastIndexOf('/'));
+  const [conversationList, setConversationList] = useState<Conversation[]>([]);
+  const { refetchConversationSidebar } = useRefetchComponents();
 
   useEffect(() => {
     if (!session) {
@@ -40,14 +30,37 @@ const ConversationSidebar = () => {
       router.replace('/login');
       return;
     }
-  }, []);
+
+    const fetchConversations = async () => {
+      console.log('fetching conversation list...');
+      try {
+        const res = await axiosAuth.get(`/conversations/${session.user.id}`);
+        console.log(res.data);
+        setConversationList(res.data);
+      } catch (error) {
+        console.log('[ConversationSidebar] sussy: ' + error);
+        return;
+      }
+    };
+
+    fetchConversations();
+  }, [refetchConversationSidebar]);
 
   return (
     <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
       <ServerHeader type="conversation" />
       <ScrollArea className="flex-1 px-3">
         <div className="mt-2">
-          <SidebarSearch sidebarType="conversation" />
+          <SidebarSearch
+            sidebarType="conversation"
+            conversationData={{
+              items: conversationList.map((conversation) => ({
+                id: conversation.otherUser.id,
+                name: conversation.otherUser.nickname,
+                avatarUrl: conversation.otherUser.avatarUrl || ''
+              }))
+            }}
+          />
         </div>
 
         <Separator className="bg-zinc-200 dark:bg-zinc-700 my-2 rounded-md" />
@@ -59,12 +72,12 @@ const ConversationSidebar = () => {
             </p>
           </div>
 
-          {dummyConversationList.map((conversation, index) => (
+          {conversationList.map((conversation, index) => (
             <ConversationItem
               key={index}
-              id={conversation.id.toString()}
-              name={conversation.name}
-              avatarUrl={conversation.avatarUrl}
+              id={conversation.otherUser.id.toString()}
+              name={conversation.otherUser.nickname}
+              avatarUrl={conversation.otherUser.avatarUrl || ''}
             />
           ))}
         </div>

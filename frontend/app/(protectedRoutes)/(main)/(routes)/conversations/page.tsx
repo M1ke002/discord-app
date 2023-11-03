@@ -9,7 +9,7 @@ import Image from 'next/image';
 const ConversationsPage = () => {
   const { setChatHeaderData } = useChatHeaderData();
   useEffect(() => {
-    setChatHeaderData('Start a conversation', 'conversations');
+    setChatHeaderData('conversations', 'Start a conversation');
   }, []);
 
   return (

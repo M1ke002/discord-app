@@ -15,14 +15,13 @@ import UserAvatar from '../UserAvatar';
 
 interface ChatHeaderProps {
   serverId: string;
-  imageUrl?: string;
 }
 
-const ChatHeader = ({ serverId, imageUrl }: ChatHeaderProps) => {
+const ChatHeader = ({ serverId }: ChatHeaderProps) => {
   const axiosAuth = useAxiosAuth();
   const { isMemberListOpen, toggleMemberList } = useMemberList();
   const { isUserProfileOpen, toggleUserProfile } = useUserProfile();
-  const { name, type } = useChatHeaderData();
+  const { name, type, imageUrl } = useChatHeaderData();
 
   const testAPI = async () => {
     try {

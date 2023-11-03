@@ -17,8 +17,10 @@ import { useReplyToMessage } from '@/hooks/zustand/useReplyToMessage';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { format } from 'date-fns';
 import ChannelMessage from '@/types/ChannelMessage';
+import DirectMessage from '@/types/DirectMessage';
 import Member from '@/types/Member';
 import User from '@/types/User';
+import { isChannelMessage, isServerMember } from '@/utils/utils';
 
 // const chatReplyIconClassName =
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
@@ -28,13 +30,12 @@ const chatReplyIconClassName =
 
 interface ChatItemProps {
   type: 'new' | 'continue';
-  message: ChannelMessage;
+  message: ChannelMessage | DirectMessage;
   editingMessageId: string;
   setEditingMessageId: (id: string) => void;
-  currMember?: Member;
-  currUser?: User;
+  currUser: User | Member;
+  otherUser?: User;
   apiUrl: string;
-  userId: string;
   serverId?: string;
   channelId?: string;
 }
@@ -48,10 +49,9 @@ const ChatItem = ({
   message,
   editingMessageId,
   setEditingMessageId,
-  currMember,
   currUser,
+  otherUser,
   apiUrl,
-  userId,
   serverId,
   channelId
 }: ChatItemProps) => {
@@ -94,12 +94,19 @@ const ChatItem = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
     try {
-      const res = await axiosAuth.put(`${apiUrl}/${message.id}`, {
-        content: values.chatMessage,
-        userId,
-        serverId,
-        channelId
-      });
+      const requestBody: any = {
+        content: values.chatMessage
+      };
+      if (otherUser) {
+        requestBody.userId1 = currUser?.id;
+        requestBody.userId2 = otherUser?.id;
+        requestBody.senderId = currUser?.id;
+      } else {
+        requestBody.userId = currUser?.id;
+        requestBody.channelId = channelId;
+        requestBody.serverId = serverId;
+      }
+      const res = await axiosAuth.put(`${apiUrl}/${message.id}`, requestBody);
       console.log(res.data);
     } catch (error) {
       console.log('[edit message]' + error);
@@ -107,10 +114,12 @@ const ChatItem = ({
     setEditingMessageId('');
   };
 
-  const isAdmin = currMember?.role === MemberRole.ADMIN;
-  const isModerator = currMember?.role === MemberRole.MODERATOR;
-  const isMessageSender = currMember?.id === message.sender.id;
-  const canDeleteMessage = isAdmin || isModerator || isMessageSender;
+  const isMessageSender = currUser?.id === message.sender.id;
+  const isAdmin =
+    isServerMember(currUser) && currUser?.role === MemberRole.ADMIN;
+  const isModerator =
+    isServerMember(currUser) && currUser?.role === MemberRole.MODERATOR;
+  const canDeleteMessage = isMessageSender || isAdmin || isModerator;
   const canEditMessage = isMessageSender;
 
   if (message.hasReplyMessage) type = 'new';
@@ -176,15 +185,15 @@ const ChatItem = ({
               {message.replyToMessage != null && (
                 <>
                   <UserAvatar
-                    username={message.replyToMessage?.sender.nickname}
+                    username={message.replyToMessage.sender.nickname}
                     className="h-4 w-4"
                     avatarFallbackClassName="text-[8px]"
                   />
                   <p className="text-xs text-zinc-400 ml-1 font-semibold hover:underline cursor-pointer">
-                    {message.replyToMessage?.sender.nickname}
+                    {message.replyToMessage.sender.nickname}
                   </p>
                   <p className="text-xs text-black hover:text-black/75 dark:text-zinc-400 ml-1 dark:hover:text-zinc-300 cursor-pointer">
-                    {message.replyToMessage?.content}
+                    {message.replyToMessage.content}
                   </p>
                 </>
               )}
@@ -196,9 +205,11 @@ const ChatItem = ({
                 <p className="font-semibold text-sm hover:underline cursor-pointer">
                   <span
                     className={cn(
-                      message.sender.role === MemberRole.ADMIN
+                      isChannelMessage(message) &&
+                        message.sender.role === MemberRole.ADMIN
                         ? 'text-rose-500'
-                        : message.sender.role === MemberRole.MODERATOR
+                        : isChannelMessage(message) &&
+                          message.sender.role === MemberRole.MODERATOR
                         ? 'text-indigo-500'
                         : 'text-white'
                     )}
@@ -208,19 +219,20 @@ const ChatItem = ({
                 </p>
                 <TooltipActions
                   label={
+                    isChannelMessage(message) &&
                     message.sender.role === MemberRole.ADMIN
                       ? 'Admin'
-                      : message.sender.role === MemberRole.MODERATOR
+                      : isChannelMessage(message) &&
+                        message.sender.role === MemberRole.MODERATOR
                       ? 'Moderator'
                       : 'Member'
                   }
                 >
                   <p className="ml-1">
-                    {
+                    {isChannelMessage(message) &&
                       getRoleIcon('h-4 w-4')[
                         message.sender.role as keyof typeof getRoleIcon
-                      ]
-                    }
+                      ]}
                   </p>
                 </TooltipActions>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1">
@@ -302,8 +314,12 @@ const ChatItem = ({
                 <Trash
                   onClick={() =>
                     onOpen('deleteMessage', {
+                      messageType: isChannelMessage(message)
+                        ? 'channelMessage'
+                        : 'directMessage',
                       messageId: message.id.toString(),
-                      userId,
+                      userId: currUser?.id.toString() || '',
+                      otherUserId: otherUser?.id.toString() || '',
                       channelId,
                       serverId
                     })

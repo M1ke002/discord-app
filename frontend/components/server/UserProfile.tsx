@@ -10,7 +10,6 @@ import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
 import { Separator } from '../ui/separator';
 import UserAvatar from '../UserAvatar';
 import { useParams } from 'next/navigation';
-import { getConversationIdFromUrl } from '@/utils/utils';
 import User from '@/types/User';
 import { format } from 'date-fns';
 

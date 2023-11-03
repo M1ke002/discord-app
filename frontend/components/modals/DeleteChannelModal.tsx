@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useToast } from '../ui/use-toast';
 import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
+import { useParams } from 'next/navigation';
 
 const DeleteChannelModal = () => {
   const { type, isOpen, onClose, data } = useModal();
@@ -24,6 +25,7 @@ const DeleteChannelModal = () => {
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
   const { triggerRefetchComponents } = useRefetchComponents();
+  const params = useParams();
 
   const isModalOpen = type === 'deleteChannel' && isOpen;
   const { server, channel, userId } = data;
@@ -42,6 +44,11 @@ const DeleteChannelModal = () => {
         title: 'Channel deleted successfully!'
       });
       console.log(res.data);
+
+      //if the deleted channel is the current channel -> redirect back to server
+      if (params.channelId === channel?.id.toString()) {
+        router.replace(`/servers/${server?.id}`);
+      }
     } else {
       toast({
         title: 'Something went wrong',

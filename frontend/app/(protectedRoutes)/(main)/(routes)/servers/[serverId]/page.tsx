@@ -45,6 +45,7 @@ const ServerPage = ({ params }: ServerPageProps) => {
         }
       } catch (error) {
         console.log('[serverId] sussy: ' + error);
+        router.replace('/conversations');
         return null;
       }
     };

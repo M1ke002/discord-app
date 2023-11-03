@@ -1,19 +1,10 @@
+import ChannelMessage from '@/types/ChannelMessage';
+import DirectMessage from '@/types/DirectMessage';
+import Member from '@/types/Member';
+import User from '@/types/User';
+
 export const getTokenFromHeader = (header: string) => {
   return header.substring(7);
-};
-
-export const getConversationIdFromUrl = (url: string) => {
-  const segments = url.split('/');
-
-  const conversationSegmentIndex = segments.indexOf('conversations');
-
-  if (conversationSegmentIndex === -1) {
-    return null;
-  }
-
-  const conversationId = segments[conversationSegmentIndex + 1];
-
-  return conversationId;
 };
 
 export const checkIsNewDay = (currMessageDate: Date, prevMessageDate: Date) => {
@@ -26,4 +17,14 @@ export const checkIsNewDay = (currMessageDate: Date, prevMessageDate: Date) => {
   const isNewDay =
     currYear !== prevYear || currMonth !== prevMonth || currDay !== prevDay;
   return isNewDay;
+};
+
+export const isChannelMessage = (
+  message: ChannelMessage | DirectMessage
+): message is ChannelMessage => {
+  return 'channelId' in message;
+};
+
+export const isServerMember = (user: Member | User): user is Member => {
+  return 'role' in user;
 };

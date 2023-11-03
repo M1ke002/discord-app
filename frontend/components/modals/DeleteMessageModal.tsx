@@ -21,19 +21,24 @@ const DeleteMessageModal = () => {
   const axiosAuth = useAxiosAuth();
 
   const isModalOpen = type === 'deleteMessage' && isOpen;
-  const { userId, serverId, channelId, messageId } = data;
+  const { messageType, messageId, userId, otherUserId, serverId, channelId } =
+    data;
 
   const handleCloseModal = () => {
     onClose();
   };
 
   const deleteMessage = async () => {
-    console.log(userId, serverId, channelId, messageId);
+    let query = '';
+    if (messageType === 'channelMessage') {
+      query = `/messages/${messageId}?userId=${userId}&channelId=${channelId}&serverId=${serverId}`;
+    } else {
+      query = `/direct-messages/${messageId}?userId=${userId}&otherUserId=${otherUserId}`;
+    }
+    console.log(query);
     try {
       setIsLoading(true);
-      const res = await axiosAuth.delete(
-        `/messages/${messageId}?userId=${userId}&channelId=${channelId}&serverId=${serverId}`
-      );
+      const res = await axiosAuth.delete(query);
       console.log(res.data);
     } catch (error) {
       console.log('[delete message modal]: ' + error);

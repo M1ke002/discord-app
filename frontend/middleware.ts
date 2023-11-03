@@ -1,9 +1,11 @@
-
 import { getToken } from 'next-auth/jwt';
 import { withAuth } from 'next-auth/middleware';
 import { NextFetchEvent, NextRequest, NextResponse } from 'next/server';
 
-export default async function middleware(req: NextRequest, event: NextFetchEvent) {
+export default async function middleware(
+  req: NextRequest,
+  event: NextFetchEvent
+) {
   const token = await getToken({ req });
   const isAuthenticated = !!token;
   // console.log('isAuthenticated', isAuthenticated);
@@ -14,17 +16,21 @@ export default async function middleware(req: NextRequest, event: NextFetchEvent
     return NextResponse.next();
   }
 
-  if (req.nextUrl.pathname.startsWith('/login') || req.nextUrl.pathname.startsWith('/register')) {
+  if (
+    req.nextUrl.pathname.startsWith('/login') ||
+    req.nextUrl.pathname.startsWith('/register') ||
+    req.nextUrl.pathname === '/'
+  ) {
     if (isAuthenticated) {
       // console.log('redirecting to /');
-      return NextResponse.redirect(new URL('/', req.url));
+      return NextResponse.redirect(new URL('/conversations', req.url));
     }
   }
 
   const authMiddleware = await withAuth({
     pages: {
-      signIn: `/login`,
-    },
+      signIn: `/login`
+    }
   });
 
   // @ts-expect-error
@@ -38,9 +44,9 @@ export const config = {
   // ],
   matcher: [
     //allow all routes except /login and /register
-    '/((?!_next/static|_next/image|images|favicon.ico).*)',
-  ],
-}
+    '/((?!_next/static|_next/image|images|favicon.ico).*)'
+  ]
+};
 
 // export const config = {
 //   // matcher: ["/private", "/"],

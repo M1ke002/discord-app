@@ -1,5 +1,6 @@
 import { useSocket } from '@/components/providers/SocketProvider';
 import ChannelMessage from '@/types/ChannelMessage';
+import DirectMessage from '@/types/DirectMessage';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
@@ -24,7 +25,7 @@ export const useChatSocket = ({
     if (!socket) return;
 
     //listen to create message event
-    socket.on(createMessageKey, (message: ChannelMessage) => {
+    socket.on(createMessageKey, (message: ChannelMessage | DirectMessage) => {
       console.log(
         '[createMessageKey] received message from socket: ' +
           JSON.stringify(message)
@@ -56,7 +57,7 @@ export const useChatSocket = ({
     });
 
     //listen to update message event
-    socket.on(updateMessageKey, (message: ChannelMessage) => {
+    socket.on(updateMessageKey, (message: ChannelMessage | DirectMessage) => {
       console.log(
         '[updateMessageKey] received message from socket: ' +
           JSON.stringify(message)
@@ -70,12 +71,14 @@ export const useChatSocket = ({
         const newPages = oldData.pages.map((page: any) => {
           return {
             ...page,
-            messages: page.messages.map((currMessage: ChannelMessage) => {
-              if (currMessage.id === message.id) {
-                return message;
+            messages: page.messages.map(
+              (currMessage: ChannelMessage | DirectMessage) => {
+                if (currMessage.id === message.id) {
+                  return message;
+                }
+                return currMessage;
               }
-              return currMessage;
-            })
+            )
           };
         });
 
@@ -101,9 +104,10 @@ export const useChatSocket = ({
             ...page,
             messages: page.messages
               .filter(
-                (currMessage: ChannelMessage) => currMessage.id !== messageId
+                (currMessage: ChannelMessage | DirectMessage) =>
+                  currMessage.id !== messageId
               )
-              .map((currMessage: ChannelMessage) => {
+              .map((currMessage: ChannelMessage | DirectMessage) => {
                 if (
                   currMessage.hasReplyMessage &&
                   currMessage.replyToMessage &&

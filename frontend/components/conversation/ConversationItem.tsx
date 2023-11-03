@@ -21,7 +21,12 @@ const ConversationItem = ({ id, name, avatarUrl }: ConversationItemProps) => {
       )}
       onClick={() => router.push(`/conversations/${id}`)}
     >
-      <UserAvatar src={avatarUrl} username={name} className="h-7 w-7" />
+      <UserAvatar
+        src={avatarUrl}
+        username={name}
+        className="h-7 w-7"
+        avatarFallbackClassName="text-[13px]"
+      />
 
       <p
         className={cn(

@@ -1,11 +1,14 @@
 import React from 'react';
 import TooltipActions from '../TooltipActions';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 //button to add a server
 const NavDirectMessages = () => {
+  const pathName = usePathname();
   const router = useRouter();
+
+  const isOnConversationPage = pathName.includes('/conversations');
   return (
     <div>
       <TooltipActions label="Direct messages" side="right" align="center">
@@ -15,16 +18,17 @@ const NavDirectMessages = () => {
         >
           <div
             className={cn(
-              'absolute left-0 bg-primary rounded-r-full transition-all h-[8px] w-[4px] group-hover:h-[20px] '
-              // params?.serverId !== id && "group-hover:h-[20px]",
-              // params?.serverId === id ? "h-[36px]": "h-[8px]"
+              'absolute left-0 bg-primary rounded-r-full transition-all h-[8px] w-[4px]',
+              !isOnConversationPage && 'group-hover:h-[20px]',
+              isOnConversationPage ? 'h-[36px]' : 'h-[8px]'
             )}
           />
           <div
             className={cn(
               'relative group flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px] transition-all overflow-hidden bg-black group-hover:bg-[#7289DA]',
-              'dark:bg-neutral-700 justify-center items-center'
-              // params?.serverId === id && "text-primary rounded-[16px]"
+              'dark:bg-neutral-700 justify-center items-center',
+              isOnConversationPage &&
+                'text-primary rounded-[16px] bg-[#7289DA] dark:bg-[#7289DA]'
             )}
           >
             {/* <p>U</p> */}

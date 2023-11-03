@@ -20,7 +20,7 @@ const ChatWelcome = ({ type, avatarUrl, name }: ChatWelcomeProps) => {
           src={avatarUrl}
           username={name}
           className="w-[65px] h-[65px]"
-          avatarFallbackClassName="text-[24px]"
+          avatarFallbackClassName="text-[26px]"
         />
       )}
 
