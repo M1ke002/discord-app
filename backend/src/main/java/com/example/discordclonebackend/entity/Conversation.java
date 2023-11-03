@@ -42,7 +42,7 @@ public class Conversation {
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "conversation",
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     private List<DirectMessage> messages = new ArrayList<>();
     @CreationTimestamp

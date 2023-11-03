@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -34,8 +36,29 @@ public class DirectMessage {
             referencedColumnName = "id"
     )
     private Conversation conversation;
-    private boolean isDeleted = false;
+    @ManyToOne(
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(
+            name = "reply_to_id",
+            referencedColumnName = "id"
+    )
+    private DirectMessage replyToMessage;
+    private boolean hasReplyMessage;
+    //list of replies to this message
+    @OneToMany(
+            mappedBy = "replyToMessage",
+            fetch = FetchType.LAZY
+    )
+    private List<DirectMessage> replies = new ArrayList<>();
     @CreationTimestamp
     private Date createdAt;
     private Date updatedAt;
+
+    @PreRemove
+    private void removeMessageFromReplies() {
+        for (DirectMessage reply : replies) {
+            reply.setReplyToMessage(null);
+        }
+    }
 }

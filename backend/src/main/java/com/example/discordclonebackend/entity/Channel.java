@@ -42,7 +42,7 @@ public class Channel {
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "channel",
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     private List<ChannelMessage> messages = new ArrayList<>();
     @CreationTimestamp

@@ -19,4 +19,13 @@ public class UserDto {
     private List<ServerDto> servers;
     private Date createdAt;
     private Date updatedAt;
+
+    public UserDto(Long id, String username, String nickname, String avatarUrl, Date createdAt, Date updatedAt) {
+        this.id = id;
+        this.username = username;
+        this.nickname = nickname;
+        this.avatarUrl = avatarUrl;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }
