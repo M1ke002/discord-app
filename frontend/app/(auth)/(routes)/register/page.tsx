@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 import * as z from 'zod';
@@ -16,6 +17,10 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
+import axios from '@/lib/axiosConfig';
+import { signIn } from 'next-auth/react';
+import { cn } from '@/lib/utils';
 
 //for validation
 const formSchema = z.object({
@@ -31,6 +36,12 @@ const formSchema = z.object({
 });
 
 const RegisterPage = () => {
+  const router = useRouter();
+  const [message, setMessage] = useState({
+    hasMessage: false,
+    content: '',
+    messageType: ''
+  });
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,6 +55,62 @@ const RegisterPage = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
+    try {
+      const result = await axios.post('/auth/register', {
+        username: values.username,
+        nickname: values.nickname,
+        password: values.password
+      });
+
+      //sign in
+      const res = await signIn('credentials', {
+        username: values.username,
+        password: values.password,
+        redirect: false
+      });
+      if (res?.error) {
+        setMessage({
+          hasMessage: true,
+          content: res.error,
+          messageType: 'error'
+        });
+        setTimeout(() => {
+          setMessage({
+            hasMessage: false,
+            content: '',
+            messageType: ''
+          });
+        }, 3000);
+      } else {
+        setMessage({
+          hasMessage: true,
+          content: 'Registered successfully!',
+          messageType: 'success'
+        });
+        setTimeout(() => {
+          setMessage({
+            hasMessage: false,
+            content: '',
+            messageType: ''
+          });
+        }, 3000);
+        router.replace('/');
+      }
+    } catch (error: any) {
+      console.log('[register error]: ' + error);
+      setMessage({
+        hasMessage: true,
+        content: error.response.data.response,
+        messageType: 'error'
+      });
+      setTimeout(() => {
+        setMessage({
+          hasMessage: false,
+          content: '',
+          messageType: ''
+        });
+      }, 3000);
+    }
   };
 
   return (
@@ -55,9 +122,18 @@ const RegisterPage = () => {
             <div className="flex justify-center mb-2 font-semibold text-xl">
               Create an account
             </div>
-            {/* <p className="text-center bg-red-300 py-3 mb-6 rounded">
-                  Sth wrong
-                </p> */}
+            {message.hasMessage && (
+              <p
+                className={cn(
+                  'text-center py-2 mt-4 mb-6 rounded',
+                  message.messageType === 'success'
+                    ? 'bg-green-300'
+                    : 'bg-red-300'
+                )}
+              >
+                {message.content}
+              </p>
+            )}
             <div className="mb-3">
               <FormField
                 control={form.control}

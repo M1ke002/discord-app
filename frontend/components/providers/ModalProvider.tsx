@@ -15,6 +15,7 @@ import CreateCategoryModal from '../modals/CreateCategoryModal';
 import EditCategoryModal from '../modals/EditCategoryModal';
 import DeleteCategoryModal from '../modals/DeleteCategoryModal';
 import DeleteMessageModal from '../modals/DeleteMessageModal';
+import UserSettingsModal from '../modals/UserSettingsModal';
 
 //this component will be used to render all the modals
 const ModalProvider = () => {
@@ -42,6 +43,7 @@ const ModalProvider = () => {
       <EditCategoryModal />
       <DeleteCategoryModal />
       <DeleteMessageModal />
+      <UserSettingsModal />
     </>
   );
 };

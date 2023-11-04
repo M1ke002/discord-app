@@ -16,7 +16,8 @@ export type ModalType =
   | 'editCategory'
   | 'deleteCategory'
   | 'invite'
-  | 'deleteMessage';
+  | 'deleteMessage'
+  | 'userSettings';
 
 interface ModalData {
   server?: Server;

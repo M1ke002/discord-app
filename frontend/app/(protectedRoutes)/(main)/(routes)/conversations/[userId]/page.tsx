@@ -45,6 +45,7 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
         console.log(res.data);
       } catch (error) {
         console.log('[fetchChatUser]', error);
+        router.replace('/conversations');
       }
     };
     console.log('in conversation page');
@@ -55,8 +56,8 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
     return (
       <div
         className={cn(
-          'flex flex-col w-full h-full',
-          isUserProfileOpen && type === 'conversation' && 'md:pr-[340px]'
+          'flex flex-col w-full h-full md:pr-[3px]',
+          isUserProfileOpen && type === 'conversation' && 'md:pr-[343px]'
         )}
       >
         <ChatMessages

@@ -11,7 +11,7 @@ const MemberListItem = ({ member }: MemberListItem) => {
   return (
     <div className="flex items-center w-full px-2 py-1 mb-1 hover:bg-zinc-700/10 dark:hover:bg-zinc-700/60 transition rounded-md cursor-pointer">
       <UserAvatar
-        src={member.avatarUrl}
+        src={member.avatarUrl || ''}
         username={member.nickname}
         className="h-8 w-8 mr-3"
       />
