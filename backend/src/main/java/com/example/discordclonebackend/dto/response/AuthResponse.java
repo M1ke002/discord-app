@@ -13,6 +13,7 @@ public class AuthResponse {
     private String username;
     private String nickname;
     private String avatarUrl;
+    private String imageKey;
     private String accessToken;
     private String refreshToken;
     private String tokenType = "Bearer";

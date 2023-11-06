@@ -21,6 +21,8 @@ public class CustomUserDetails implements UserDetails {
 
     private final String avatarUrl;
 
+    private final String imageKey;
+
     private final Date createdAt;
 
     private final Date updatedAt;
@@ -35,12 +37,13 @@ public class CustomUserDetails implements UserDetails {
 
     private final boolean enabled;
 
-    public CustomUserDetails(Long id, String username, String password, String nickname, String avatarUrl, Date createdAt, Date updatedAt, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String username, String password, String nickname, String avatarUrl, String imageKey , Date createdAt, Date updatedAt, Collection<? extends GrantedAuthority> authorities) {
         this.id=id;
         this.username=username;
         this.password=password;
         this.nickname=nickname;
         this.avatarUrl=avatarUrl;
+        this.imageKey=imageKey;
         this.createdAt=createdAt;
         this.updatedAt=updatedAt;
         this.enabled=true;
@@ -50,12 +53,13 @@ public class CustomUserDetails implements UserDetails {
         this.authorities=authorities;
     }
 
-    public CustomUserDetails(Long id, String username, String password, String nickname, String avatarUrl, Date createdAt, Date updatedAt, boolean enabled, Boolean accountNonExpired, Boolean accountNonLocked, boolean credentialsNonExpired, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String username, String password, String nickname, String avatarUrl, String imageKey, Date createdAt, Date updatedAt, boolean enabled, Boolean accountNonExpired, Boolean accountNonLocked, boolean credentialsNonExpired, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
         this.avatarUrl = avatarUrl;
+        this.imageKey = imageKey;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.enabled = enabled;
@@ -73,6 +77,7 @@ public class CustomUserDetails implements UserDetails {
                 ", password='" + password + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", avatarUrl='" + avatarUrl + '\'' +
+                ", imageKey='" + imageKey + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", authorities=" + authorities +

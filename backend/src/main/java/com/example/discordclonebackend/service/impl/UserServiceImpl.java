@@ -80,12 +80,12 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             return null;
         }
+
+        user.setAvatarUrl(userRequest.getAvatarUrl());
+        user.setImageKey(userRequest.getImageKey());
+
         if (userRequest.getNickname() != null) {
             user.setNickname(userRequest.getNickname());
-        }
-        if (userRequest.getAvatarUrl() != null) {
-            user.setAvatarUrl(userRequest.getAvatarUrl());
-            user.setImageKey(userRequest.getImageKey());
         }
         if (userRequest.getUsername() != null) {
             //check if the new username is already taken
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
             }
             user.setUsername(userRequest.getUsername());
         }
-        userRepository.save(user);
+        user = userRepository.save(user);
         //get a list of servers that the user is a member of using the userServerMappingRepository
         List<ServerDto> serverDtos = new ArrayList<>();
         List<UserServerMapping> userServerMappings = userServerMappingRepository.findAllByUserId(userId);
