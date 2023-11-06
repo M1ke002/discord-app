@@ -185,6 +185,7 @@ const ChatItem = ({
               {message.replyToMessage != null && (
                 <>
                   <UserAvatar
+                    src={message.replyToMessage.sender.avatarUrl || ''}
                     username={message.replyToMessage.sender.nickname}
                     className="h-4 w-4"
                     avatarFallbackClassName="text-[8px]"

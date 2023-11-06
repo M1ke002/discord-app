@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +20,8 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormDescription,
+  FormMessage,
   FormLabel
 } from '@/components/ui/form';
 import {
@@ -41,6 +44,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { FileEdit } from 'lucide-react';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import axios from 'axios';
+import { useToast } from '@/components/ui/use-toast';
+import { File } from 'buffer';
 
 //for validation
 const accountFormSchema = z.object({
@@ -66,9 +73,19 @@ const passwordFormSchema = z.object({
 });
 
 const UserSettingsModal = () => {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [canEdit, setCanEdit] = useState(false);
   const { isOpen, onClose, type } = useModal();
+  const axiosAuth = useAxiosAuth();
+  const { toast } = useToast();
+  const inputFile = useRef<HTMLInputElement | null>(null);
+  const [imageData, setImageData] = useState<{
+    src: string;
+    file: File | null;
+  }>({
+    src: '',
+    file: null
+  });
 
   const accountForm = useForm({
     resolver: zodResolver(accountFormSchema),
@@ -98,7 +115,16 @@ const UserSettingsModal = () => {
       username: session.user.username,
       nickname: session.user.nickname
     });
-  }, [session?.user.username, session?.user.nickname, accountForm]);
+    setImageData({
+      ...imageData,
+      src: session.user.avatarUrl || ''
+    });
+  }, [
+    session?.user.username,
+    session?.user.nickname,
+    session?.user.avatarUrl,
+    accountForm
+  ]);
 
   const isModalOpen = isOpen && type === 'userSettings';
   const isAccountFormLoading = accountForm.formState.isSubmitting;
@@ -108,19 +134,137 @@ const UserSettingsModal = () => {
     values: z.infer<typeof accountFormSchema>
   ) => {
     console.log(values);
+    try {
+      const requestBody: any = {};
+      //check if the avatar image is changed
+      if (session?.user.avatarUrl !== imageData.src) {
+        //if the user already has an avatar, delete it from uploadthing server
+        if (session?.user.avatarUrl) {
+          const res = await axios.delete(
+            `/api/images?imageKey=${session?.user.imageKey}`
+          );
+          if (res.data.status === 'error') {
+            console.log(
+              'error deleting image from uploadthing server',
+              res.data.message
+            );
+            return;
+          }
+
+          requestBody.avatarUrl = null;
+          requestBody.imageKey = null;
+        }
+
+        //check if user uploaded a new image
+        if (imageData.src) {
+          const data = new FormData();
+          data.set('file', imageData.file as any);
+          //upload image to uploadthing server
+          const res = await axios.post('/api/images', data, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          console.log(res.data);
+
+          if (res.data.status === 'error') {
+            console.log('error uploading image to uploadthing server');
+            return;
+          }
+
+          requestBody.avatarUrl = res.data.data.url;
+          requestBody.imageKey = res.data.data.key;
+        }
+      }
+
+      //check if username is changed
+      if (session?.user.username !== values.username) {
+        requestBody.username = values.username;
+      }
+
+      //check if nickname is changed
+      if (session?.user.nickname !== values.nickname) {
+        requestBody.nickname = values.nickname;
+      }
+
+      //check if any changes are made
+      if (Object.keys(requestBody).length === 0) {
+        console.log('no changes made!');
+        return;
+      }
+
+      //if the requestBody doesnt have the avatarUrl property, set it to the current avatarUrl
+      if (!requestBody.hasOwnProperty('avatarUrl')) {
+        requestBody.avatarUrl = session?.user.avatarUrl;
+        requestBody.imageKey = session?.user.imageKey;
+      }
+
+      console.log('requestBody: ' + requestBody);
+      //send request
+      const res = await axiosAuth.put(
+        `/users/${session?.user.id}`,
+        requestBody
+      );
+
+      //if username is changed, force user to relogin
+      if (requestBody.username) {
+        signOut();
+      } else {
+        //update the session user object
+        update({
+          username: res.data.username,
+          nickname: res.data.nickname,
+          avatarUrl: res.data.avatarUrl,
+          imageKey: res.data.imageKey
+        });
+      }
+    } catch (error) {
+      console.log('[UserSettingsModal]: ' + error);
+    } finally {
+      setCanEdit(false);
+    }
   };
 
   const onPasswordFormSubmit = async (
     values: z.infer<typeof passwordFormSchema>
   ) => {
     console.log(values);
+    if (values.newPassword !== values.confirmNewPassword) {
+      toast({
+        title: 'Error!',
+        description: 'New password and confirm new password must match!'
+      });
+      return;
+    }
+    try {
+      const res = await axiosAuth.put('/users/changePassword', {
+        username: session?.user.username,
+        currPassword: values.currPassword,
+        newPassword: values.newPassword
+      });
+      toast({
+        title: 'Success!',
+        description: 'Password changed successfully!'
+      });
+    } catch (error: any) {
+      console.log('[change password]: ' + error.message);
+      toast({
+        title: 'Error!',
+        description: error.response.data.response
+      });
+    }
   };
 
   const resetForm = (formType: 'account' | 'password') => {
     if (formType === 'account') {
       accountForm.reset({
+        avatarUrl: session?.user.avatarUrl || '',
         username: session?.user.username,
         nickname: session?.user.nickname
+      });
+      setImageData({
+        ...imageData,
+        src: session?.user.avatarUrl || ''
       });
     } else {
       passwordForm.reset({
@@ -131,8 +275,46 @@ const UserSettingsModal = () => {
     }
   };
 
+  const handleCloseDialog = () => {
+    if (isAccountFormLoading || isPasswordFormLoading) {
+      return;
+    }
+    onClose();
+    resetForm('account');
+    resetForm('password');
+    setCanEdit(false);
+  };
+
+  const onAvatarImageChange = (event: any) => {
+    if (event.target.files && event.target.files[0]) {
+      let reader = new FileReader();
+      let file = event.target.files[0];
+      console.log(file);
+      reader.onload = (e) => {
+        const { result } = e.target as any;
+        if (result) {
+          accountForm.setValue('avatarUrl', result);
+          setImageData({
+            src: result,
+            file: file
+          });
+          // console.log(result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setImageData({
+      src: '',
+      file: null
+    });
+    accountForm.setValue('avatarUrl', '');
+  };
+
   return (
-    <Dialog open={isModalOpen} onOpenChange={onClose}>
+    <Dialog open={isModalOpen} onOpenChange={handleCloseDialog}>
       <DialogContent className="dark:bg-[#313338] dark:text-white overflow-hidden w-[400px]">
         <DialogHeader className="pb-2">
           <DialogTitle className="text-2xl text-center ">
@@ -160,19 +342,27 @@ const UserSettingsModal = () => {
                       <Label className="uppercase text-xs font-bold text-zinc-400 mb-2">
                         Avatar image
                       </Label>
+                      {/* Hiddden input field to open image file */}
+                      <Input
+                        type="file"
+                        className="hidden"
+                        ref={inputFile}
+                        accept="image/*"
+                        onChange={onAvatarImageChange}
+                      />
                       {canEdit && (
                         <DropdownMenu>
                           <DropdownMenuTrigger>
                             <div className="relative h-20 w-20 group">
-                              {accountForm.getValues('avatarUrl') && (
+                              {imageData.src && (
                                 <Image
                                   fill
-                                  src="https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg"
+                                  src={imageData.src}
                                   alt="Upload"
                                   className="rounded-full"
                                 />
                               )}
-                              {!accountForm.getValues('avatarUrl') && (
+                              {!imageData.src && (
                                 <div className="flex items-center justify-center rounded-full dark:bg-indigo-500 h-20 w-20 group">
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -195,11 +385,17 @@ const UserSettingsModal = () => {
                             sideOffset={5}
                             className="p-1"
                           >
-                            <DropdownMenuItem className="pr-4">
+                            <DropdownMenuItem
+                              className="pr-4"
+                              onClick={() => inputFile.current?.click()}
+                            >
                               Upload avatar
                             </DropdownMenuItem>
-                            {accountForm.getValues('avatarUrl') && (
-                              <DropdownMenuItem className="pr-4">
+                            {imageData.src && (
+                              <DropdownMenuItem
+                                className="pr-4"
+                                onClick={handleRemoveAvatar}
+                              >
                                 Remove avatar
                               </DropdownMenuItem>
                             )}
@@ -208,15 +404,16 @@ const UserSettingsModal = () => {
                       )}
                       {!canEdit && (
                         <div className="relative h-20 w-20">
-                          {accountForm.getValues('avatarUrl') && (
+                          {imageData.src && (
                             <Image
                               fill
-                              src="https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg"
+                              // src="https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg"
+                              src={imageData.src}
                               alt="Upload"
                               className="rounded-full"
                             />
                           )}
-                          {!accountForm.getValues('avatarUrl') && (
+                          {!imageData.src && (
                             <div className="flex items-center justify-center rounded-full dark:bg-indigo-500 h-20 w-20">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +430,6 @@ const UserSettingsModal = () => {
                     </div>
                     <div className="space-y-1">
                       <FormField
-                        disabled={!canEdit || isAccountFormLoading}
                         control={accountForm.control}
                         name="username"
                         render={({ field }) => (
@@ -243,20 +439,23 @@ const UserSettingsModal = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                type="text"
                                 className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Username"
                                 {...field}
+                                disabled={!canEdit || isAccountFormLoading}
                               />
                             </FormControl>
+                            <FormDescription className="text-xs">
+                              NOTE: Changing the username will require you to
+                              re-login
+                            </FormDescription>
+                            <FormMessage className="dark:text-rose-500" />
                           </FormItem>
                         )}
                       />
                     </div>
                     <div className="space-y-1">
                       <FormField
-                        disabled={!canEdit || isAccountFormLoading}
-                        control={accountForm.control}
                         name="nickname"
                         render={({ field }) => (
                           <FormItem>
@@ -268,8 +467,10 @@ const UserSettingsModal = () => {
                                 className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Nickname"
                                 {...field}
+                                disabled={!canEdit || isAccountFormLoading}
                               />
                             </FormControl>
+                            <FormMessage className="dark:text-rose-500" />
                           </FormItem>
                         )}
                       />
@@ -282,6 +483,7 @@ const UserSettingsModal = () => {
                           variant="ghost"
                           type="button"
                           className="hover:underline hover:bg-none mr-2"
+                          disabled={isAccountFormLoading}
                           onClick={() => {
                             setCanEdit(false);
                             resetForm('account');
@@ -289,12 +491,19 @@ const UserSettingsModal = () => {
                         >
                           Cancel
                         </Button>
-                        <Button variant="primary">Save changes</Button>
+                        <Button
+                          variant="primary"
+                          type="submit"
+                          disabled={isAccountFormLoading}
+                        >
+                          {isAccountFormLoading ? 'Saving...' : 'Save changes'}
+                        </Button>
                       </Fragment>
                     )}
                     {!canEdit && (
                       <Button
                         variant="primary"
+                        type="button"
                         onClick={() => setCanEdit(true)}
                       >
                         Edit
@@ -329,13 +538,14 @@ const UserSettingsModal = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                disabled={isPasswordFormLoading}
                                 type="password"
                                 className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Current password"
                                 {...field}
+                                disabled={isPasswordFormLoading}
                               />
                             </FormControl>
+                            <FormMessage className="dark:text-rose-500" />
                           </FormItem>
                         )}
                       />
@@ -358,6 +568,7 @@ const UserSettingsModal = () => {
                                 {...field}
                               />
                             </FormControl>
+                            <FormMessage className="dark:text-rose-500" />
                           </FormItem>
                         )}
                       />
@@ -373,13 +584,14 @@ const UserSettingsModal = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                disabled={isPasswordFormLoading}
                                 type="password"
                                 className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Confirm new password"
                                 {...field}
+                                disabled={isPasswordFormLoading}
                               />
                             </FormControl>
+                            <FormMessage className="dark:text-rose-500" />
                           </FormItem>
                         )}
                       />

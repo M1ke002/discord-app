@@ -22,6 +22,7 @@ interface SidebarSearchProps {
       icon: React.ReactNode;
       name: string;
       id: number;
+      avatarUrl?: string;
     }[];
   }[];
   conversationData?: {
@@ -96,7 +97,7 @@ const SidebarSearch = ({
               if (items?.length === 0) return null;
               return (
                 <CommandGroup key={category} heading={category}>
-                  {items?.map(({ icon, name, id }) => {
+                  {items?.map(({ icon, name, id, avatarUrl }) => {
                     return (
                       <CommandItem
                         key={id}
@@ -110,6 +111,12 @@ const SidebarSearch = ({
                         )}
                         {type === 'members' && (
                           <>
+                            <UserAvatar
+                              src={avatarUrl}
+                              username={name}
+                              className="w-[24px] h-[24px] mr-2"
+                              avatarFallbackClassName="text-[12px]"
+                            />
                             <span>{name}</span>
                             {icon}
                           </>

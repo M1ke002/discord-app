@@ -3,32 +3,30 @@ import UserAvatar from '../UserAvatar';
 import { LogOut, Mic, MicOff, Settings } from 'lucide-react';
 import TooltipActions from '../TooltipActions';
 import { signOut } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useModal } from '@/hooks/zustand/useModal';
+import { useSession } from 'next-auth/react';
 
 //TODO: change props to accept a Member object instead
-interface UserAccountProps {
-  avatarUrl: string;
-  username: string;
-  nickname: string;
-}
 
-const UserAccount = ({ avatarUrl, username, nickname }: UserAccountProps) => {
+const UserAccount = () => {
+  const { data: session } = useSession();
   const { onOpen } = useModal();
   const [mute, setMute] = useState(false);
+
   return (
     <div className="mt-auto flex items-center px-2 py-2 bg-[#e9ebee] dark:bg-[#252529]">
       <div className="flex items-center">
         <UserAvatar
-          src={avatarUrl}
-          username={username}
+          src={session?.user.avatarUrl || ''}
+          username={session?.user.nickname}
           className="md:h-8 md:w-8 mr-2"
         />
         <div className="flex flex-col">
           <p className="font-semibold text-black dark:text-white text-xs">
-            {nickname}
+            {session?.user.nickname}
           </p>
-          <p className="text-[10px] text-zinc-400">{username}</p>
+          <p className="text-[10px] text-zinc-400">{session?.user.username}</p>
         </div>
       </div>
       <div className="ml-auto">

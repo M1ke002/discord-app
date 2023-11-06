@@ -17,7 +17,7 @@ const UserAvatar = ({
 }: UserAvatarProps) => {
   return (
     <Avatar className={className}>
-      <AvatarImage src={src} />
+      <AvatarImage src={src === '' ? undefined : src} />
       <AvatarFallback
         className={cn('text-white bg-[#5865f2]', avatarFallbackClassName)}
       >

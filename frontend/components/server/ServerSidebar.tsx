@@ -146,8 +146,9 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
                     icon: getRoleIcon('h-4 w-4 ml-2')[
                       member.role as keyof typeof getRoleIcon
                     ],
-                    name: member.username,
-                    id: member.id
+                    name: member.nickname,
+                    id: member.id,
+                    avatarUrl: member.avatarUrl || undefined
                   }))
                 }
               ]}
@@ -202,11 +203,7 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
             </Collapsible>
           ))}
         </ScrollArea>
-        <UserAccount
-          avatarUrl={session.user.avatarUrl || ''}
-          username={session.user.username || ''}
-          nickname={session.user.nickname || ''}
-        />
+        <UserAccount />
       </div>
     );
   } else {

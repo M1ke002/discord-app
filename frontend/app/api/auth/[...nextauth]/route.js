@@ -79,16 +79,21 @@ export const authOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       console.log('===================> JWT CALLBACK <===================');
-      // if (trigger === "update") {
-      //   console.log("UPDATE!!!!");
-      //   return {
-      //     ...token,
-      //     accessToken: session.accessToken,
-      //     refreshToken: session.refreshToken,
-      //   };
-      // }
+      if (trigger === 'update') {
+        console.log('UPDATE!!!!');
+        if (session.username) {
+          token.username = session.username;
+        }
+        if (session.nickname) {
+          token.nickname = session.nickname;
+        }
+        token.avatarUrl = session.avatarUrl;
+        token.imageKey = session.imageKey;
+
+        return token;
+      }
 
       const now = Date.now();
       const prev = token.now ?? now;
@@ -107,6 +112,7 @@ export const authOptions = {
           username: user.username,
           nickname: user.nickname,
           avatarUrl: user.avatarUrl,
+          imageKey: user.imageKey,
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           accessTokenExpiryDate: getTokenExpirationDate(user.accessToken)
@@ -157,6 +163,7 @@ export const authOptions = {
       session.user.username = token.username;
       session.user.nickname = token.nickname;
       session.user.avatarUrl = token.avatarUrl;
+      session.user.imageKey = token.imageKey;
       session.accessToken = token.accessToken;
       session.refreshToken = token.refreshToken;
       session.accessTokenExpiryDate = token.accessTokenExpiryDate;

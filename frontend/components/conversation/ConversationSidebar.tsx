@@ -82,11 +82,7 @@ const ConversationSidebar = () => {
           ))}
         </div>
       </ScrollArea>
-      <UserAccount
-        avatarUrl={session?.user.avatarUrl || ''}
-        username={session?.user.username || ''}
-        nickname={session?.user.nickname || ''}
-      />
+      <UserAccount />
     </div>
   );
 };

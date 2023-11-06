@@ -10,6 +10,7 @@ declare module 'next-auth' {
       username: string;
       nickname: string;
       avatarUrl: string | null;
+      imageKey: string | null;
     };
     accessToken: string;
     refreshToken: string;
