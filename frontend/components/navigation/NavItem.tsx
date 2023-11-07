@@ -66,7 +66,7 @@ const NavItem = ({ id, imageUrl, name }: NavItemProps) => {
           {imageUrl === null ? (
             <p>{name[0]}</p>
           ) : (
-            <Image fill src={imageUrl} alt="Channel" />
+            <Image fill sizes="100%" src={imageUrl} alt="Channel" />
           )}
         </div>
       </button>

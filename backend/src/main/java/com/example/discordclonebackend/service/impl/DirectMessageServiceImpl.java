@@ -63,6 +63,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
             directMessageDto.setId(directMessage.getId());
             directMessageDto.setContent(directMessage.getContent());
             directMessageDto.setFileUrl(directMessage.getFileUrl());
+            directMessageDto.setFileKey(directMessage.getFileKey());
             User sender = directMessage.getUser();
             directMessageDto.setSender(new UserDto(
                     sender.getId(),
@@ -82,6 +83,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                                 replyToMessage.getId(),
                                 replyToMessage.getContent(),
                                 replyToMessage.getFileUrl(),
+                                replyToMessage.getFileKey(),
                                 new UserDto(
                                         replyToMessageSender.getId(),
                                         replyToMessageSender.getUsername(),
@@ -156,6 +158,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         DirectMessage directMessage = new DirectMessage();
         directMessage.setContent(directMessageRequest.getContent());
         directMessage.setFileUrl(directMessageRequest.getFileUrl());
+        directMessage.setFileKey(directMessageRequest.getFileKey());
         directMessage.setConversation(conversation);
         directMessage.setUser(sender);
 
@@ -168,6 +171,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         directMessageDto.setId(directMessage.getId());
         directMessageDto.setContent(directMessage.getContent());
         directMessageDto.setFileUrl(directMessage.getFileUrl());
+        directMessageDto.setFileKey(directMessage.getFileKey());
         directMessageDto.setSender(new UserDto(
                 sender.getId(),
                 sender.getUsername(),
@@ -185,6 +189,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                             replyToMessage.getId(),
                             replyToMessage.getContent(),
                             replyToMessage.getFileUrl(),
+                            replyToMessage.getFileKey(),
                             new UserDto(
                                     replyToMessageSender.getId(),
                                     replyToMessageSender.getUsername(),
@@ -222,7 +227,6 @@ public class DirectMessageServiceImpl implements DirectMessageService {
 
         //update the message
         directMessage.setContent(directMessageRequest.getContent());
-        directMessage.setFileUrl(directMessageRequest.getFileUrl());
         directMessage.setUpdatedAt(new Date());
         directMessage = directMessageRepository.save(directMessage);
 
@@ -230,6 +234,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         directMessageDto.setId(directMessage.getId());
         directMessageDto.setContent(directMessage.getContent());
         directMessageDto.setFileUrl(directMessage.getFileUrl());
+        directMessageDto.setFileKey(directMessage.getFileKey());
         User sender = directMessage.getUser();
         directMessageDto.setSender(new UserDto(
                 sender.getId(),
@@ -249,6 +254,7 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                             replyToMessage.getId(),
                             replyToMessage.getContent(),
                             replyToMessage.getFileUrl(),
+                            replyToMessage.getFileKey(),
                             new UserDto(
                                     replyToMessageSender.getId(),
                                     replyToMessageSender.getUsername(),

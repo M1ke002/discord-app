@@ -141,7 +141,7 @@ const UserSettingsModal = () => {
         //if the user already has an avatar, delete it from uploadthing server
         if (session?.user.avatarUrl) {
           const res = await axios.delete(
-            `/api/images?imageKey=${session?.user.imageKey}`
+            `/api/uploadthing-files?fileKey=${session?.user.imageKey}`
           );
           if (res.data.status === 'error') {
             console.log(
@@ -160,7 +160,7 @@ const UserSettingsModal = () => {
           const data = new FormData();
           data.set('file', imageData.file as any);
           //upload image to uploadthing server
-          const res = await axios.post('/api/images', data, {
+          const res = await axios.post('/api/uploadthing-files', data, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }

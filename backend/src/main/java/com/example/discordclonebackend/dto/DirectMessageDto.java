@@ -13,6 +13,7 @@ public class DirectMessageDto {
     private Long id;
     private String content;
     private String fileUrl;
+    private String fileKey;
     private UserDto sender;
     private DirectMessageDto replyToMessage;
     private boolean hasReplyMessage;
@@ -21,10 +22,11 @@ public class DirectMessageDto {
     private Date updatedAt;
 
     //this constructor is used for the replyToMessage property since we don't need all the properties of the DirectMessageDto
-    public DirectMessageDto(Long id, String content, String fileUrl, UserDto sender) {
+    public DirectMessageDto(Long id, String content, String fileUrl, String fileKey, UserDto sender) {
         this.id = id;
         this.content = content;
         this.fileUrl = fileUrl;
+        this.fileKey = fileKey;
         this.sender = sender;
     }
 }

@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Plus, X } from 'lucide-react';
+import { Loader2, Plus, X } from 'lucide-react';
 import { Input } from '../ui/input';
 import { useReplyToMessage } from '@/hooks/zustand/useReplyToMessage';
 import {
@@ -13,9 +13,11 @@ import {
 } from '../ui/form';
 import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
+import axios from 'axios';
 import EmojiPicker from '../EmojiPicker';
+import TooltipActions from '../TooltipActions';
 import { cn } from '@/lib/utils';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 interface ChatInputProps {
@@ -47,6 +49,8 @@ const ChatInput = ({
       content: ''
     }
   });
+  const inputFile = useRef<HTMLInputElement | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (replyToMessage) {
@@ -57,13 +61,34 @@ const ChatInput = ({
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (values.content.trim() === '') return;
+    if (isLoading) return;
+    if (values.content.trim() === '' && !file) return;
     console.log(values);
     try {
       const requestBody: any = {
         content: values.content,
         replyToMessageId: replyToMessage?.id
       };
+      //if there is a file, send it to uploadthing server
+      if (file) {
+        const formData = new FormData();
+        formData.set('file', file);
+        const res = await axios.post('/api/uploadthing-files', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log(res.data);
+
+        if (res.data.status === 'error') {
+          console.log('error uploading file to uploadthing server');
+          return;
+        }
+
+        requestBody.fileUrl = res.data.data.url;
+        requestBody.fileKey = res.data.data.key;
+      }
+
       if (otherUserId) {
         requestBody.userId1 = userId;
         requestBody.userId2 = otherUserId;
@@ -87,6 +112,15 @@ const ChatInput = ({
     form.setValue('content', '');
     if (replyToMessage) {
       setMessage(null);
+    }
+    if (file) {
+      setFile(null);
+    }
+  };
+
+  const onFileChange = (event: any) => {
+    if (event.target.files && event.target.files[0]) {
+      setFile(event.target.files[0]);
     }
   };
 
@@ -118,13 +152,59 @@ const ChatInput = ({
                     </div>
                   )}
 
-                  <div className="relative px-4 pb-6">
-                    <button
-                      type="button"
-                      className="absolute top-3 left-8 h-[24px] w-[24px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-1 flex items-center justify-center"
+                  {file && (
+                    <div
+                      className={cn(
+                        'flex items-center justify-between mx-4 py-2 px-4 dark:bg-zinc-700/50 border-b-[2px] border-zinc-700',
+                        !replyToMessage && 'rounded-t-md'
+                      )}
                     >
-                      <Plus className="h-4 w-4 text-white dark:text-[#313338]" />
-                    </button>
+                      <p className="text-xs text-zinc-400">
+                        {file.name}
+                        {' | '}
+                        <span className="font-semibold text-zinc-300">
+                          {file.size / 1000} KB
+                        </span>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setFile(null)}
+                        className="h-[16px] w-[16px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-[2px] flex items-center justify-center"
+                      >
+                        <X className="h-5 w-5 text-white dark:text-black text-lg" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="relative px-4 pb-6">
+                    {!isLoading && (
+                      <TooltipActions
+                        label={'Upload file'}
+                        side="top"
+                        align="center"
+                      >
+                        <button
+                          type="button"
+                          className="absolute top-3 left-8 h-[24px] w-[24px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-1 flex items-center justify-center"
+                        >
+                          <Plus
+                            className="h-4 w-4 text-white dark:text-[#313338]"
+                            onClick={() => inputFile.current?.click()}
+                          />
+                        </button>
+                      </TooltipActions>
+                    )}
+                    {isLoading && (
+                      <Loader2 className="absolute top-3 left-8 h-[24px] w-[24px] animate-spin text-zinc-500 dark:text-zinc-400" />
+                    )}
+                    {/* Hiddden input field to open image and pdf file */}
+                    <Input
+                      type="file"
+                      className="hidden"
+                      ref={inputFile}
+                      accept="image/*, .pdf"
+                      onChange={onFileChange}
+                    />
                     <Input
                       disabled={isLoading}
                       className={cn(

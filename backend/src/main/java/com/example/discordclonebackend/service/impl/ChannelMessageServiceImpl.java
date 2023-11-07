@@ -64,6 +64,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                     sender.getUpdatedAt()
             ));
             channelMessageDto.setFileUrl(channelMessage.getFileUrl());
+            channelMessageDto.setFileKey(channelMessage.getFileKey());
             channelMessageDto.setContent(channelMessage.getContent());
 
             //get the replyToMessage if it exists
@@ -75,6 +76,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                         replyToMessage.getId(),
                         replyToMessage.getContent(),
                         replyToMessage.getFileUrl(),
+                        replyToMessage.getFileKey(),
                         new ServerMemberDto(
                                 replyToMessageSender.getId(),
                                 replyToMessageSender.getUsername(),
@@ -132,6 +134,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         ChannelMessage channelMessage = new ChannelMessage();
         channelMessage.setContent(channelMessageRequest.getContent());
         channelMessage.setFileUrl(channelMessageRequest.getFileUrl());
+        channelMessage.setFileKey(channelMessageRequest.getFileKey());
         ChannelMessage replyToMessage = channelMessageRequest.getReplyToMessageId() != null ? channelMessageRepository.findById(channelMessageRequest.getReplyToMessageId()).orElse(null) : null;
         channelMessage.setReplyToMessage(replyToMessage);
         channelMessage.setHasReplyMessage(replyToMessage != null);
@@ -154,6 +157,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         );
         channelMessageDto.setContent(channelMessage.getContent());
         channelMessageDto.setFileUrl(channelMessage.getFileUrl());
+        channelMessageDto.setFileKey(channelMessage.getFileKey());
 
         //get the replyToMessage if it exists
         if (replyToMessage != null) {
@@ -163,6 +167,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                     replyToMessage.getId(),
                     replyToMessage.getContent(),
                     replyToMessage.getFileUrl(),
+                    replyToMessage.getFileKey(),
                     new ServerMemberDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
@@ -203,9 +208,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         }
 
         //update message content
-        //TODO: should we allow users to update the fileUrl?
         channelMessage.setContent(channelMessageRequest.getContent());
-        channelMessage.setFileUrl(channelMessageRequest.getFileUrl());
         channelMessage.setUpdatedAt(new Date());
         channelMessage = channelMessageRepository.save(channelMessage);
         ChannelMessageDto channelMessageDto = new ChannelMessageDto();
@@ -225,6 +228,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         );
         channelMessageDto.setContent(channelMessage.getContent());
         channelMessageDto.setFileUrl(channelMessage.getFileUrl());
+        channelMessageDto.setFileKey(channelMessage.getFileKey());
 
         //get the replyToMessage if it exists
         ChannelMessage replyToMessage = channelMessage.getReplyToMessage();
@@ -235,6 +239,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                     replyToMessage.getId(),
                     replyToMessage.getContent(),
                     replyToMessage.getFileUrl(),
+                    replyToMessage.getFileKey(),
                     new ServerMemberDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),

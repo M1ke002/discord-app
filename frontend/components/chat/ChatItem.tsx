@@ -8,7 +8,7 @@ import TooltipActions from '../TooltipActions';
 import UserAvatar from '../UserAvatar';
 import { MemberRole, getRoleIcon } from '@/utils/constants';
 import { cn } from '@/lib/utils';
-import { Edit, Reply, Trash } from 'lucide-react';
+import { Edit, FileIcon, Reply, Trash } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -21,6 +21,7 @@ import DirectMessage from '@/types/DirectMessage';
 import Member from '@/types/Member';
 import User from '@/types/User';
 import { isChannelMessage, isServerMember } from '@/utils/utils';
+import Image from 'next/image';
 
 // const chatReplyIconClassName =
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
@@ -113,6 +114,21 @@ const ChatItem = ({
     }
     setEditingMessageId('');
   };
+
+  // if (message.content === 'this msg has an img') {
+  //   message.fileUrl =
+  //     'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg';
+  // } else if (message.content === 'this msg has a pdf file') {
+  //   message.fileUrl =
+  //     'https://utfs.io/f/0b215345-4279-487e-a0c3-b6e388a7a1f1-hzo2bj.pdf';
+  // }
+
+  const fileExtension = message.fileUrl?.split('.').pop();
+  const isImageFile =
+    fileExtension === 'png' ||
+    fileExtension === 'jpg' ||
+    fileExtension === 'jpeg';
+  const isPDFFile = fileExtension === 'pdf';
 
   const isMessageSender = currUser?.id === message.sender.id;
   const isAdmin =
@@ -291,6 +307,37 @@ const ChatItem = ({
               </span>
             </Form>
           )}
+
+          {isImageFile && (
+            <a
+              href={message.fileUrl || undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative aspect-square rounded-md mt-2 overflow-hidden border flex items-center bg-secondary h-48 w-48"
+            >
+              <Image
+                src={message.fileUrl || ''}
+                alt={message.content}
+                fill
+                sizes="100%"
+                className="object-cover"
+              />
+            </a>
+          )}
+
+          {isPDFFile && (
+            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10 border w-52">
+              <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
+              <a
+                href={message.fileUrl || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline"
+              >
+                PDF File
+              </a>
+            </div>
+          )}
         </div>
 
         {/*action box to delete, edit, reply message */}
@@ -319,6 +366,7 @@ const ChatItem = ({
                         ? 'channelMessage'
                         : 'directMessage',
                       messageId: message.id.toString(),
+                      fileKey: message.fileKey || undefined,
                       userId: currUser?.id.toString() || '',
                       otherUserId: otherUser?.id.toString() || '',
                       channelId,

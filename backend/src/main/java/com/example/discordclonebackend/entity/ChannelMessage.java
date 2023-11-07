@@ -20,6 +20,7 @@ public class ChannelMessage {
     private Long id;
     private String content;
     private String fileUrl;
+    private String fileKey;
     @ManyToOne(
             fetch = FetchType.LAZY
     )

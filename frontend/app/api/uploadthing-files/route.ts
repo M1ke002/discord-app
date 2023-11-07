@@ -27,17 +27,17 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  //get the imageKey from the request parameters
-  const imageKey = request.nextUrl.searchParams.get('imageKey');
-  console.log('imageKey: ' + imageKey);
-  if (!imageKey) {
+  //get the fileKey from the request parameters
+  const fileKey = request.nextUrl.searchParams.get('fileKey');
+  console.log('fileKey: ' + fileKey);
+  if (!fileKey) {
     return NextResponse.json({
       status: 'error',
-      message: 'No imageKey provided'
+      message: 'No fileKey provided'
     });
   }
   //delete the image from the uploadthing server
-  const response = await utapi.deleteFiles(imageKey);
+  const response = await utapi.deleteFiles(fileKey);
   if (!response.success) {
     return NextResponse.json({
       status: 'error',

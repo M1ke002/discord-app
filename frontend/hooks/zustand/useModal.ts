@@ -30,6 +30,7 @@ interface ModalData {
   otherUserId?: string;
   messageType?: 'channelMessage' | 'directMessage';
   messageId?: string;
+  fileKey?: string;
 }
 
 interface ModalStore {

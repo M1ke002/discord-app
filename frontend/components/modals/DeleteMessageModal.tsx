@@ -14,17 +14,28 @@ import { useModal } from '@/hooks/zustand/useModal';
 import { Button } from '../ui/button';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useToast } from '../ui/use-toast';
+import { useReplyToMessage } from '@/hooks/zustand/useReplyToMessage';
+import axios from 'axios';
 
 const DeleteMessageModal = () => {
   const { type, isOpen, onClose, data } = useModal();
   const [isLoading, setIsLoading] = useState(false);
   const axiosAuth = useAxiosAuth();
+  const { message: replyToMessage, setMessage } = useReplyToMessage();
 
   const isModalOpen = type === 'deleteMessage' && isOpen;
-  const { messageType, messageId, userId, otherUserId, serverId, channelId } =
-    data;
+  const {
+    messageType,
+    fileKey,
+    messageId,
+    userId,
+    otherUserId,
+    serverId,
+    channelId
+  } = data;
 
   const handleCloseModal = () => {
+    if (isLoading) return;
     onClose();
   };
 
@@ -38,8 +49,29 @@ const DeleteMessageModal = () => {
     console.log(query);
     try {
       setIsLoading(true);
+
+      //if there is a file key, delete the file from uploadthing server
+      if (fileKey) {
+        console.log('message has filekey');
+        const res = await axios.delete(
+          `/api/uploadthing-files?fileKey=${fileKey}`
+        );
+        if (res.data.status === 'error') {
+          console.log(
+            'error deleting file from uploadthing server',
+            res.data.message
+          );
+          return;
+        }
+      }
+
       const res = await axiosAuth.delete(query);
       console.log(res.data);
+
+      //if we are replying to the deleted message, remove the reply
+      if (replyToMessage?.id === messageId) {
+        setMessage(null);
+      }
     } catch (error) {
       console.log('[delete message modal]: ' + error);
     }

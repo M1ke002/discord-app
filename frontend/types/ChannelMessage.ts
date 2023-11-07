@@ -4,6 +4,7 @@ interface ChannelMessage {
   id: number;
   content: string;
   fileUrl: string | null;
+  fileKey: string | null;
   sender: Member;
   channelId: number;
   replyToMessage: ChannelMessage | null;
