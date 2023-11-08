@@ -148,7 +148,7 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
                     ],
                     name: member.nickname,
                     id: member.id,
-                    avatarUrl: member.avatarUrl || undefined
+                    avatarUrl: member.file?.fileUrl || undefined
                   }))
                 }
               ]}

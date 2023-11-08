@@ -120,7 +120,7 @@ const ChatMessages = ({
         <ChatWelcome
           type={type}
           name={chatWelcomeName}
-          avatarUrl={otherUser?.avatarUrl || ''}
+          avatarUrl={otherUser?.file?.fileUrl || ''}
         />
       )}
 

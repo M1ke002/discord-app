@@ -1,4 +1,5 @@
 import NextAuth, { DefaultSession } from 'next-auth';
+import UploadthingFile from './File';
 
 declare module 'next-auth' {
   /**
@@ -9,8 +10,7 @@ declare module 'next-auth' {
       id: number;
       username: string;
       nickname: string;
-      avatarUrl: string | null;
-      imageKey: string | null;
+      file: UploadthingFile | null;
     };
     accessToken: string;
     refreshToken: string;

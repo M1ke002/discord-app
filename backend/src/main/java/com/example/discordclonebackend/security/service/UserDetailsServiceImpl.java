@@ -1,5 +1,6 @@
 package com.example.discordclonebackend.security.service;
 
+import com.example.discordclonebackend.dto.FileDto;
 import com.example.discordclonebackend.entity.User;
 import com.example.discordclonebackend.repository.UserRepository;
 import com.example.discordclonebackend.security.CustomUserDetails;
@@ -26,8 +27,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 user.getUsername(),
                 user.getPassword(),
                 user.getNickname(),
-                user.getAvatarUrl(),
-                user.getImageKey(),
+                user.getFile() != null ? new FileDto(
+                        user.getFile().getFileName(),
+                        user.getFile().getFileUrl(),
+                        user.getFile().getFileKey()
+                ) : null,
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
                 new ArrayList<>()

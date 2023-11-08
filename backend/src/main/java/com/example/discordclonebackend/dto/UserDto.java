@@ -14,17 +14,16 @@ public class UserDto {
     private Long id;
     private String username;
     private String nickname;
-    private String avatarUrl;
-    private String imageKey;
+    private FileDto file;
     private List<ServerDto> servers;
     private Date createdAt;
     private Date updatedAt;
 
-    public UserDto(Long id, String username, String nickname, String avatarUrl, Date createdAt, Date updatedAt) {
+    public UserDto(Long id, String username, String nickname, FileDto file, Date createdAt, Date updatedAt) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
-        this.avatarUrl = avatarUrl;
+        this.file = file;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

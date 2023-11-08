@@ -60,7 +60,7 @@ const UserProfile = () => {
         {user && (
           <UserAvatar
             // src="https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg"
-            src={user.avatarUrl || ''}
+            src={user.file?.fileUrl}
             username={user.username}
             className="w-[90px] h-[90px] absolute top-[56%] left-[4%] border-[7px] border-[#232428]"
             avatarFallbackClassName="text-[32px]"

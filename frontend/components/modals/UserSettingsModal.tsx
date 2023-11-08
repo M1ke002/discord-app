@@ -111,18 +111,18 @@ const UserSettingsModal = () => {
     }
 
     accountForm.reset({
-      avatarUrl: session.user.avatarUrl || '',
+      avatarUrl: session.user.file?.fileUrl || '',
       username: session.user.username,
       nickname: session.user.nickname
     });
     setImageData({
       ...imageData,
-      src: session.user.avatarUrl || ''
+      src: session.user.file?.fileUrl || ''
     });
   }, [
     session?.user.username,
     session?.user.nickname,
-    session?.user.avatarUrl,
+    session?.user.file?.fileUrl,
     accountForm
   ]);
 
@@ -137,11 +137,11 @@ const UserSettingsModal = () => {
     try {
       const requestBody: any = {};
       //check if the avatar image is changed
-      if (session?.user.avatarUrl !== imageData.src) {
+      if (session?.user.file?.fileUrl !== imageData.src) {
         //if the user already has an avatar, delete it from uploadthing server
-        if (session?.user.avatarUrl) {
+        if (session?.user.file?.fileUrl) {
           const res = await axios.delete(
-            `/api/uploadthing-files?fileKey=${session?.user.imageKey}`
+            `/api/uploadthing-files?fileKey=${session?.user.file.fileKey}`
           );
           if (res.data.status === 'error') {
             console.log(
@@ -151,8 +151,9 @@ const UserSettingsModal = () => {
             return;
           }
 
-          requestBody.avatarUrl = null;
-          requestBody.imageKey = null;
+          requestBody.fileUrl = null;
+          requestBody.fileKey = null;
+          requestBody.fileName = null;
         }
 
         //check if user uploaded a new image
@@ -172,8 +173,9 @@ const UserSettingsModal = () => {
             return;
           }
 
-          requestBody.avatarUrl = res.data.data.url;
-          requestBody.imageKey = res.data.data.key;
+          requestBody.fileUrl = res.data.data.url;
+          requestBody.fileKey = res.data.data.key;
+          requestBody.fileName = res.data.data.name;
         }
       }
 
@@ -193,18 +195,20 @@ const UserSettingsModal = () => {
         return;
       }
 
-      //if the requestBody doesnt have the avatarUrl property, set it to the current avatarUrl
-      if (!requestBody.hasOwnProperty('avatarUrl')) {
-        requestBody.avatarUrl = session?.user.avatarUrl;
-        requestBody.imageKey = session?.user.imageKey;
+      //if the requestBody doesnt have the fileUrl property, set it to the current fileUrl
+      if (!requestBody.hasOwnProperty('fileUrl')) {
+        requestBody.fileUrl = session?.user.file?.fileUrl;
+        requestBody.fileKey = session?.user.file?.fileKey;
       }
 
-      console.log('requestBody: ' + requestBody);
+      console.log('requestBody: ' + JSON.stringify(requestBody));
       //send request
       const res = await axiosAuth.put(
         `/users/${session?.user.id}`,
         requestBody
       );
+
+      console.log('res DATA: ' + JSON.stringify(res.data));
 
       //if username is changed, force user to relogin
       if (requestBody.username) {
@@ -214,8 +218,9 @@ const UserSettingsModal = () => {
         update({
           username: res.data.username,
           nickname: res.data.nickname,
-          avatarUrl: res.data.avatarUrl,
-          imageKey: res.data.imageKey
+          fileUrl: res.data.file?.fileUrl,
+          fileKey: res.data.file?.fileKey,
+          fileName: res.data.file?.fileName
         });
       }
     } catch (error) {
@@ -258,13 +263,13 @@ const UserSettingsModal = () => {
   const resetForm = (formType: 'account' | 'password') => {
     if (formType === 'account') {
       accountForm.reset({
-        avatarUrl: session?.user.avatarUrl || '',
+        avatarUrl: session?.user.file?.fileUrl || '',
         username: session?.user.username,
         nickname: session?.user.nickname
       });
       setImageData({
         ...imageData,
-        src: session?.user.avatarUrl || ''
+        src: session?.user.file?.fileUrl || ''
       });
     } else {
       passwordForm.reset({

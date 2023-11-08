@@ -71,7 +71,7 @@ const Navbar = () => {
               <NavItem
                 id={String(server.id)}
                 name={server.name}
-                imageUrl={server.imageUrl}
+                imageUrl={server.file?.fileUrl || null}
               />
             </div>
           );

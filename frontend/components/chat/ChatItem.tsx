@@ -8,7 +8,7 @@ import TooltipActions from '../TooltipActions';
 import UserAvatar from '../UserAvatar';
 import { MemberRole, getRoleIcon } from '@/utils/constants';
 import { cn } from '@/lib/utils';
-import { Edit, FileIcon, Reply, Trash } from 'lucide-react';
+import { Edit, FileIcon, FileImage, Reply, Trash } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -115,15 +115,7 @@ const ChatItem = ({
     setEditingMessageId('');
   };
 
-  // if (message.content === 'this msg has an img') {
-  //   message.fileUrl =
-  //     'https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg';
-  // } else if (message.content === 'this msg has a pdf file') {
-  //   message.fileUrl =
-  //     'https://utfs.io/f/0b215345-4279-487e-a0c3-b6e388a7a1f1-hzo2bj.pdf';
-  // }
-
-  const fileExtension = message.fileUrl?.split('.').pop();
+  const fileExtension = message.file?.fileUrl?.split('.').pop();
   const isImageFile =
     fileExtension === 'png' ||
     fileExtension === 'jpg' ||
@@ -165,7 +157,7 @@ const ChatItem = ({
               )}
               <div className="cursor-pointer hover:drop-shadow-md">
                 <UserAvatar
-                  src={message.sender.avatarUrl || ''}
+                  src={message.sender.file?.fileUrl || ''}
                   username={message.sender.nickname}
                 />
               </div>
@@ -201,7 +193,7 @@ const ChatItem = ({
               {message.replyToMessage != null && (
                 <>
                   <UserAvatar
-                    src={message.replyToMessage.sender.avatarUrl || ''}
+                    src={message.replyToMessage.sender.file?.fileUrl || ''}
                     username={message.replyToMessage.sender.nickname}
                     className="h-4 w-4"
                     avatarFallbackClassName="text-[8px]"
@@ -209,9 +201,19 @@ const ChatItem = ({
                   <p className="text-xs text-zinc-400 ml-1 font-semibold hover:underline cursor-pointer">
                     {message.replyToMessage.sender.nickname}
                   </p>
-                  <p className="text-xs text-black hover:text-black/75 dark:text-zinc-400 ml-1 dark:hover:text-zinc-300 cursor-pointer">
-                    {message.replyToMessage.content}
+                  <p
+                    className={cn(
+                      'text-xs text-black hover:text-black/75 dark:text-zinc-400 dark:hover:text-zinc-300 ml-1 cursor-pointer',
+                      message.replyToMessage.content === '' && 'italic'
+                    )}
+                  >
+                    {message.replyToMessage.content === ''
+                      ? 'Click to see attachment'
+                      : message.replyToMessage.content}
                   </p>
+                  {message.replyToMessage.file != null && (
+                    <FileImage className="w-4 h-4 ml-1 text-zinc-300" />
+                  )}
                 </>
               )}
             </div>
@@ -310,13 +312,13 @@ const ChatItem = ({
 
           {isImageFile && (
             <a
-              href={message.fileUrl || undefined}
+              href={message.file?.fileUrl || undefined}
               target="_blank"
               rel="noopener noreferrer"
               className="relative aspect-square rounded-md mt-2 overflow-hidden border flex items-center bg-secondary h-48 w-48"
             >
               <Image
-                src={message.fileUrl || ''}
+                src={message.file?.fileUrl || ''}
                 alt={message.content}
                 fill
                 sizes="100%"
@@ -326,15 +328,15 @@ const ChatItem = ({
           )}
 
           {isPDFFile && (
-            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10 border w-52">
+            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10 border w-64">
               <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
               <a
-                href={message.fileUrl || undefined}
+                href={message.file?.fileUrl || undefined}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline"
               >
-                PDF File
+                {message.file?.fileName}
               </a>
             </div>
           )}
@@ -366,7 +368,7 @@ const ChatItem = ({
                         ? 'channelMessage'
                         : 'directMessage',
                       messageId: message.id.toString(),
-                      fileKey: message.fileKey || undefined,
+                      fileKey: message.file?.fileKey || undefined,
                       userId: currUser?.id.toString() || '',
                       otherUserId: otherUser?.id.toString() || '',
                       channelId,

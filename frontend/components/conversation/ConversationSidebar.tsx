@@ -57,7 +57,7 @@ const ConversationSidebar = () => {
               items: conversationList.map((conversation) => ({
                 id: conversation.otherUser.id,
                 name: conversation.otherUser.nickname,
-                avatarUrl: conversation.otherUser.avatarUrl || ''
+                avatarUrl: conversation.otherUser.file?.fileUrl || ''
               }))
             }}
           />
@@ -77,7 +77,7 @@ const ConversationSidebar = () => {
               key={index}
               id={conversation.otherUser.id.toString()}
               name={conversation.otherUser.nickname}
-              avatarUrl={conversation.otherUser.avatarUrl || ''}
+              avatarUrl={conversation.otherUser.file?.fileUrl || ''}
             />
           ))}
         </div>

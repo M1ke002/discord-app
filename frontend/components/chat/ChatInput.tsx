@@ -87,6 +87,7 @@ const ChatInput = ({
 
         requestBody.fileUrl = res.data.data.url;
         requestBody.fileKey = res.data.data.key;
+        requestBody.fileName = res.data.data.name;
       }
 
       if (otherUserId) {
@@ -168,7 +169,13 @@ const ChatInput = ({
                       </p>
                       <button
                         type="button"
-                        onClick={() => setFile(null)}
+                        onClick={() => {
+                          setFile(null);
+                          //reset the input file's value
+                          if (inputFile.current) {
+                            inputFile.current.value = '';
+                          }
+                        }}
                         className="h-[16px] w-[16px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-[2px] flex items-center justify-center"
                       >
                         <X className="h-5 w-5 text-white dark:text-black text-lg" />

@@ -1,12 +1,10 @@
 package com.example.discordclonebackend.service.impl;
 
-import com.example.discordclonebackend.dto.CategoryDto;
-import com.example.discordclonebackend.dto.ChannelDto;
-import com.example.discordclonebackend.dto.ServerDto;
-import com.example.discordclonebackend.dto.ServerMemberDto;
+import com.example.discordclonebackend.dto.*;
 import com.example.discordclonebackend.dto.request.ServerRequest;
 import com.example.discordclonebackend.dto.response.JoinServerResponse;
 import com.example.discordclonebackend.entity.*;
+import com.example.discordclonebackend.repository.FileRepository;
 import com.example.discordclonebackend.repository.ServerRepository;
 import com.example.discordclonebackend.repository.UserRepository;
 import com.example.discordclonebackend.repository.UserServerMappingRepository;
@@ -31,6 +29,9 @@ public class ServerServiceImpl implements ServerService {
     private UserRepository userRepository;
 
     @Autowired
+    private FileRepository fileRepository;
+
+    @Autowired
     private ServerRepository serverRepository;
 
     @Autowired
@@ -40,8 +41,22 @@ public class ServerServiceImpl implements ServerService {
     public ServerDto createServer(ServerRequest serverRequest) {
         Server server = new Server();
         server.setName(serverRequest.getServerName());
-        server.setImageUrl(serverRequest.getImageUrl());
-        server.setImageKey(serverRequest.getImageKey());
+
+        //check if the server has a file image uploaded
+        if (serverRequest.getFileUrl() != null) {
+            //create the file object
+            File file = new File();
+            file.setFileKey(serverRequest.getFileKey());
+            file.setFileUrl(serverRequest.getFileUrl());
+            file.setFileName(serverRequest.getFileName());
+
+            file = fileRepository.save(file);
+
+            server.setFile(file);
+        } else {
+            server.setFile(null);
+        }
+
         //create invite code using uuid
         server.setInviteCode(UUID.randomUUID().toString());
         //create 3 categories by default: text channels, voice channels, video channels
@@ -86,8 +101,13 @@ public class ServerServiceImpl implements ServerService {
         ServerDto serverDto = new ServerDto();
         serverDto.setId(server.getId());
         serverDto.setName(server.getName());
-        serverDto.setImageUrl(server.getImageUrl());
-        serverDto.setImageKey(server.getImageKey());
+        serverDto.setFile(
+                server.getFile() != null ? new FileDto(
+                        server.getFile().getFileName(),
+                        server.getFile().getFileUrl(),
+                        server.getFile().getFileKey()
+                ) : null
+        );
         serverDto.setInviteCode(server.getInviteCode());
         serverDto.setOwnerId(server.getOwner().getId());
         serverDto.setCreatedAt(server.getCreatedAt());
@@ -129,7 +149,13 @@ public class ServerServiceImpl implements ServerService {
                     serverMemberDto.setUsername(userServerMapping1.getUser().getUsername());
                     serverMemberDto.setNickname(userServerMapping1.getUser().getNickname());
                     serverMemberDto.setRole(userServerMapping1.getRole());
-                    serverMemberDto.setAvatarUrl(userServerMapping1.getUser().getAvatarUrl());
+                    serverMemberDto.setFile(
+                            userServerMapping1.getUser().getFile() != null ? new FileDto(
+                                    userServerMapping1.getUser().getFile().getFileName(),
+                                    userServerMapping1.getUser().getFile().getFileUrl(),
+                                    userServerMapping1.getUser().getFile().getFileKey()
+                            ) : null
+                    );
                     serverMemberDto.setCreatedAt(userServerMapping1.getUser().getCreatedAt());
                     serverMemberDto.setUpdatedAt(userServerMapping1.getUser().getUpdatedAt());
                     return serverMemberDto;
@@ -160,8 +186,13 @@ public class ServerServiceImpl implements ServerService {
 
         serverDto.setId(server.getId());
         serverDto.setName(server.getName());
-        serverDto.setImageUrl(server.getImageUrl());
-        serverDto.setImageKey(server.getImageKey());
+        serverDto.setFile(
+                server.getFile() != null ? new FileDto(
+                        server.getFile().getFileName(),
+                        server.getFile().getFileUrl(),
+                        server.getFile().getFileKey()
+                ) : null
+        );
         serverDto.setInviteCode(server.getInviteCode());
         serverDto.setOwnerId(server.getOwner().getId());
         serverDto.setCreatedAt(server.getCreatedAt());
@@ -201,7 +232,14 @@ public class ServerServiceImpl implements ServerService {
                     serverMemberDto.setUsername(userServerMapping.getUser().getUsername());
                     serverMemberDto.setNickname(userServerMapping.getUser().getNickname());
                     serverMemberDto.setRole(userServerMapping.getRole());
-                    serverMemberDto.setAvatarUrl(userServerMapping.getUser().getAvatarUrl());
+                    serverMemberDto.setFile(
+                            userServerMapping.getUser().getFile() != null ? new FileDto(
+                                    userServerMapping.getUser().getFile().getFileName(),
+                                    userServerMapping.getUser().getFile().getFileUrl(),
+                                    userServerMapping.getUser().getFile().getFileKey()
+
+                            ) : null
+                    );
                     serverMemberDto.setCreatedAt(userServerMapping.getUser().getCreatedAt());
                     serverMemberDto.setUpdatedAt(userServerMapping.getUser().getUpdatedAt());
                     return serverMemberDto;
@@ -222,7 +260,11 @@ public class ServerServiceImpl implements ServerService {
             return new ServerDto(
                     server.getId(),
                     server.getName(),
-                    server.getImageUrl()
+                    server.getFile() != null ? new FileDto(
+                            server.getFile().getFileName(),
+                            server.getFile().getFileUrl(),
+                            server.getFile().getFileKey()
+                    ) : null
             );
         }).toList();
         return serverDtos;
@@ -292,11 +334,38 @@ public class ServerServiceImpl implements ServerService {
         if (server == null) {
             return false;
         }
-        //update server name and image URL
+        //update server name and image file
         server.setName(serverRequest.getServerName());
-        server.setImageUrl(serverRequest.getImageUrl());
-        server.setImageKey(serverRequest.getImageKey());
+
+        File serverFile = server.getFile();
+        boolean shouldDeleteFile = false;
+        //if the server does not have a file image uploaded, but the request has a file image -> create a new file object
+        if (serverFile == null && serverRequest.getFileUrl() != null) {
+            File file = new File();
+            file.setFileKey(serverRequest.getFileKey());
+            file.setFileUrl(serverRequest.getFileUrl());
+            file.setFileName(serverRequest.getFileName());
+
+            file = fileRepository.save(file);
+
+            server.setFile(file);
+        } else if (serverFile != null && serverRequest.getFileUrl() != null && !serverFile.getFileUrl().equals(serverRequest.getFileUrl())) {
+            //if the server has a file image uploaded, and the request has a file image -> update the file object
+            serverFile.setFileKey(serverRequest.getFileKey());
+            serverFile.setFileUrl(serverRequest.getFileUrl());
+            serverFile.setFileName(serverRequest.getFileName());
+
+            fileRepository.save(serverFile);
+        } else if (serverFile != null && serverRequest.getFileUrl() == null) {
+            //if the server has a file image uploaded, but the request does not have a file image -> delete the file object
+            shouldDeleteFile = true;
+            server.setFile(null);
+        }
+
         serverRepository.save(server);
+        if (shouldDeleteFile) {
+            fileRepository.delete(serverFile);
+        }
         return true;
     }
 

@@ -67,10 +67,10 @@ const EditServerModal = () => {
   useEffect(() => {
     if (server) {
       form.setValue('name', server.name);
-      if (server.imageUrl) {
+      if (server.file?.fileUrl) {
         form.setValue('image', {
-          url: server.imageUrl,
-          key: server.imageKey
+          url: server.file?.fileUrl,
+          key: server.file?.fileKey
         });
       } else {
         form.setValue('image', {
@@ -88,8 +88,8 @@ const EditServerModal = () => {
         userId,
         serverId: server?.id,
         serverName: values.name,
-        imageUrl: values.image?.url === '' ? null : values.image?.url,
-        imageKey: values.image?.key === '' ? null : values.image?.key
+        fileUrl: values.image?.url === '' ? null : values.image?.url,
+        fileKey: values.image?.key === '' ? null : values.image?.key
       });
       if (res.status === 200) {
         toast({
@@ -114,10 +114,10 @@ const EditServerModal = () => {
     //reset the form to the initial server values
     if (server) {
       form.setValue('name', server.name);
-      if (server.imageUrl) {
+      if (server.file?.fileUrl) {
         form.setValue('image', {
-          url: server.imageUrl,
-          key: server.imageKey
+          url: server.file?.fileUrl,
+          key: server.file?.fileKey
         });
       } else {
         form.setValue('image', {

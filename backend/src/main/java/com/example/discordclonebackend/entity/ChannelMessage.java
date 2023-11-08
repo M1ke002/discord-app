@@ -19,8 +19,15 @@ public class ChannelMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String content;
-    private String fileUrl;
-    private String fileKey;
+    @OneToOne(
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    @JoinColumn(
+            name = "file_id",
+            referencedColumnName = "id"
+    )
+    private File file;
     @ManyToOne(
             fetch = FetchType.LAZY
     )

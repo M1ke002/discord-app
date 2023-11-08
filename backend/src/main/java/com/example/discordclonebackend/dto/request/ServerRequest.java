@@ -12,6 +12,7 @@ public class ServerRequest {
     private Long userId;
     private Long serverId;
     private String serverName;
-    private String imageUrl;
-    private String imageKey;
+    private String fileName;
+    private String fileUrl;
+    private String fileKey;
 }

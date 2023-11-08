@@ -89,8 +89,21 @@ export const authOptions = {
         if (session.nickname) {
           token.nickname = session.nickname;
         }
-        token.avatarUrl = session.avatarUrl;
-        token.imageKey = session.imageKey;
+
+        //if user doesnt have avatar yet and session has avatar
+        if (!token.file && session.fileUrl) {
+          token.file = {
+            fileUrl: session.fileUrl,
+            fileName: session.fileName,
+            fileKey: session.fileKey
+          };
+        } else if (token.file && session.fileUrl) {
+          token.file.fileUrl = session.fileUrl;
+          token.file.fileName = session.fileName;
+          token.file.fileKey = session.fileKey;
+        } else if (token.file && !session.fileUrl) {
+          token.file = null;
+        }
 
         return token;
       }
@@ -111,8 +124,7 @@ export const authOptions = {
           id: user.userId,
           username: user.username,
           nickname: user.nickname,
-          avatarUrl: user.avatarUrl,
-          imageKey: user.imageKey,
+          file: user.file,
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           accessTokenExpiryDate: getTokenExpirationDate(user.accessToken)
@@ -162,8 +174,7 @@ export const authOptions = {
       session.user.id = token.id;
       session.user.username = token.username;
       session.user.nickname = token.nickname;
-      session.user.avatarUrl = token.avatarUrl;
-      session.user.imageKey = token.imageKey;
+      session.user.file = token.file;
       session.accessToken = token.accessToken;
       session.refreshToken = token.refreshToken;
       session.accessTokenExpiryDate = token.accessTokenExpiryDate;

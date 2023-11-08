@@ -1,4 +1,4 @@
-package com.example.discordclonebackend.dto.request;
+package com.example.discordclonebackend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,12 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
-    private String username;
-    private String nickname;
+public class FileDto {
     private String fileName;
     private String fileUrl;
     private String fileKey;
-    private String currPassword;
-    private String newPassword;
 }

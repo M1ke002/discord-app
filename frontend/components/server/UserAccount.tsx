@@ -18,7 +18,7 @@ const UserAccount = () => {
     <div className="mt-auto flex items-center px-2 py-2 bg-[#e9ebee] dark:bg-[#252529]">
       <div className="flex items-center">
         <UserAvatar
-          src={session?.user.avatarUrl || ''}
+          src={session?.user.file?.fileUrl || undefined}
           username={session?.user.nickname}
           className="md:h-8 md:w-8 mr-2"
         />

@@ -71,8 +71,7 @@ public class AuthController {
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getNickname(),
-                userDetails.getAvatarUrl(),
-                userDetails.getImageKey(),
+                userDetails.getFile(),
                 accessToken.getToken(),
                 refreshToken.getToken(),
                 "Bearer"

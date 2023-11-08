@@ -1,9 +1,10 @@
+import UploadthingFile from './File';
+
 interface User {
   id: number;
   username: string;
   nickname: string;
-  avatarUrl: string | null;
-  imageKey?: string;
+  file: UploadthingFile | null;
   createdAt?: string;
   updatedAt?: string | null;
 }

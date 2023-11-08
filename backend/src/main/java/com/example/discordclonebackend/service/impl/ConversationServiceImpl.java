@@ -1,6 +1,7 @@
 package com.example.discordclonebackend.service.impl;
 
 import com.example.discordclonebackend.dto.ConversationDto;
+import com.example.discordclonebackend.dto.FileDto;
 import com.example.discordclonebackend.dto.UserDto;
 import com.example.discordclonebackend.entity.Conversation;
 import com.example.discordclonebackend.entity.User;
@@ -44,7 +45,11 @@ public class ConversationServiceImpl implements ConversationService {
                             otherUser.getId(),
                             otherUser.getUsername(),
                             otherUser.getNickname(),
-                            otherUser.getAvatarUrl(),
+                            otherUser.getFile() != null ? new FileDto(
+                                    otherUser.getFile().getFileName(),
+                                    otherUser.getFile().getFileUrl(),
+                                    otherUser.getFile().getFileKey()
+                            ) : null,
                             otherUser.getCreatedAt(),
                             otherUser.getUpdatedAt()
                     )

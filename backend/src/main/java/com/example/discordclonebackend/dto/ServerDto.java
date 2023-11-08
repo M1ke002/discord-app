@@ -13,8 +13,7 @@ import java.util.List;
 public class ServerDto {
     private Long id;
     private String name;
-    private String imageUrl;
-    private String imageKey;
+    private FileDto file;
     private String inviteCode;
     private Long ownerId;
     private Date createdAt;
@@ -26,16 +25,16 @@ public class ServerDto {
     //list of categories
     private List<CategoryDto> categories;
 
-    public ServerDto(Long id, String name, String imageUrl) {
+    public ServerDto(Long id, String name, FileDto file) {
         this.id = id;
         this.name = name;
-        this.imageUrl = imageUrl;
+        this.file = file;
     }
 
-    public ServerDto(Long id, String name, String imageUrl, Long ownerId) {
+    public ServerDto(Long id, String name, FileDto file, Long ownerId) {
         this.id = id;
         this.name = name;
-        this.imageUrl = imageUrl;
+        this.file = file;
         this.ownerId = ownerId;
     }
 }

@@ -70,8 +70,8 @@ const CreateServerModal = () => {
       const res = await axiosAuth.post(`/servers`, {
         userId,
         serverName: values.name,
-        imageUrl: values.image?.url === '' ? null : values.image?.url,
-        imageKey: values.image?.key === '' ? null : values.image?.key
+        fileUrl: values.image?.url === '' ? null : values.image?.url,
+        fileKey: values.image?.key === '' ? null : values.image?.key
       });
       if (res.status == 200) {
         toast({

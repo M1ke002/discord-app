@@ -14,7 +14,7 @@ public class ServerMemberDto {
     private Long id;
     private String username;
     private String nickname;
-    private String avatarUrl;
+    private FileDto file;
     private UserRole role;
     private Date createdAt;
     private Date updatedAt;

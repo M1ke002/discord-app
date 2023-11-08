@@ -21,8 +21,15 @@ public class User {
     private String username;
     private String password;
     private String nickname;
-    private String avatarUrl;
-    private String imageKey;
+    @OneToOne(
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    @JoinColumn(
+            name = "file_id",
+            referencedColumnName = "id"
+    )
+    private File file;
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "user"

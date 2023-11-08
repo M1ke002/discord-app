@@ -1,5 +1,6 @@
 package com.example.discordclonebackend.security;
 
+import com.example.discordclonebackend.dto.FileDto;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,9 +20,7 @@ public class CustomUserDetails implements UserDetails {
 
     private final String nickname;
 
-    private final String avatarUrl;
-
-    private final String imageKey;
+    private final FileDto file;
 
     private final Date createdAt;
 
@@ -37,13 +36,12 @@ public class CustomUserDetails implements UserDetails {
 
     private final boolean enabled;
 
-    public CustomUserDetails(Long id, String username, String password, String nickname, String avatarUrl, String imageKey , Date createdAt, Date updatedAt, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String username, String password, String nickname, FileDto file, Date createdAt, Date updatedAt, Collection<? extends GrantedAuthority> authorities) {
         this.id=id;
         this.username=username;
         this.password=password;
         this.nickname=nickname;
-        this.avatarUrl=avatarUrl;
-        this.imageKey=imageKey;
+        this.file = file;
         this.createdAt=createdAt;
         this.updatedAt=updatedAt;
         this.enabled=true;
@@ -53,13 +51,12 @@ public class CustomUserDetails implements UserDetails {
         this.authorities=authorities;
     }
 
-    public CustomUserDetails(Long id, String username, String password, String nickname, String avatarUrl, String imageKey, Date createdAt, Date updatedAt, boolean enabled, Boolean accountNonExpired, Boolean accountNonLocked, boolean credentialsNonExpired, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(Long id, String username, String password, String nickname, FileDto file, Date createdAt, Date updatedAt, boolean enabled, Boolean accountNonExpired, Boolean accountNonLocked, boolean credentialsNonExpired, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.nickname = nickname;
-        this.avatarUrl = avatarUrl;
-        this.imageKey = imageKey;
+        this.file = file;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.enabled = enabled;
@@ -76,8 +73,7 @@ public class CustomUserDetails implements UserDetails {
                 "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", nickname='" + nickname + '\'' +
-                ", avatarUrl='" + avatarUrl + '\'' +
-                ", imageKey='" + imageKey + '\'' +
+                ", file='" + file + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", authorities=" + authorities +

@@ -19,8 +19,15 @@ public class Server {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private String imageUrl;
-    private String imageKey;
+    @OneToOne(
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL
+    )
+    @JoinColumn(
+            name = "file_id",
+            referencedColumnName = "id"
+    )
+    private File file;
     private String inviteCode;
     @CreationTimestamp
     private Date createdAt;

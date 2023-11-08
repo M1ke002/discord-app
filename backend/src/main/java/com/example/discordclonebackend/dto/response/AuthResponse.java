@@ -1,5 +1,6 @@
 package com.example.discordclonebackend.dto.response;
 
+import com.example.discordclonebackend.dto.FileDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,8 +13,7 @@ public class AuthResponse {
     private Long userId;
     private String username;
     private String nickname;
-    private String avatarUrl;
-    private String imageKey;
+    private FileDto file;
     private String accessToken;
     private String refreshToken;
     private String tokenType = "Bearer";

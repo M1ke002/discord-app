@@ -1,14 +1,17 @@
 package com.example.discordclonebackend.service.impl;
 
 import com.example.discordclonebackend.dto.DirectMessageDto;
+import com.example.discordclonebackend.dto.FileDto;
 import com.example.discordclonebackend.dto.UserDto;
 import com.example.discordclonebackend.dto.request.DirectMessageRequest;
 import com.example.discordclonebackend.dto.response.DirectMessageResponse;
 import com.example.discordclonebackend.entity.Conversation;
 import com.example.discordclonebackend.entity.DirectMessage;
+import com.example.discordclonebackend.entity.File;
 import com.example.discordclonebackend.entity.User;
 import com.example.discordclonebackend.repository.ConversationRepository;
 import com.example.discordclonebackend.repository.DirectMessageRepository;
+import com.example.discordclonebackend.repository.FileRepository;
 import com.example.discordclonebackend.repository.UserRepository;
 import com.example.discordclonebackend.service.DirectMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,9 @@ public class DirectMessageServiceImpl implements DirectMessageService {
 
     @Autowired
     private DirectMessageRepository directMessageRepository;
+
+    @Autowired
+    private FileRepository fileRepository;
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -62,14 +68,23 @@ public class DirectMessageServiceImpl implements DirectMessageService {
             DirectMessageDto directMessageDto = new DirectMessageDto();
             directMessageDto.setId(directMessage.getId());
             directMessageDto.setContent(directMessage.getContent());
-            directMessageDto.setFileUrl(directMessage.getFileUrl());
-            directMessageDto.setFileKey(directMessage.getFileKey());
+            directMessageDto.setFile(
+                    directMessage.getFile() != null ? new FileDto(
+                            directMessage.getFile().getFileName(),
+                            directMessage.getFile().getFileUrl(),
+                            directMessage.getFile().getFileKey()
+                    ) : null
+            );
             User sender = directMessage.getUser();
             directMessageDto.setSender(new UserDto(
                     sender.getId(),
                     sender.getUsername(),
                     sender.getNickname(),
-                    sender.getAvatarUrl(),
+                    sender.getFile() != null ? new FileDto(
+                            sender.getFile().getFileName(),
+                            sender.getFile().getFileUrl(),
+                            sender.getFile().getFileKey()
+                    ) : null,
                     sender.getCreatedAt(),
                     sender.getUpdatedAt()
             ));
@@ -82,13 +97,20 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                         new DirectMessageDto(
                                 replyToMessage.getId(),
                                 replyToMessage.getContent(),
-                                replyToMessage.getFileUrl(),
-                                replyToMessage.getFileKey(),
+                                replyToMessage.getFile() != null ? new FileDto(
+                                        replyToMessage.getFile().getFileName(),
+                                        replyToMessage.getFile().getFileUrl(),
+                                        replyToMessage.getFile().getFileKey()
+                                ) : null,
                                 new UserDto(
                                         replyToMessageSender.getId(),
                                         replyToMessageSender.getUsername(),
                                         replyToMessageSender.getNickname(),
-                                        replyToMessageSender.getAvatarUrl(),
+                                        replyToMessageSender.getFile() != null ? new FileDto(
+                                                replyToMessageSender.getFile().getFileName(),
+                                                replyToMessageSender.getFile().getFileUrl(),
+                                                replyToMessageSender.getFile().getFileKey()
+                                        ) : null,
                                         replyToMessageSender.getCreatedAt(),
                                         replyToMessageSender.getUpdatedAt()
                                 )
@@ -157,8 +179,22 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         //create the message
         DirectMessage directMessage = new DirectMessage();
         directMessage.setContent(directMessageRequest.getContent());
-        directMessage.setFileUrl(directMessageRequest.getFileUrl());
-        directMessage.setFileKey(directMessageRequest.getFileKey());
+
+        //check if the message has a file
+        if (directMessageRequest.getFileUrl() != null) {
+            //create the file
+            File file = new File();
+            file.setFileName(directMessageRequest.getFileName());
+            file.setFileUrl(directMessageRequest.getFileUrl());
+            file.setFileKey(directMessageRequest.getFileKey());
+
+            file = fileRepository.save(file);
+
+            directMessage.setFile(file);
+        } else {
+            directMessage.setFile(null);
+        }
+
         directMessage.setConversation(conversation);
         directMessage.setUser(sender);
 
@@ -170,13 +206,22 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         DirectMessageDto directMessageDto = new DirectMessageDto();
         directMessageDto.setId(directMessage.getId());
         directMessageDto.setContent(directMessage.getContent());
-        directMessageDto.setFileUrl(directMessage.getFileUrl());
-        directMessageDto.setFileKey(directMessage.getFileKey());
+        directMessageDto.setFile(
+                directMessage.getFile() != null ? new FileDto(
+                        directMessage.getFile().getFileName(),
+                        directMessage.getFile().getFileUrl(),
+                        directMessage.getFile().getFileKey()
+                ) : null
+        );
         directMessageDto.setSender(new UserDto(
                 sender.getId(),
                 sender.getUsername(),
                 sender.getNickname(),
-                sender.getAvatarUrl(),
+                sender.getFile() != null ? new FileDto(
+                        sender.getFile().getFileName(),
+                        sender.getFile().getFileUrl(),
+                        sender.getFile().getFileKey()
+                ) : null,
                 sender.getCreatedAt(),
                 sender.getUpdatedAt()
         ));
@@ -188,13 +233,20 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                     new DirectMessageDto(
                             replyToMessage.getId(),
                             replyToMessage.getContent(),
-                            replyToMessage.getFileUrl(),
-                            replyToMessage.getFileKey(),
+                            replyToMessage.getFile() != null ? new FileDto(
+                                    replyToMessage.getFile().getFileName(),
+                                    replyToMessage.getFile().getFileUrl(),
+                                    replyToMessage.getFile().getFileKey()
+                            ) : null,
                             new UserDto(
                                     replyToMessageSender.getId(),
                                     replyToMessageSender.getUsername(),
                                     replyToMessageSender.getNickname(),
-                                    replyToMessageSender.getAvatarUrl(),
+                                    replyToMessageSender.getFile() != null ? new FileDto(
+                                            replyToMessageSender.getFile().getFileName(),
+                                            replyToMessageSender.getFile().getFileUrl(),
+                                            replyToMessageSender.getFile().getFileKey()
+                                    ) : null,
                                     replyToMessageSender.getCreatedAt(),
                                     replyToMessageSender.getUpdatedAt()
                             )
@@ -233,14 +285,23 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         DirectMessageDto directMessageDto = new DirectMessageDto();
         directMessageDto.setId(directMessage.getId());
         directMessageDto.setContent(directMessage.getContent());
-        directMessageDto.setFileUrl(directMessage.getFileUrl());
-        directMessageDto.setFileKey(directMessage.getFileKey());
+        directMessageDto.setFile(
+                directMessage.getFile() != null ? new FileDto(
+                        directMessage.getFile().getFileName(),
+                        directMessage.getFile().getFileUrl(),
+                        directMessage.getFile().getFileKey()
+                ) : null
+        );
         User sender = directMessage.getUser();
         directMessageDto.setSender(new UserDto(
                 sender.getId(),
                 sender.getUsername(),
                 sender.getNickname(),
-                sender.getAvatarUrl(),
+                sender.getFile() != null ? new FileDto(
+                        sender.getFile().getFileName(),
+                        sender.getFile().getFileUrl(),
+                        sender.getFile().getFileKey()
+                ) : null,
                 sender.getCreatedAt(),
                 sender.getUpdatedAt()
         ));
@@ -253,13 +314,20 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                     new DirectMessageDto(
                             replyToMessage.getId(),
                             replyToMessage.getContent(),
-                            replyToMessage.getFileUrl(),
-                            replyToMessage.getFileKey(),
+                            replyToMessage.getFile() != null ? new FileDto(
+                                    replyToMessage.getFile().getFileName(),
+                                    replyToMessage.getFile().getFileUrl(),
+                                    replyToMessage.getFile().getFileKey()
+                            ) : null,
                             new UserDto(
                                     replyToMessageSender.getId(),
                                     replyToMessageSender.getUsername(),
                                     replyToMessageSender.getNickname(),
-                                    replyToMessageSender.getAvatarUrl(),
+                                    replyToMessageSender.getFile() != null ? new FileDto(
+                                            replyToMessageSender.getFile().getFileName(),
+                                            replyToMessageSender.getFile().getFileUrl(),
+                                            replyToMessageSender.getFile().getFileKey()
+                                    ) : null,
                                     replyToMessageSender.getCreatedAt(),
                                     replyToMessageSender.getUpdatedAt()
                             )

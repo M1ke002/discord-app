@@ -1,6 +1,7 @@
 package com.example.discordclonebackend.service.impl;
 
 import com.example.discordclonebackend.dto.ChannelMessageDto;
+import com.example.discordclonebackend.dto.FileDto;
 import com.example.discordclonebackend.dto.ServerMemberDto;
 import com.example.discordclonebackend.dto.request.ChannelMessageRequest;
 import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
@@ -25,6 +26,9 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
 
     @Autowired
     private ChannelMessageRepository channelMessageRepository;
+
+    @Autowired
+    private FileRepository fileRepository;
 
     @Autowired
     private ChannelRepository channelRepository;
@@ -58,13 +62,22 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                     sender.getId(),
                     sender.getUsername(),
                     sender.getNickname(),
-                    sender.getAvatarUrl(),
+                    sender.getFile() != null ? new FileDto(
+                            sender.getFile().getFileName(),
+                            sender.getFile().getFileUrl(),
+                            sender.getFile().getFileKey()
+                    ) : null,
                     userServerMapping != null ? userServerMapping.getRole() : null,
                     sender.getCreatedAt(),
                     sender.getUpdatedAt()
             ));
-            channelMessageDto.setFileUrl(channelMessage.getFileUrl());
-            channelMessageDto.setFileKey(channelMessage.getFileKey());
+            channelMessageDto.setFile(
+                    channelMessage.getFile() != null ? new FileDto(
+                            channelMessage.getFile().getFileName(),
+                            channelMessage.getFile().getFileUrl(),
+                            channelMessage.getFile().getFileKey()
+                    ) : null
+            );
             channelMessageDto.setContent(channelMessage.getContent());
 
             //get the replyToMessage if it exists
@@ -75,13 +88,20 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                 channelMessageDto.setReplyToMessage(new ChannelMessageDto(
                         replyToMessage.getId(),
                         replyToMessage.getContent(),
-                        replyToMessage.getFileUrl(),
-                        replyToMessage.getFileKey(),
+                        replyToMessage.getFile() != null ? new FileDto(
+                                replyToMessage.getFile().getFileName(),
+                                replyToMessage.getFile().getFileUrl(),
+                                replyToMessage.getFile().getFileKey()
+                        ) : null,
                         new ServerMemberDto(
                                 replyToMessageSender.getId(),
                                 replyToMessageSender.getUsername(),
                                 replyToMessageSender.getNickname(),
-                                replyToMessageSender.getAvatarUrl(),
+                                replyToMessageSender.getFile() != null ? new FileDto(
+                                        replyToMessageSender.getFile().getFileName(),
+                                        replyToMessageSender.getFile().getFileUrl(),
+                                        replyToMessageSender.getFile().getFileKey()
+                                ) : null,
                                 replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
                                 replyToMessageSender.getCreatedAt(),
                                 replyToMessageSender.getUpdatedAt()
@@ -133,8 +153,22 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
 
         ChannelMessage channelMessage = new ChannelMessage();
         channelMessage.setContent(channelMessageRequest.getContent());
-        channelMessage.setFileUrl(channelMessageRequest.getFileUrl());
-        channelMessage.setFileKey(channelMessageRequest.getFileKey());
+
+        //check if the message has a file
+        if (channelMessageRequest.getFileUrl() != null) {
+            //create a file object
+            File file = new File();
+            file.setFileName(channelMessageRequest.getFileName());
+            file.setFileUrl(channelMessageRequest.getFileUrl());
+            file.setFileKey(channelMessageRequest.getFileKey());
+
+            file = fileRepository.save(file);
+
+            channelMessage.setFile(file);
+        } else {
+            channelMessage.setFile(null);
+        }
+
         ChannelMessage replyToMessage = channelMessageRequest.getReplyToMessageId() != null ? channelMessageRepository.findById(channelMessageRequest.getReplyToMessageId()).orElse(null) : null;
         channelMessage.setReplyToMessage(replyToMessage);
         channelMessage.setHasReplyMessage(replyToMessage != null);
@@ -149,15 +183,24 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                         user.getId(),
                         user.getUsername(),
                         user.getNickname(),
-                        user.getAvatarUrl(),
+                        user.getFile() != null ? new FileDto(
+                                user.getFile().getFileName(),
+                                user.getFile().getFileUrl(),
+                                user.getFile().getFileKey()
+                        ) : null,
                         userServerMapping != null ? userServerMapping.getRole() : null,
                         user.getCreatedAt(),
                         user.getUpdatedAt()
                 )
         );
         channelMessageDto.setContent(channelMessage.getContent());
-        channelMessageDto.setFileUrl(channelMessage.getFileUrl());
-        channelMessageDto.setFileKey(channelMessage.getFileKey());
+        channelMessageDto.setFile(
+                channelMessage.getFile() != null ? new FileDto(
+                        channelMessage.getFile().getFileName(),
+                        channelMessage.getFile().getFileUrl(),
+                        channelMessage.getFile().getFileKey()
+                ) : null
+        );
 
         //get the replyToMessage if it exists
         if (replyToMessage != null) {
@@ -166,13 +209,20 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             channelMessageDto.setReplyToMessage(new ChannelMessageDto(
                     replyToMessage.getId(),
                     replyToMessage.getContent(),
-                    replyToMessage.getFileUrl(),
-                    replyToMessage.getFileKey(),
+                    replyToMessage.getFile() != null ? new FileDto(
+                            replyToMessage.getFile().getFileName(),
+                            replyToMessage.getFile().getFileUrl(),
+                            replyToMessage.getFile().getFileKey()
+                    ) : null,
                     new ServerMemberDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
                             replyToMessageSender.getNickname(),
-                            replyToMessageSender.getAvatarUrl(),
+                            replyToMessageSender.getFile() != null ? new FileDto(
+                                    replyToMessageSender.getFile().getFileName(),
+                                    replyToMessageSender.getFile().getFileUrl(),
+                                    replyToMessageSender.getFile().getFileKey()
+                            ) : null,
                             replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
                             replyToMessageSender.getCreatedAt(),
                             replyToMessageSender.getUpdatedAt()
@@ -220,15 +270,24 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                         sender.getId(),
                         sender.getUsername(),
                         sender.getNickname(),
-                        sender.getAvatarUrl(),
+                        sender.getFile() != null ? new FileDto(
+                                sender.getFile().getFileName(),
+                                sender.getFile().getFileUrl(),
+                                sender.getFile().getFileKey()
+                        ) : null,
                         userServerMapping.getRole(),
                         sender.getCreatedAt(),
                         sender.getUpdatedAt()
                 )
         );
         channelMessageDto.setContent(channelMessage.getContent());
-        channelMessageDto.setFileUrl(channelMessage.getFileUrl());
-        channelMessageDto.setFileKey(channelMessage.getFileKey());
+        channelMessageDto.setFile(
+                channelMessage.getFile() != null ? new FileDto(
+                        channelMessage.getFile().getFileName(),
+                        channelMessage.getFile().getFileUrl(),
+                        channelMessage.getFile().getFileKey()
+                ) : null
+        );
 
         //get the replyToMessage if it exists
         ChannelMessage replyToMessage = channelMessage.getReplyToMessage();
@@ -238,13 +297,20 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             channelMessageDto.setReplyToMessage(new ChannelMessageDto(
                     replyToMessage.getId(),
                     replyToMessage.getContent(),
-                    replyToMessage.getFileUrl(),
-                    replyToMessage.getFileKey(),
+                    replyToMessage.getFile() != null ? new FileDto(
+                            replyToMessage.getFile().getFileName(),
+                            replyToMessage.getFile().getFileUrl(),
+                            replyToMessage.getFile().getFileKey()
+                    ) : null,
                     new ServerMemberDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
                             replyToMessageSender.getNickname(),
-                            replyToMessageSender.getAvatarUrl(),
+                            replyToMessageSender.getFile() != null ? new FileDto(
+                                    replyToMessageSender.getFile().getFileName(),
+                                    replyToMessageSender.getFile().getFileUrl(),
+                                    replyToMessageSender.getFile().getFileKey()
+                            ) : null,
                             replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
                             replyToMessageSender.getCreatedAt(),
                             replyToMessageSender.getUpdatedAt()
