@@ -18,12 +18,12 @@ export default async function middleware(
 
   if (
     req.nextUrl.pathname.startsWith('/login') ||
-    req.nextUrl.pathname.startsWith('/register') ||
-    req.nextUrl.pathname === '/'
+    req.nextUrl.pathname.startsWith('/register')
+    // req.nextUrl.pathname === '/'
   ) {
     if (isAuthenticated) {
       // console.log('redirecting to /');
-      return NextResponse.redirect(new URL('/conversations', req.url));
+      return NextResponse.redirect(new URL('/', req.url));
     }
   }
 

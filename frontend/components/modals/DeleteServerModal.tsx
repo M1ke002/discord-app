@@ -29,6 +29,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '../ui/input';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
+import axios from 'axios';
 
 const DeleteServerModal = () => {
   const { type, isOpen, onOpen, onClose, data } = useModal();
@@ -66,6 +67,22 @@ const DeleteServerModal = () => {
     try {
       console.log(values);
       setIsLoading(true);
+
+      //if the server has a file key, delete the file from uploadthing server
+      if (server?.file?.fileKey) {
+        console.log('server has filekey');
+        const res = await axios.delete(
+          `/api/uploadthing-files?fileKey=${server?.file?.fileKey}`
+        );
+        if (res.data.status === 'error') {
+          console.log(
+            'error deleting file from uploadthing server',
+            res.data.message
+          );
+          return;
+        }
+      }
+
       const res = await axiosAuth.delete(`/servers/${server?.id}`);
       if (res.status === 200) {
         toast({

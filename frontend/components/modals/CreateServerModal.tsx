@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,23 +24,21 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import FileUpload from '../FileUpload';
 import { useModal } from '@/hooks/zustand/useModal';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useToast } from '../ui/use-toast';
 import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
+import UploadFileZone from '../UploadFileZone';
+import Image from 'next/image';
+import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import axios from 'axios';
 
 //for validation
 const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Server name is required!'
-  }),
-  image: z
-    .object({
-      url: z.string(),
-      key: z.string()
-    })
-    .optional()
+  })
 });
 
 const CreateServerModal = () => {
@@ -48,15 +46,18 @@ const CreateServerModal = () => {
   const { triggerRefetchComponents } = useRefetchComponents();
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
+  const [imageData, setImageData] = useState<{
+    src: string;
+    file: File | null;
+  }>({
+    src: '',
+    file: null
+  });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      image: {
-        url: '',
-        key: ''
-      }
+      name: ''
     }
   });
 
@@ -67,12 +68,33 @@ const CreateServerModal = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const res = await axiosAuth.post(`/servers`, {
-        userId,
-        serverName: values.name,
-        fileUrl: values.image?.url === '' ? null : values.image?.url,
-        fileKey: values.image?.key === '' ? null : values.image?.key
-      });
+      const requestBody: any = {};
+      //check if a server image is uploaded
+      if (imageData.file) {
+        const data = new FormData();
+        data.set('file', imageData.file as any);
+        //upload image to uploadthing server
+        const res = await axios.post('/api/uploadthing-files', data, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        console.log(res.data);
+
+        if (res.data.status === 'error') {
+          console.log('error uploading image to uploadthing server');
+          return;
+        }
+
+        requestBody.fileUrl = res.data.data.url;
+        requestBody.fileKey = res.data.data.key;
+        requestBody.fileName = res.data.data.name;
+      }
+
+      requestBody.userId = userId;
+      requestBody.serverName = values.name;
+
+      const res = await axiosAuth.post(`/servers`, requestBody);
       if (res.status == 200) {
         toast({
           title: 'Server created successfully!'
@@ -111,22 +133,37 @@ const CreateServerModal = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-8 px-6">
-              <div className="flex items-center text-center justify-center">
-                <FormField
-                  control={form.control}
-                  name="image"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <FileUpload
+              <div
+                className={cn(
+                  !imageData.file ? 'px-10' : 'flex items-center justify-center'
+                )}
+              >
+                <div>
+                  {!imageData.file ? (
+                    <UploadFileZone setImageData={setImageData} />
+                  ) : (
+                    <div className="relative h-20 w-20">
+                      <Image
+                        fill
+                        src={imageData.src}
+                        alt="Upload"
+                        className="rounded-full"
+                      />
+                      <button
+                        onClick={() => setImageData({ src: '', file: null })}
+                        className="bg-rose-500 text-white p-1 rounded-full absolute top-0 right-0 shadow-sm"
+                        type="button"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  {/* <FileUpload
                           endpoint="serverImage"
                           value={field.value}
                           onChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                        /> */}
+                </div>
               </div>
               <FormField
                 control={form.control}

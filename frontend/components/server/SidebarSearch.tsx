@@ -11,6 +11,7 @@ import {
   CommandList
 } from '../ui/command';
 import { useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import UserAvatar from '../UserAvatar';
 
 interface SidebarSearchProps {
@@ -42,6 +43,7 @@ const SidebarSearch = ({
   const router = useRouter();
   const params = useParams();
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
 
   //for keyboard shortcut ctrl+k
   useEffect(() => {
@@ -63,6 +65,7 @@ const SidebarSearch = ({
     if (type === 'channels') {
       router.push(`/servers/${params?.serverId}/channels/${id}`);
     } else {
+      if (session?.user?.id === id) return;
       router.push(`/conversations/${id}`);
     }
   };
