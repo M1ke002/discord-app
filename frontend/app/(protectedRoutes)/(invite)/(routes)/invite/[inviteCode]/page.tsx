@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 interface InviteCodePageProps {
@@ -15,6 +16,7 @@ const InviteCodePage = ({ params }: InviteCodePageProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!session) {
@@ -42,9 +44,14 @@ const InviteCodePage = ({ params }: InviteCodePageProps) => {
         } else {
           router.replace('/');
         }
-      } catch (error) {
+      } catch (error: any) {
         //problem: 400 (Bad Request) goes here, not the if statement in try block
         console.log(error);
+        toast({
+          title: 'Something went wrong',
+          variant: 'destructive',
+          description: error.response.data.message
+        });
         router.replace('/');
       }
     };

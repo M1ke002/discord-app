@@ -28,17 +28,17 @@ const InviteModal = () => {
 
   const isModalOpen = type === 'invite' && isOpen;
   const { server } = data;
-  const inviteUrl = `${origin}/invite/${server?.inviteCode}`;
+  // const inviteUrl = `${origin}/invite/${server?.inviteCode}`;
 
   const onCopy = () => {
-    navigator.clipboard.writeText(inviteUrl);
+    navigator.clipboard.writeText(server?.inviteCode || '');
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
     }, 1000);
   };
 
-  const generateNewInviteUrl = async () => {
+  const generateNewInviteCode = async () => {
     setIsLoading(true);
     try {
       //call api to generate new invite url
@@ -72,14 +72,14 @@ const InviteModal = () => {
         </DialogHeader>
         <div className="p-6">
           <Label className="uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70">
-            Server invite link
+            Server invite code
           </Label>
           <div className="flex items-center mt-2 gap-x-2">
             <Input
               readOnly
               disabled={isLoading}
               className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0"
-              value={inviteUrl}
+              value={server?.inviteCode || ''}
             />
             <Button size="icon" onClick={onCopy} disabled={isLoading}>
               {isCopied ? (
@@ -93,10 +93,10 @@ const InviteModal = () => {
             variant="link"
             size="sm"
             className="text-xs text-zinc-500 mt-4 px-0"
-            onClick={generateNewInviteUrl}
+            onClick={generateNewInviteCode}
             disabled={isLoading}
           >
-            Generate a new link
+            Generate a new invite code
             <RefreshCw className="w-4 h-4 ml-2" />
           </Button>
         </div>

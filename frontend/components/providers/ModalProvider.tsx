@@ -16,6 +16,8 @@ import EditCategoryModal from '../modals/EditCategoryModal';
 import DeleteCategoryModal from '../modals/DeleteCategoryModal';
 import DeleteMessageModal from '../modals/DeleteMessageModal';
 import UserSettingsModal from '../modals/UserSettingsModal';
+import NewServerOptionsModal from '../modals/NewServerOptionsModal';
+import JoinServerModal from '../modals/JoinServerModal';
 
 //this component will be used to render all the modals
 const ModalProvider = () => {
@@ -30,6 +32,8 @@ const ModalProvider = () => {
   if (!mounted) return null;
   return (
     <>
+      <NewServerOptionsModal />
+      <JoinServerModal />
       <CreateServerModal />
       <InviteModal />
       <EditServerModal />

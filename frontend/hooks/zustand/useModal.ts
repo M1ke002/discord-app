@@ -4,6 +4,8 @@ import Channel from '@/types/Channel';
 import Category from '@/types/Category';
 
 export type ModalType =
+  | 'newServerOptions'
+  | 'joinServer'
   | 'createServer'
   | 'editServer'
   | 'leaveServer'

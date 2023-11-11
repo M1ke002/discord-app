@@ -42,7 +42,7 @@ const formSchema = z.object({
 });
 
 const CreateServerModal = () => {
-  const { type, isOpen, onClose, data } = useModal();
+  const { type, isOpen, onOpen, onClose, data } = useModal();
   const { triggerRefetchComponents } = useRefetchComponents();
   const axiosAuth = useAxiosAuth();
   const { toast } = useToast();
@@ -187,9 +187,19 @@ const CreateServerModal = () => {
               />
             </div>
             <DialogFooter className="bg-gray-100 px-6 py-4">
-              <Button disabled={isLoading} variant="primary">
-                Create
-              </Button>
+              <div className="w-full flex items-center justify-between">
+                <Button
+                  disabled={isLoading}
+                  variant="ghost"
+                  type="button"
+                  onClick={() => onOpen('newServerOptions')}
+                >
+                  Back
+                </Button>
+                <Button disabled={isLoading} variant="primary">
+                  Create
+                </Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>

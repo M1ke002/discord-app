@@ -40,7 +40,7 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
         setChatHeaderData(
           'conversation',
           res.data.nickname,
-          res.data.avatarUrl
+          res.data.file?.fileUrl
         );
         console.log(res.data);
       } catch (error) {

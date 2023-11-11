@@ -13,7 +13,8 @@ const NavigationAction = ({ userId }: { userId: number | undefined }) => {
       <TooltipActions label="Add a server" side="right" align="center">
         <button
           className="group items-center"
-          onClick={() => onOpen('createServer', { userId: userId?.toString() })}
+          // onClick={() => onOpen('createServer', { userId: userId?.toString() })}
+          onClick={() => onOpen('newServerOptions')}
         >
           <div
             className="flex mx-3 h-[48px] w-[48px] rounded-[24px] group-hover:rounded-[16px]
