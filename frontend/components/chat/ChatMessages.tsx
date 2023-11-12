@@ -42,6 +42,8 @@ const ChatMessages = ({
 
   const [editingMessageId, setEditingMessageId] = useState('');
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [oldestMessageId, setOldestMessageId] = useState('');
+  const [isGrabbingScrollBar, setIsGrabbingScrollBar] = useState(false);
 
   const chatRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -67,16 +69,22 @@ const ChatMessages = ({
       userId2: otherUser?.id.toString()
     });
 
-  const { ref } = useInView({
+  const [ChatItemSkeletonRef, ChatItemSkeletonInView] = useInView({
     threshold: 0,
-    onChange: (inView, entry) => {
-      if (inView && !isFetchingNextPage && hasNextPage) {
-        console.log('fetching next page.....');
-        fetchNextPage();
-      }
-    }
-    // triggerOnce: true
+    delay: 0
   });
+
+  const [oldestMessageRef, oldestMessageInView, oldestMessageEntry] = useInView(
+    { threshold: 0 }
+  );
+
+  //for fetching next page when the last ChatItemSkeleton is in view
+  useEffect(() => {
+    if (ChatItemSkeletonInView && !isGrabbingScrollBar) {
+      console.log('fetching next page.....');
+      fetchNextPage();
+    }
+  }, [ChatItemSkeletonInView, isGrabbingScrollBar]);
 
   //scroll to bottom when page is first loaded
   useEffect(() => {
@@ -89,6 +97,24 @@ const ChatMessages = ({
       setHasScrolledToBottom(true);
     }
   }, [bottomRef, data, hasScrolledToBottom]);
+
+  //function to scroll to the oldest previously rendered message when new messages are loaded
+  const onOldestMessageChange = (messageId: string) => {
+    //scroll to the oldest message
+    if (
+      !isFetchingNextPage &&
+      oldestMessageEntry?.target &&
+      !oldestMessageInView
+    ) {
+      console.log('scrolling to oldest message...', oldestMessageEntry?.target);
+
+      oldestMessageEntry?.target?.scrollIntoView({
+        behavior: 'instant'
+      });
+    }
+    //update the oldest message id
+    setOldestMessageId(messageId);
+  };
 
   if (status === 'pending') {
     console.log('loading messages...');
@@ -114,7 +140,12 @@ const ChatMessages = ({
   }
 
   return (
-    <div ref={chatRef} className="flex flex-col flex-1 py-4 overflow-y-auto">
+    <div
+      ref={chatRef}
+      className="flex flex-col flex-1 py-4 overflow-y-auto"
+      onMouseDown={() => setIsGrabbingScrollBar(true)}
+      onMouseUp={() => setIsGrabbingScrollBar(false)}
+    >
       {!hasNextPage && <div className="flex-1" />}
       {!hasNextPage && (
         <ChatWelcome
@@ -133,6 +164,7 @@ const ChatMessages = ({
                 //If next message is not found (null) maybe it is the end of this page -> check the first message of the next page
                 const prevMessage =
                   page?.messages[index + 1] || data?.pages[i + 1]?.messages[0];
+                const isLastMessage = !prevMessage;
                 const isSameSender =
                   message.sender.id === prevMessage?.sender.id;
 
@@ -146,11 +178,14 @@ const ChatMessages = ({
                   currMessageDate,
                   prevMessageDate
                 );
-                // console.log(
-                //   `message: ${index} ${
-                //     message.content
-                //   }, curr time: ${currMessageDate.getTime()} prev time: ${prevMessageDate.getTime()}`
-                // );
+
+                if (
+                  isLastMessage &&
+                  message.id.toString() !== oldestMessageId
+                ) {
+                  onOldestMessageChange(message.id.toString());
+                }
+
                 return (
                   <Fragment key={index}>
                     <ChatItem
@@ -163,6 +198,10 @@ const ChatMessages = ({
                       apiUrl={apiUrl}
                       serverId={serverId}
                       channelId={channelId}
+                      messageRef={
+                        message.id.toString() === oldestMessageId &&
+                        oldestMessageRef
+                      }
                     />
                     {isNewDay && <ChatItemSeparator date={message.createdAt} />}
                   </Fragment>
@@ -172,7 +211,7 @@ const ChatMessages = ({
           </Fragment>
         ))}
         {hasNextPage && (
-          <div ref={ref}>
+          <div ref={ChatItemSkeletonRef}>
             <ChatItemSkeleton variant={1} />
             <ChatItemSkeleton variant={2} />
             <ChatItemSkeleton variant={3} />

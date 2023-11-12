@@ -28,7 +28,7 @@ export const useChatQuery = ({
   //TODO: bug -> fetchMessages is called twice when the page is loaded
   const fetchMessages = async (pageParam: number) => {
     console.log('fetching messages in useChatQuery');
-    let queryString = `${apiUrl}?page=${pageParam}`;
+    let queryString = `${apiUrl}?page=${pageParam}&limit=30`;
     if (messageType === 'channelMessages') {
       queryString += `&channelId=${channelId}&serverId=${serverId}`;
     } else if (messageType === 'directMessages') {

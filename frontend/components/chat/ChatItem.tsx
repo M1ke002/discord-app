@@ -31,6 +31,7 @@ const chatReplyIconClassName =
 
 interface ChatItemProps {
   type: 'new' | 'continue';
+  messageRef: any;
   message: ChannelMessage | DirectMessage;
   editingMessageId: string;
   setEditingMessageId: (id: string) => void;
@@ -47,6 +48,7 @@ const formSchema = z.object({
 
 const ChatItem = ({
   type = 'new',
+  messageRef,
   message,
   editingMessageId,
   setEditingMessageId,
@@ -140,6 +142,7 @@ const ChatItem = ({
         replyToMessage?.id === message.id &&
           'bg-[#393b48] hover:bg-[#393b48] border-l-2 border-blue-500'
       )}
+      ref={messageRef ? messageRef : null}
     >
       <div
         className={cn(

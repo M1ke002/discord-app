@@ -51,6 +51,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.46.1",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-intersection-observer": "^9.5.2",
     "socket.io-client": "^4.7.2",
     "tailwind-merge": "^1.14.0",
