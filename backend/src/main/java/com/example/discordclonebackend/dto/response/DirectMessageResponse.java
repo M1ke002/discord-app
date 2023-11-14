@@ -13,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 public class DirectMessageResponse {
     private List<DirectMessageDto> messages = new ArrayList<>();
-    private Integer nextPage;
+    private Long nextCursor;
 
-    public DirectMessageResponse(Integer nextPage) {
-        this.nextPage = nextPage;
+    public DirectMessageResponse(Long nextCursor) {
+        this.nextCursor = nextCursor;
     }
 }

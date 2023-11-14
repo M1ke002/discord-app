@@ -12,6 +12,7 @@ import { checkIsNewDay } from '@/utils/utils';
 import User from '@/types/User';
 import DirectMessage from '@/types/DirectMessage';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
@@ -41,7 +42,9 @@ const ChatMessages = ({
   const deleteMessageKey = `chat:${chatId}:delete-message`;
 
   const [editingMessageId, setEditingMessageId] = useState('');
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [clickedMessageId, setClickedMessageId] = useState('');
+
+  const axiosAuth = useAxiosAuth();
 
   const chatRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -56,41 +59,62 @@ const ChatMessages = ({
 
   const messageType = type === 'channel' ? 'channelMessages' : 'directMessages';
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useChatQuery({
-      messageType,
-      queryKey,
-      apiUrl,
-      serverId,
-      channelId,
-      userId1: currUser?.id.toString(),
-      userId2: otherUser?.id.toString()
-    });
+  const {
+    data,
+    fetchNextPage,
+    fetchNextPageWithLimit,
+    hasNextPage,
+    isFetchingNextPage,
+    status
+  } = useChatQuery({
+    messageType,
+    queryKey,
+    apiUrl,
+    serverId,
+    channelId,
+    userId1: currUser?.id.toString(),
+    userId2: otherUser?.id.toString()
+  });
 
-  //scroll to bottom when page is first loaded
+  //scroll to a reply message when a reply message is clicked
   useEffect(() => {
-    if (bottomRef.current && data && !hasScrolledToBottom) {
-      console.log('scrolling to bottom...');
-
-      bottomRef.current?.scrollIntoView({
-        behavior: 'instant'
-      });
-      setHasScrolledToBottom(true);
-    }
-  }, [bottomRef, data, hasScrolledToBottom]);
+    const handleReplyMessageClick = async () => {
+      try {
+        if (clickedMessageId !== '') {
+          const messageElement = document.getElementById(clickedMessageId);
+          if (!messageElement) {
+            //the message is not yet rendered -> need to fetch older messages
+            let query = `${apiUrl}/count?fromMessageId=${clickedMessageId}&toMessageId=${
+              messages[messages.length - 1].id
+            }`;
+            if (type === 'channel') {
+              query += `&channelId=${channelId}`;
+            } else {
+              query += `&userId1=${currUser?.id}&userId2=${otherUser?.id}`;
+            }
+            const res = await axiosAuth.get(query);
+            console.log(res.data);
+            const count = res.data.response;
+            if (count) fetchNextPageWithLimit(Number(count));
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    handleReplyMessageClick();
+  }, [clickedMessageId]);
 
   //get all messages from all pages
   const messages = useMemo(
     () =>
       data?.pages.reduce((prev, page) => {
-        return [...prev, ...page.messages];
+        return [...prev, ...page?.messages];
       }, [] as (ChannelMessage | DirectMessage)[]),
     [data]
   );
 
-  // console.log('messages', messages);
-
-  if (status === 'pending') {
+  if (status === 'loading') {
     console.log('loading messages...');
     return (
       <div className="flex flex-col flex-1 justify-center items-center">
@@ -123,10 +147,10 @@ const ChatMessages = ({
 
       <InfiniteScroll
         dataLength={messages?.length}
-        next={() => fetchNextPage()}
-        hasMore={hasNextPage}
+        next={fetchNextPage}
+        hasMore={!!hasNextPage}
         className="flex flex-col-reverse"
-        scrollThreshold="448px" //the height of the chatItemSkeleton div
+        scrollThreshold="450px" //the height of the chatItemSkeleton div: 448px
         loader={
           <div>
             <ChatItemSkeleton variant={1} />
@@ -165,6 +189,8 @@ const ChatMessages = ({
                     apiUrl={apiUrl}
                     serverId={serverId}
                     channelId={channelId}
+                    clickedMessageId={clickedMessageId}
+                    setClickedMessageId={setClickedMessageId}
                   />
                   {isNewDay && <ChatItemSeparator date={message.createdAt} />}
                 </Fragment>
@@ -174,7 +200,6 @@ const ChatMessages = ({
         </div>
       </InfiniteScroll>
 
-      {!hasNextPage && <div className="flex-1" />}
       {!hasNextPage && (
         <ChatWelcome
           type={type}
@@ -182,6 +207,7 @@ const ChatMessages = ({
           avatarUrl={otherUser?.file?.fileUrl || ''}
         />
       )}
+      {!hasNextPage && <div className="flex-1" />}
     </div>
   );
 };

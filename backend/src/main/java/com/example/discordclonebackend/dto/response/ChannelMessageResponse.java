@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ChannelMessageResponse {
     private List<ChannelMessageDto> messages;
-    private Integer nextPage;
+    private Long nextCursor;
 }

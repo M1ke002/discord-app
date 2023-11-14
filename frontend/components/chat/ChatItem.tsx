@@ -22,6 +22,7 @@ import Member from '@/types/Member';
 import User from '@/types/User';
 import { isChannelMessage, isServerMember } from '@/utils/utils';
 import Image from 'next/image';
+import { useInView } from 'react-intersection-observer';
 
 // const chatReplyIconClassName =
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
@@ -32,6 +33,8 @@ const chatReplyIconClassName =
 interface ChatItemProps {
   type: 'new' | 'continue';
   message: ChannelMessage | DirectMessage;
+  clickedMessageId: string;
+  setClickedMessageId: (id: string) => void;
   editingMessageId: string;
   setEditingMessageId: (id: string) => void;
   currUser: User | Member;
@@ -49,6 +52,8 @@ const ChatItem = ({
   type = 'new',
   message,
   editingMessageId,
+  clickedMessageId,
+  setClickedMessageId,
   setEditingMessageId,
   currUser,
   otherUser,
@@ -59,6 +64,10 @@ const ChatItem = ({
   const axiosAuth = useAxiosAuth();
   const { onOpen } = useModal();
   const { message: replyToMessage, setMessage } = useReplyToMessage();
+
+  const [messageRef, inView, entry] = useInView({
+    threshold: 0
+  });
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -82,6 +91,19 @@ const ChatItem = ({
       chatMessage: message.content
     });
   }, [message]);
+
+  useEffect(() => {
+    if (clickedMessageId === message.id.toString()) {
+      const behavior = inView ? 'smooth' : 'instant';
+      entry?.target.scrollIntoView({
+        behavior: behavior,
+        block: 'center'
+      });
+      setTimeout(() => {
+        setClickedMessageId('');
+      }, 600);
+    }
+  }, [clickedMessageId, inView, entry]);
 
   const extractLinkInContent = (content: string) => {
     const regex = /https?:\/\/[^\s]+/g;
@@ -190,9 +212,13 @@ const ChatItem = ({
       className={cn(
         'group flex flex-col items-center hover:bg-black/5 px-4 py-1 transition',
         type === 'new' && 'mt-4',
-        replyToMessage?.id === message.id &&
-          'bg-[#393b48] hover:bg-[#393b48] border-l-2 border-blue-500'
+        (replyToMessage?.id === message.id ||
+          clickedMessageId === message.id.toString()) &&
+          'bg-[#393b48] hover:bg-[#393b48] transition',
+        replyToMessage?.id === message.id && 'border-l-2 border-blue-500'
       )}
+      ref={messageRef}
+      id={message.id.toString()}
     >
       <div
         className={cn(
@@ -259,6 +285,12 @@ const ChatItem = ({
                       'text-xs text-black hover:text-black/75 dark:text-zinc-400 dark:hover:text-zinc-300 ml-1 cursor-pointer',
                       message.replyToMessage.content === '' && 'italic'
                     )}
+                    onClick={() => {
+                      if (message.replyToMessage)
+                        setClickedMessageId(
+                          message.replyToMessage.id.toString()
+                        );
+                    }}
                   >
                     {message.replyToMessage.content === '' &&
                       'Click to see attachment'}

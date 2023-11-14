@@ -21,14 +21,34 @@ public class ChannelMessageController {
     @Autowired
     private SocketIOServer socketIOServer;
 
-    //example request: http://localhost:8080/api/v1/messages?page=0&channelId=1&serverId=1
+    //example request: http://localhost:8080/api/v1/messages?cursor=123&limit=20&channelId=1&serverId=1
     @GetMapping("")
-    public ResponseEntity<?> getMessages(@RequestParam("page") Integer page, @RequestParam("channelId") Long channelId, @RequestParam("serverId") Long serverId) {
-        ChannelMessageResponse channelMessageResponse = channelMessageService.getMessages(page, channelId, serverId);
+    public ResponseEntity<?> getMessages(
+            @RequestParam("cursor") Long cursor,
+            @RequestParam("limit") Integer limit,
+            @RequestParam("channelId") Long channelId,
+            @RequestParam("serverId") Long serverId) {
+        if (limit == null) {
+            limit = 30;
+        }
+        ChannelMessageResponse channelMessageResponse = channelMessageService.getMessages(cursor, limit, channelId, serverId);
         if (channelMessageResponse == null) {
             return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
         }
         return ResponseEntity.ok(channelMessageResponse);
+    }
+
+    //example request: http://localhost:8080/api/v1/messages/count?fromMessageId=1&toMessageId=2&channelId=1
+    @GetMapping("/count")
+    public ResponseEntity<?> getMessagesCount(
+            @RequestParam("fromMessageId") Long fromMessageId,
+            @RequestParam("toMessageId") Long toMessageId,
+            @RequestParam("channelId") Long channelId) {
+        Long count = channelMessageService.getMessagesCount(fromMessageId, toMessageId, channelId);
+        if (count == null) {
+            return ResponseEntity.badRequest().body(new StringResponse("Message count retrieval failed"));
+        }
+        return ResponseEntity.ok(new StringResponse(count.toString()));
     }
 
     @GetMapping("test")

@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 @Service
 public class DirectMessageServiceImpl implements DirectMessageService {
 
-    private final static Integer PAGE_SIZE = 15;
-
     @Autowired
     private DirectMessageRepository directMessageRepository;
 
@@ -43,10 +41,15 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     private UserRepository userRepository;
 
     @Override
-    public DirectMessageResponse getMessages(Integer page, Long userId1, Long userId2) {
+    public DirectMessageResponse getMessages(Long cursor, Integer limit, Long userId1, Long userId2) {
         //check if users exist
         if (!userRepository.existsById(userId1) || !userRepository.existsById(userId2)) {
             System.out.println("User 1 or 2 not found");
+            return null;
+        }
+
+        if (cursor == null) {
+            System.out.println("Cursor is null");
             return null;
         }
 
@@ -62,8 +65,21 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         }
 
         //get messages
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        Page<DirectMessage> directMessagesPage = directMessageRepository.findAllByConversationId(conversation.getId(), pageable);
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+        Page<DirectMessage> directMessagesPage;
+
+        if (cursor == 0) {
+            directMessagesPage = directMessageRepository.findAllByConversationId(conversation.getId(), pageable);
+        } else {
+            //get all the messages before the cursor message
+            DirectMessage cursorMessage = directMessageRepository.findById(cursor).orElse(null);
+            if (cursorMessage == null) {
+                System.out.println("Cursor message not found");
+                return null;
+            }
+            directMessagesPage = directMessageRepository.findAllByConversationIdAndCreatedAtBefore(conversation.getId(), cursorMessage.getCreatedAt(), pageable);
+        }
+
         List<DirectMessageDto> directMessageDtos = directMessagesPage.stream().map(directMessage -> {
             DirectMessageDto directMessageDto = new DirectMessageDto();
             directMessageDto.setId(directMessage.getId());
@@ -128,11 +144,49 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         DirectMessageResponse directMessageResponse = new DirectMessageResponse();
         directMessageResponse.setMessages(directMessageDtos);
         if (directMessagesPage.hasNext()) {
-            directMessageResponse.setNextPage(page + 1);
+            //set the next cursor to the last message's id of the current page
+            directMessageResponse.setNextCursor(directMessagesPage.getContent().get(directMessagesPage.getContent().size() - 1).getId());
         } else {
-            directMessageResponse.setNextPage(null);
+            directMessageResponse.setNextCursor(null);
         }
         return directMessageResponse;
+    }
+
+    @Override
+    public Long getMessagesCount(Long fromMessageId, Long toMessageId, Long userId1, Long userId2) {
+        //check if a conversation exists between the two users
+        Conversation conversation = conversationRepository.findByUser1IdAndUser2Id(userId1, userId2);
+        if (conversation == null) {
+            conversation = conversationRepository.findByUser1IdAndUser2Id(userId2, userId1);
+        }
+
+        //conversation still not found -> return null
+        if (conversation == null) {
+            System.out.println("Conversation not found");
+            return null;
+        }
+
+        //check if fromMessage exists
+        DirectMessage fromMessage = directMessageRepository.findById(fromMessageId).orElse(null);
+        if (fromMessage == null) {
+            System.out.println("From message not found");
+            return null;
+        }
+
+        //check if toMessage exists
+        DirectMessage toMessage = directMessageRepository.findById(toMessageId).orElse(null);
+        if (toMessage == null) {
+            System.out.println("To message not found");
+            return null;
+        }
+
+        //get the number of messages between fromMessageId's createdAt and toMessageId's createdAt, which belong to the conversation
+        Long count = directMessageRepository.countMessagesBetweenCreatedAt(fromMessage.getCreatedAt(), toMessage.getCreatedAt(), conversation.getId());
+        if (count == null) {
+            System.out.println("Message count retrieval failed");
+            return null;
+        }
+        return count;
     }
 
     @Override

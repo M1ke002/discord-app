@@ -15,14 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class ChannelMessageServiceImpl implements ChannelMessageService {
-
-    private final static Integer PAGE_SIZE = 15;
 
     @Autowired
     private ChannelMessageRepository channelMessageRepository;
@@ -43,15 +42,34 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
     private UserServerMappingRepository userServerMappingRepository;
 
     @Override
-    public ChannelMessageResponse getMessages(Integer page, Long channelId, Long serverId) {
+    public ChannelMessageResponse getMessages(Long cursor, Integer limit, Long channelId, Long serverId) {
         //check if server exists
         if (!serverRepository.existsById(serverId)) {
             System.out.println("Server doesn't exist");
             return null;
         }
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("createdAt").descending());
-        Page<ChannelMessage> channelMessagesPage = channelMessageRepository.findAllByChannelId(channelId, pageable);
+        if (cursor == null) {
+            System.out.println("Cursor is null");
+            return null;
+        }
+
+        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+        Page<ChannelMessage> channelMessagesPage;
+
+        //if cursor is 0 then fetch the messages starting from the newest message
+        if (cursor == 0) {
+            channelMessagesPage = channelMessageRepository.findAllByChannelId(channelId, pageable);
+        } else {
+            //get all the messages before the cursor message
+            ChannelMessage cursorMessage = channelMessageRepository.findById(cursor).orElse(null);
+            //no messages found
+            if (cursorMessage == null) {
+                System.out.println("Cursor message doesn't exist");
+                return null;
+            }
+            channelMessagesPage = channelMessageRepository.findAllByChannelIdAndCreatedAtBefore(channelId, cursorMessage.getCreatedAt(), pageable);
+        }
         List<ChannelMessageDto> channelMessageDtos = channelMessagesPage.stream().map(channelMessage -> {
             ChannelMessageDto channelMessageDto = new ChannelMessageDto();
             channelMessageDto.setId(channelMessage.getId());
@@ -117,14 +135,46 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         }).collect(Collectors.toList());
         ChannelMessageResponse channelMessageResponse = new ChannelMessageResponse();
         channelMessageResponse.setMessages(channelMessageDtos);
-        //check if there is a next page
+        //check if there is a next message
         if (channelMessagesPage.hasNext()) {
-            channelMessageResponse.setNextPage(page + 1);
+            //set the next cursor to the last message's id of the current page
+            channelMessageResponse.setNextCursor(channelMessagesPage.getContent().get(channelMessagesPage.getContent().size() - 1).getId());
         } else {
-            channelMessageResponse.setNextPage(null);
+            channelMessageResponse.setNextCursor(null);
         }
 
         return channelMessageResponse;
+    }
+
+    @Override
+    public Long getMessagesCount(Long fromMessageId, Long toMessageId, Long channelId) {
+        //check if channel exists
+        if (!channelRepository.existsById(channelId)) {
+            System.out.println("Channel doesn't exist");
+            return null;
+        }
+
+        //check if fromMessage exists
+        ChannelMessage fromMessage = channelMessageRepository.findById(fromMessageId).orElse(null);
+        if (fromMessage == null) {
+            System.out.println("From message doesn't exist");
+            return null;
+        }
+
+        //check if toMessage exists
+        ChannelMessage toMessage = channelMessageRepository.findById(toMessageId).orElse(null);
+        if (toMessage == null) {
+            System.out.println("To message doesn't exist");
+            return null;
+        }
+
+        //get the number of messages between fromMessageId's createdAt and toMessageId's createdAt, which belong to the channel
+        Long count = channelMessageRepository.countMessagesBetweenCreatedAt(fromMessage.getCreatedAt(), toMessage.getCreatedAt(), channelId);
+        if (count == null) {
+            System.out.println("Message count retrieval failed");
+            return null;
+        }
+        return count;
     }
 
     @Override

@@ -20,15 +20,36 @@ public class DirectMessageController {
     @Autowired
     private DirectMessageService directMessageService;
 
-    //example request: http://localhost:8080/api/v1/direct-messages?page=0&userId1=1&userId2=2
+    //example request: http://localhost:8080/api/v1/direct-messages?page=0&limit=20&userId1=1&userId2=2
     @GetMapping("")
-    public ResponseEntity<?> getDirectMessages(@RequestParam("page") Integer page, @RequestParam("userId1") Long userId1, @RequestParam("userId2") Long userId2) {
-        DirectMessageResponse directMessageResponse = directMessageService.getMessages(page, userId1, userId2);
+    public ResponseEntity<?> getDirectMessages(
+            @RequestParam("cursor") Long cursor,
+            @RequestParam("limit") Integer limit,
+            @RequestParam("userId1") Long userId1,
+            @RequestParam("userId2") Long userId2) {
+        if (limit == null) {
+            limit = 20;
+        }
+        DirectMessageResponse directMessageResponse = directMessageService.getMessages(cursor, limit, userId1, userId2);
         if (directMessageResponse == null) {
             return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
         }
         return ResponseEntity.ok(directMessageResponse);
     }
+
+    //example request: http://localhost:8080/api/v1/messages/count?fromMessageId=1&toMessageId=2&userId1=1&userId2=2
+    @GetMapping("/count")
+    public ResponseEntity<?> getMessagesCount(
+            @RequestParam("fromMessageId") Long fromMessageId,
+            @RequestParam("toMessageId") Long toMessageId,
+            @RequestParam("userId1") Long userId1,
+            @RequestParam("userId2") Long userId2) {
+        Long count = directMessageService.getMessagesCount(fromMessageId, toMessageId, userId1, userId2);
+        if (count == null) {
+            return ResponseEntity.badRequest().body(new StringResponse("Message count retrieval failed"));
+        }
+        return ResponseEntity.ok(new StringResponse(count.toString()));
+    };
 
     @PostMapping("")
     public ResponseEntity<?> createDirectMessage(@RequestBody DirectMessageRequest directMessageRequest) {
