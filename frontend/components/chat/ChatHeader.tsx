@@ -9,7 +9,7 @@ import { useUserProfile } from '@/hooks/zustand/useUserProfile';
 import MobileMemberListToggle from '../MobileMemberListToggle';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
 import TooltipActions from '../TooltipActions';
-import SearchBar from '../server/Searchbar';
+import SearchBar from '../search/Searchbar';
 import { cn } from '@/lib/utils';
 import UserAvatar from '../UserAvatar';
 
