@@ -1,14 +1,26 @@
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
+import { useServerData } from '@/hooks/zustand/useServerData';
+import SearchbarMenuOption from './SearchbarMenuOption';
+import { Separator } from '../ui/separator';
 
 interface SearchBarMenuProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   searchbarRef: any;
   searchbarMenuRef: any;
-  currentTags: string[];
-  setCurrentTags: (currentTags: string[]) => void;
+  currentTags: {
+    name: string;
+    value: string;
+  }[];
+  setCurrentTags: (
+    currentTags: {
+      name: string;
+      value: string;
+    }[]
+  ) => void;
+  getSearchResults: () => void;
 }
 
 const SearchBarMenu = ({
@@ -17,12 +29,19 @@ const SearchBarMenu = ({
   searchbarRef,
   searchbarMenuRef,
   currentTags,
-  setCurrentTags
+  setCurrentTags,
+  getSearchResults
 }: SearchBarMenuProps) => {
+  const { server } = useServerData();
+
+  // console.log('users: ' + JSON.stringify(server?.users));
+  const latestTag =
+    currentTags.length > 0 ? currentTags[currentTags.length - 1] : null;
+
   useEffect(() => {
-    document.addEventListener('click', handleOutsideClick);
+    document.addEventListener('mousedown', handleOutsideClick);
     return () => {
-      document.removeEventListener('click', handleOutsideClick);
+      document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, []);
 
@@ -37,10 +56,22 @@ const SearchBarMenu = ({
     }
   };
 
-  const onOptionSelect = (tag: 'from' | 'has' | 'before' | 'after') => {
+  const onOptionSelect = (
+    type: string,
+    tag: string | undefined,
+    value: any
+  ) => {
     setIsOpen(false);
-    if (currentTags.includes(tag)) return;
-    setCurrentTags([...currentTags, tag]);
+    if (type === 'tag') {
+      if (currentTags.find((t) => t.name === tag) || !tag) return;
+      //add a new tag
+      setCurrentTags([...currentTags, { name: tag, value: '' }]);
+    } else if (type === 'from') {
+      currentTags[currentTags.length - 1].value =
+        value.nickname.substring(0, 4) + '...';
+    } else if (type === 'has') {
+      currentTags[currentTags.length - 1].value = value;
+    }
   };
 
   return (
@@ -52,48 +83,73 @@ const SearchBarMenu = ({
       ref={searchbarMenuRef}
     >
       <div className="px-3 py-2 text-xs font-bold uppercase text-zinc-300">
-        Search options
+        {(!latestTag || latestTag.value !== '') && 'Search options'}
+        {latestTag?.name === 'from' && latestTag.value === '' && 'From user'}
+        {latestTag?.name === 'has' &&
+          latestTag.value === '' &&
+          'Message contains'}
       </div>
-      <div
-        className="flex items-center px-3 py-2 text-sm cursor-pointer group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
-        onClick={() => onOptionSelect('from')}
-      >
-        <div>
-          <span className="font-semibold mr-1 text-zinc-300">from:</span>
-          user
-        </div>
-        <Plus className="hidden h-4 w-4 ml-auto group-hover:block" />
-      </div>
-      <div
-        className="flex items-center px-3 py-2 text-sm cursor-pointer group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
-        onClick={() => onOptionSelect('has')}
-      >
-        <div>
-          <span className="font-semibold mr-1 text-zinc-300">has:</span>
-          image or file
-        </div>
-        <Plus className="hidden h-4 w-4 ml-auto group-hover:block" />
-      </div>
-      <div
-        className="flex items-center px-3 py-2 text-sm cursor-pointer group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
-        onClick={() => onOptionSelect('before')}
-      >
-        <div>
-          <span className="font-semibold mr-1 text-zinc-300">before:</span>
-          specific date
-        </div>
-        <Plus className="hidden h-4 w-4 ml-auto group-hover:block" />
-      </div>
-      <div
-        className="flex items-center px-3 py-2 text-sm cursor-pointer group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
-        onClick={() => onOptionSelect('after')}
-      >
-        <div>
-          <span className="font-semibold mr-1 text-zinc-300">after:</span>
-          specific date
-        </div>
-        <Plus className="hidden h-4 w-4 ml-auto group-hover:block" />
-      </div>
+      {(!latestTag || latestTag.value !== '') && (
+        <>
+          <SearchbarMenuOption
+            onOptionSelect={onOptionSelect}
+            type="tag"
+            tag="from"
+            tagDescription="user"
+          />
+          <SearchbarMenuOption
+            onOptionSelect={onOptionSelect}
+            type="tag"
+            tag="has"
+            tagDescription="image or file"
+          />
+        </>
+      )}
+      {latestTag?.name === 'from' &&
+        latestTag.value === '' &&
+        server?.users.map((user) => {
+          return (
+            <SearchbarMenuOption
+              key={user.id}
+              onOptionSelect={onOptionSelect}
+              type="from"
+              member={user}
+            />
+          );
+        })}
+      {latestTag?.name === 'has' && latestTag.value === '' && (
+        <>
+          <SearchbarMenuOption
+            onOptionSelect={onOptionSelect}
+            type="has"
+            messageContains="image"
+          />
+          <SearchbarMenuOption
+            onOptionSelect={onOptionSelect}
+            type="has"
+            messageContains="file"
+          />
+        </>
+      )}
+      {(!latestTag || latestTag.value !== '') && (
+        <>
+          <Separator className="bg-zinc-200 dark:bg-zinc-800 my-2 rounded-md" />
+          <button
+            className="px-3 flex items-center w-full hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
+            onClick={() => {
+              setIsOpen(false);
+              getSearchResults();
+            }}
+          >
+            <div className="py-2 text-xs font-semibold uppercase text-zinc-400">
+              Click to search
+            </div>
+            <kbd className="pointer-events-none inline-flex select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground ml-auto">
+              <span className="text-xs">Enter</span>
+            </kbd>
+          </button>
+        </>
+      )}
     </div>
   );
 };
