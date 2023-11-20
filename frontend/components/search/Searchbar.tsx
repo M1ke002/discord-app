@@ -4,13 +4,17 @@ import SearchBarMenu from './SearchbarMenu';
 import SearchbarTagWrapper from './SearchbarTagWrapper';
 import SearchbarInput from './SearchbarInput';
 import SearchResultsDialog from './SearchResultsDialog';
-import { set } from 'date-fns';
 
 const SearchBar = () => {
   const [gotRidOfScrollbar, setGotRidOfScrollbar] = useState(false);
   const [xIconVisible, setXIconVisible] = useState(false);
-  const [isSearchOptionsOpen, setIsSearchOptionsOpen] = useState(false);
-  const [isSearchResultOpen, setIsSearchResultOpen] = useState(false);
+  const [toggleSearchDialog, setToggleSearchDialog] = useState<{
+    isOpen: boolean;
+    type: 'searchOptions' | 'searchResults';
+  }>({
+    isOpen: false,
+    type: 'searchOptions'
+  });
   const [currentTags, setCurrentTags] = useState<
     {
       name: string;
@@ -21,9 +25,11 @@ const SearchBar = () => {
     hasPlaceholder: true,
     text: 'Search'
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const searchbarRef = useRef<HTMLDivElement>(null);
   const searchbarMenuRef = useRef<HTMLDivElement>(null);
+  const searchResultsDialogRef = useRef<HTMLDivElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLSpanElement>(null);
 
@@ -62,14 +68,19 @@ const SearchBar = () => {
   const getSearchResults = async () => {
     console.log('tags: ' + JSON.stringify(currentTags));
     console.log('text: ' + inputRef.current?.innerText);
-    setIsSearchResultOpen(true);
-    setIsSearchOptionsOpen(false);
+    setToggleSearchDialog({ isOpen: true, type: 'searchResults' });
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
   };
 
   return (
     <div
       className="relative flex items-center bg-zinc-200 dark:bg-[#1e1f22] rounded-md"
-      onMouseDown={() => setIsSearchOptionsOpen(true)}
+      onMouseDown={() =>
+        setToggleSearchDialog((prev) => ({ ...prev, isOpen: true }))
+      }
     >
       <div
         className="bg-zinc-200 dark:bg-[#1e1f22] w-[220px] h-[30px] overflow-hidden rounded-l-md"
@@ -105,8 +116,8 @@ const SearchBar = () => {
         )}
       </div>
       <SearchBarMenu
-        isOpen={isSearchOptionsOpen}
-        setIsOpen={setIsSearchOptionsOpen}
+        toggleSearchDialog={toggleSearchDialog}
+        setToggleSearchDialog={setToggleSearchDialog}
         searchbarRef={inputWrapperRef}
         searchbarMenuRef={searchbarMenuRef}
         currentTags={currentTags}
@@ -114,8 +125,11 @@ const SearchBar = () => {
         getSearchResults={getSearchResults}
       />
       <SearchResultsDialog
-        isOpen={isSearchResultOpen}
-        setIsOpen={setIsSearchResultOpen}
+        toggleSearchDialog={toggleSearchDialog}
+        setToggleSearchDialog={setToggleSearchDialog}
+        searchbarRef={inputWrapperRef}
+        searchResultsDialogRef={searchResultsDialogRef}
+        isLoading={isLoading}
       />
     </div>
   );

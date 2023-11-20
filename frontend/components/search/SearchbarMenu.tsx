@@ -6,8 +6,14 @@ import SearchbarMenuOption from './SearchbarMenuOption';
 import { Separator } from '../ui/separator';
 
 interface SearchBarMenuProps {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  toggleSearchDialog: {
+    isOpen: boolean;
+    type: 'searchOptions' | 'searchResults';
+  };
+  setToggleSearchDialog: (toggleSearchDialog: {
+    isOpen: boolean;
+    type: 'searchOptions' | 'searchResults';
+  }) => void;
   searchbarRef: any;
   searchbarMenuRef: any;
   currentTags: {
@@ -24,8 +30,8 @@ interface SearchBarMenuProps {
 }
 
 const SearchBarMenu = ({
-  isOpen,
-  setIsOpen,
+  toggleSearchDialog,
+  setToggleSearchDialog,
   searchbarRef,
   searchbarMenuRef,
   currentTags,
@@ -43,16 +49,22 @@ const SearchBarMenu = ({
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, []);
+  }, [toggleSearchDialog.type, toggleSearchDialog.isOpen]);
 
   const handleOutsideClick = (e: MouseEvent) => {
+    // console.log('outside click menu');
     if (
       searchbarRef.current &&
       !searchbarRef.current.contains(e.target as Node) &&
       searchbarMenuRef.current &&
-      !searchbarMenuRef.current.contains(e.target as Node)
+      !searchbarMenuRef.current.contains(e.target as Node) &&
+      toggleSearchDialog.isOpen &&
+      toggleSearchDialog.type === 'searchOptions'
     ) {
-      setIsOpen(false);
+      setToggleSearchDialog({
+        ...toggleSearchDialog,
+        isOpen: false
+      });
     }
   };
 
@@ -61,16 +73,21 @@ const SearchBarMenu = ({
     tag: string | undefined,
     value: any
   ) => {
-    setIsOpen(false);
+    setToggleSearchDialog({
+      isOpen: false,
+      type: 'searchOptions'
+    });
     if (type === 'tag') {
       if (currentTags.find((t) => t.name === tag) || !tag) return;
       //add a new tag
-      setCurrentTags([...currentTags, { name: tag, value: '' }]);
+      if (tag === 'has') {
+        setCurrentTags([...currentTags, { name: tag, value: 'true' }]);
+      } else {
+        setCurrentTags([...currentTags, { name: tag, value: '' }]);
+      }
     } else if (type === 'from') {
       currentTags[currentTags.length - 1].value =
         value.nickname.substring(0, 4) + '...';
-    } else if (type === 'has') {
-      currentTags[currentTags.length - 1].value = value;
     }
   };
 
@@ -78,7 +95,9 @@ const SearchBarMenu = ({
     <div
       className={cn(
         'hidden absolute top-9 -right-1 w-80 rounded-sm p-2 mr-2 font-medium text-black dark:text-neutral-400 space-y-[2px] bg-zinc-200 dark:bg-[#101011] z-[30]',
-        isOpen && 'block'
+        toggleSearchDialog.isOpen &&
+          toggleSearchDialog.type === 'searchOptions' &&
+          'block'
       )}
       ref={searchbarMenuRef}
     >
@@ -101,7 +120,7 @@ const SearchBarMenu = ({
             onOptionSelect={onOptionSelect}
             type="tag"
             tag="has"
-            tagDescription="image or file"
+            tagDescription="attachment"
           />
         </>
       )}
@@ -117,27 +136,16 @@ const SearchBarMenu = ({
             />
           );
         })}
-      {latestTag?.name === 'has' && latestTag.value === '' && (
-        <>
-          <SearchbarMenuOption
-            onOptionSelect={onOptionSelect}
-            type="has"
-            messageContains="image"
-          />
-          <SearchbarMenuOption
-            onOptionSelect={onOptionSelect}
-            type="has"
-            messageContains="file"
-          />
-        </>
-      )}
       {(!latestTag || latestTag.value !== '') && (
         <>
           <Separator className="bg-zinc-200 dark:bg-zinc-800 my-2 rounded-md" />
           <button
             className="px-3 flex items-center w-full hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
             onClick={() => {
-              setIsOpen(false);
+              setToggleSearchDialog({
+                isOpen: false,
+                type: 'searchOptions'
+              });
               getSearchResults();
             }}
           >

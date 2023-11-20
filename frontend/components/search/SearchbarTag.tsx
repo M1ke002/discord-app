@@ -11,7 +11,8 @@ const SearchbarTag = ({ tagName, tagValue, deleteTag }: SearchbarTagProps) => {
   return (
     <div className="flex items-center bg-[#34383d] my-1 mr-1 px-1 rounded-sm w-[max-content]">
       <div className="text-xs bg-transparent mr-1" tabIndex={0}>
-        {tagName}:{tagValue ? ' ' + tagValue : ''}
+        {tagName === 'has' && `${tagName} file`}
+        {tagName !== 'has' && `${tagName}: ${tagValue || ''}`}
       </div>
       <X
         onClick={(e) => {

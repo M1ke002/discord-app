@@ -28,8 +28,6 @@ const SearchbarMenuOption = ({
           onOptionSelect(type, tag, '');
         } else if (type === 'from') {
           onOptionSelect(type, 'from', member);
-        } else if (type === 'has') {
-          onOptionSelect(type, 'has', messageContains);
         }
       }}
     >
@@ -51,12 +49,6 @@ const SearchbarMenuOption = ({
           <span className="font-semibold mr-1 text-zinc-300">
             {member?.nickname}
           </span>
-        </div>
-      )}
-
-      {type === 'has' && (
-        <div>
-          <span className="text-zinc-400">{messageContains}</span>
         </div>
       )}
 
