@@ -4,6 +4,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.example.discordclonebackend.dto.ChannelMessageDto;
 import com.example.discordclonebackend.dto.request.ChannelMessageRequest;
 import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
+import com.example.discordclonebackend.dto.response.SearchChannelMessageResponse;
 import com.example.discordclonebackend.dto.response.StringResponse;
 import com.example.discordclonebackend.service.ChannelMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,19 @@ public class ChannelMessageController {
             return ResponseEntity.badRequest().body(new StringResponse("Message count retrieval failed"));
         }
         return ResponseEntity.ok(new StringResponse(count.toString()));
+    }
+
+    //sample request: http://localhost:8080/api/v1/messages/search?page=0&userId=1&hasFile=true&content=hello&serverId=1
+    @GetMapping("/search")
+    public ResponseEntity<?> searchMessages(
+            @RequestParam("page") Integer page,
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "hasFile", required = false) Boolean hasFile,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam("serverId") Long serverId
+    ) {
+        SearchChannelMessageResponse searchChannelMessageResponse = channelMessageService.searchMessages(page, userId, hasFile, content, serverId);
+        return ResponseEntity.ok(searchChannelMessageResponse);
     }
 
     @GetMapping("test")

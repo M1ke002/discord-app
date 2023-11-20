@@ -24,7 +24,7 @@ jwt:
   JWT_SECRET: thisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthentication
   JWT_EXPIRATION_MS: 60000 #was 60000
   #set refresh token expiration time to 1 day
-  JWT_REFRESH_EXPIRATION_MS: 120000 #86400000
+  JWT_REFRESH_EXPIRATION_MS: 86400000 #86400000
   accessTokenCookieName: accessToken
   refreshTokenCookieName: refreshToken
 

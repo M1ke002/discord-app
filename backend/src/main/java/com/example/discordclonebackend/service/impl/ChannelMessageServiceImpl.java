@@ -5,6 +5,7 @@ import com.example.discordclonebackend.dto.FileDto;
 import com.example.discordclonebackend.dto.ServerMemberDto;
 import com.example.discordclonebackend.dto.request.ChannelMessageRequest;
 import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
+import com.example.discordclonebackend.dto.response.SearchChannelMessageResponse;
 import com.example.discordclonebackend.entity.*;
 import com.example.discordclonebackend.repository.*;
 import com.example.discordclonebackend.service.ChannelMessageService;
@@ -400,5 +401,65 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         //delete message
         channelMessageRepository.delete(channelMessage);
         return true;
+    }
+
+    @Override
+    public SearchChannelMessageResponse searchMessages(Integer page, Long userId, Boolean hasFile, String content, Long serverId) {
+        int messageLimit = 15;
+        //check if server exists
+        if (!serverRepository.existsById(serverId)) {
+            System.out.println("Server doesn't exist");
+            return null;
+        }
+
+        if (userId == null && hasFile == null && content == null) {
+            System.out.println("No search parameters provided");
+            return null;
+        }
+
+        Pageable pageable = PageRequest.of(page, messageLimit, Sort.by("createdAt").descending());
+        Page<ChannelMessage> channelMessagesPage = channelMessageRepository.searchMessages(userId, hasFile, content, serverId, pageable);
+
+        List<ChannelMessageDto> channelMessageDtos = channelMessagesPage.stream().map(channelMessage -> {
+            ChannelMessageDto channelMessageDto = new ChannelMessageDto();
+            channelMessageDto.setId(channelMessage.getId());
+            channelMessageDto.setChannelId(channelMessage.getChannel().getId());
+            User sender = channelMessage.getUser();
+            UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(sender.getId(), serverId);
+            channelMessageDto.setSender(new ServerMemberDto(
+                    sender.getId(),
+                    sender.getUsername(),
+                    sender.getNickname(),
+                    sender.getFile() != null ? new FileDto(
+                            sender.getFile().getFileName(),
+                            sender.getFile().getFileUrl(),
+                            sender.getFile().getFileKey()
+                    ) : null,
+                    userServerMapping != null ? userServerMapping.getRole() : null,
+                    sender.getCreatedAt(),
+                    sender.getUpdatedAt()
+            ));
+            channelMessageDto.setFile(
+                    channelMessage.getFile() != null ? new FileDto(
+                            channelMessage.getFile().getFileName(),
+                            channelMessage.getFile().getFileUrl(),
+                            channelMessage.getFile().getFileKey()
+                    ) : null
+            );
+            channelMessageDto.setContent(channelMessage.getContent());
+
+            //no need to get the replies
+            channelMessageDto.setReplyToMessage(null);
+            channelMessageDto.setHasReplyMessage(false);
+
+            channelMessageDto.setCreatedAt(channelMessage.getCreatedAt());
+            channelMessageDto.setUpdatedAt(channelMessage.getUpdatedAt());
+            return channelMessageDto;
+        }).collect(Collectors.toList());
+        SearchChannelMessageResponse searchChannelMessageResponse = new SearchChannelMessageResponse();
+        searchChannelMessageResponse.setMessages(channelMessageDtos);
+        searchChannelMessageResponse.setTotalPages(channelMessagesPage.getTotalPages());
+
+        return searchChannelMessageResponse;
     }
 }

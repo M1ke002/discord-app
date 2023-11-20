@@ -3,6 +3,7 @@ package com.example.discordclonebackend.service;
 import com.example.discordclonebackend.dto.ChannelMessageDto;
 import com.example.discordclonebackend.dto.request.ChannelMessageRequest;
 import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
+import com.example.discordclonebackend.dto.response.SearchChannelMessageResponse;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface ChannelMessageService {
     public ChannelMessageDto updateMessage(Long messageId, ChannelMessageRequest channelMessageRequest);
 
     public Boolean deleteMessage(Long messageId, Long userId, Long serverId);
+
+    public SearchChannelMessageResponse searchMessages(Integer page, Long userId, Boolean hasFile, String content, Long serverId);
 }
