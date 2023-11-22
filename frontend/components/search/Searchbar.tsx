@@ -4,10 +4,17 @@ import SearchBarMenu from './SearchbarMenu';
 import SearchbarTagWrapper from './SearchbarTagWrapper';
 import SearchbarInput from './SearchbarInput';
 import SearchResultsDialog from './SearchResultsDialog';
+import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { useParams } from 'next/navigation';
+import ChannelMessage from '@/types/ChannelMessage';
 
 const SearchBar = () => {
+  const axiosAuth = useAxiosAuth();
+  const params = useParams();
+
   const [gotRidOfScrollbar, setGotRidOfScrollbar] = useState(false);
   const [xIconVisible, setXIconVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [toggleSearchDialog, setToggleSearchDialog] = useState<{
     isOpen: boolean;
     type: 'searchOptions' | 'searchResults';
@@ -19,13 +26,28 @@ const SearchBar = () => {
     {
       name: string;
       value: string;
+      userId?: string;
     }[]
   >([]);
   const [placeHolder, setPlaceHolder] = useState({
     hasPlaceholder: true,
     text: 'Search'
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchData, setSearchData] = useState<{
+    query: string;
+    totalPages: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    messages: ChannelMessage[];
+    totalMessages: number;
+  }>({
+    query: '',
+    totalPages: 0,
+    currentPage: 0,
+    hasNextPage: false,
+    messages: [],
+    totalMessages: 0
+  });
 
   const searchbarRef = useRef<HTMLDivElement>(null);
   const searchbarMenuRef = useRef<HTMLDivElement>(null);
@@ -66,13 +88,44 @@ const SearchBar = () => {
   };
 
   const getSearchResults = async () => {
-    console.log('tags: ' + JSON.stringify(currentTags));
-    console.log('text: ' + inputRef.current?.innerText);
+    if (inputRef.current?.innerText.trim() === '' && currentTags.length === 0)
+      return;
+    for (let i = 0; i < currentTags.length; i++) {
+      if (!currentTags[i].value) return;
+    }
     setToggleSearchDialog({ isOpen: true, type: 'searchResults' });
+    let query = '/messages/search?page=0';
+    currentTags.forEach((tag) => {
+      if (tag.name === 'from') {
+        if (tag.userId) query += `&userId=${tag.userId}`;
+      } else if (tag.name === 'has') {
+        query += `&hasFile=${tag.value}`;
+      } else {
+        query += `&${tag.name}=${tag.value}`;
+      }
+    });
+    if (inputRef.current?.innerText.trim() !== '') {
+      query += `&content=${inputRef.current?.innerText}`;
+    }
+    query += `&serverId=${params.serverId}`;
+    console.log(query);
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await axiosAuth.get(query);
+      console.log(res.data);
+      setSearchData({
+        query: query,
+        totalPages: res.data.totalPages,
+        currentPage: 0,
+        hasNextPage: searchData.currentPage + 1 < res.data.totalPages,
+        messages: res.data.messages,
+        totalMessages: res.data.totalMessages
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -130,6 +183,9 @@ const SearchBar = () => {
         searchbarRef={inputWrapperRef}
         searchResultsDialogRef={searchResultsDialogRef}
         isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        searchData={searchData}
+        setSearchData={setSearchData}
       />
     </div>
   );

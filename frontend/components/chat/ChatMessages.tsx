@@ -13,6 +13,7 @@ import User from '@/types/User';
 import DirectMessage from '@/types/DirectMessage';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { useClickedMessageId } from '@/hooks/zustand/useClickedMessageId';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
@@ -42,7 +43,8 @@ const ChatMessages = ({
   const deleteMessageKey = `chat:${chatId}:delete-message`;
 
   const [editingMessageId, setEditingMessageId] = useState('');
-  const [clickedMessageId, setClickedMessageId] = useState('');
+  // const [clickedMessageId, setClickedMessageId] = useState('');
+  const { clickedMessageId, setClickedMessageId } = useClickedMessageId();
 
   const axiosAuth = useAxiosAuth();
 
@@ -189,8 +191,6 @@ const ChatMessages = ({
                     apiUrl={apiUrl}
                     serverId={serverId}
                     channelId={channelId}
-                    clickedMessageId={clickedMessageId}
-                    setClickedMessageId={setClickedMessageId}
                   />
                   {isNewDay && <ChatItemSeparator date={message.createdAt} />}
                 </Fragment>

@@ -14,6 +14,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { useModal } from '@/hooks/zustand/useModal';
 import { useReplyToMessage } from '@/hooks/zustand/useReplyToMessage';
+import { useClickedMessageId } from '@/hooks/zustand/useClickedMessageId';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { format } from 'date-fns';
 import ChannelMessage from '@/types/ChannelMessage';
@@ -33,8 +34,6 @@ const chatReplyIconClassName =
 interface ChatItemProps {
   type: 'new' | 'continue';
   message: ChannelMessage | DirectMessage;
-  clickedMessageId: string;
-  setClickedMessageId: (id: string) => void;
   editingMessageId: string;
   setEditingMessageId: (id: string) => void;
   currUser: User | Member;
@@ -52,8 +51,6 @@ const ChatItem = ({
   type = 'new',
   message,
   editingMessageId,
-  clickedMessageId,
-  setClickedMessageId,
   setEditingMessageId,
   currUser,
   otherUser,
@@ -64,6 +61,7 @@ const ChatItem = ({
   const axiosAuth = useAxiosAuth();
   const { onOpen } = useModal();
   const { message: replyToMessage, setMessage } = useReplyToMessage();
+  const { clickedMessageId, setClickedMessageId } = useClickedMessageId();
 
   const [messageRef, inView, entry] = useInView({
     threshold: 0

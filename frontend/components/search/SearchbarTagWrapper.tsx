@@ -5,6 +5,7 @@ interface SearchbarTagWrapperProps {
   currentTags: {
     name: string;
     value: string;
+    userId?: string;
   }[];
   deleteTag: (tag: string) => void;
 }

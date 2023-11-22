@@ -6,6 +6,7 @@ interface SearchbarInputProps {
   currentTags: {
     name: string;
     value: string;
+    userId?: string;
   }[];
   inputRef: any;
   placeHolder: {

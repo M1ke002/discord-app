@@ -19,11 +19,13 @@ interface SearchBarMenuProps {
   currentTags: {
     name: string;
     value: string;
+    userId?: string;
   }[];
   setCurrentTags: (
     currentTags: {
       name: string;
       value: string;
+      userId?: string;
     }[]
   ) => void;
   getSearchResults: () => void;
@@ -88,6 +90,7 @@ const SearchBarMenu = ({
     } else if (type === 'from') {
       currentTags[currentTags.length - 1].value =
         value.nickname.substring(0, 4) + '...';
+      currentTags[currentTags.length - 1].userId = value.id;
     }
   };
 
