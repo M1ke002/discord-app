@@ -28,3 +28,39 @@ export const isChannelMessage = (
 export const isServerMember = (user: Member | User): user is Member => {
   return 'role' in user;
 };
+
+export const extractLinkInContent = (content: string) => {
+  const regex = /https?:\/\/[^\s]+/g;
+
+  const matches = content.match(regex);
+
+  //extract the normal text plus the links
+  const result: {
+    type: 'text' | 'link';
+    text: string;
+  }[] = [];
+
+  let lastIndex = 0;
+  matches?.forEach((match) => {
+    const index = content.indexOf(match);
+    const text = content.substring(lastIndex, index);
+    if (text.trim() !== '') {
+      result.push({
+        type: 'text',
+        text
+      });
+    }
+    result.push({
+      type: 'link',
+      text: match
+    });
+    lastIndex = index + match.length;
+  });
+  if (lastIndex !== content.length)
+    result.push({
+      type: 'text',
+      text: content.substring(lastIndex, content.length)
+    });
+
+  return result;
+};

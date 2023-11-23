@@ -8,6 +8,8 @@ import ChannelMessage from '@/types/ChannelMessage';
 import { useServerData } from '@/hooks/zustand/useServerData';
 import { useRouter, useParams } from 'next/navigation';
 import Channel from '@/types/Channel';
+import NoResultsIcon from '@/public/no-results.svg';
+import Image from 'next/image';
 
 interface SearchResultsDialogProps {
   toggleSearchDialog: {
@@ -108,55 +110,62 @@ const SearchResultsDialog = ({
           <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
         </div>
       )}
-      {!isLoading && (
-        <div>
-          <ScrollArea className="block h-[440px] shadow-md border-[1px] rounded-b-md bg-[#2b2d31]">
-            <div className="flex flex-col p-3 px-4 text-xs text-zinc-300">
-              {searchData.messages.length > 0 && (
-                <>
-                  {searchData.messages.map((message, index) => {
-                    let channel: Channel | null = null;
-                    const prevMessage =
-                      index > 0 ? searchData.messages[index - 1] : null;
-                    if (prevMessage?.channelId !== message.channelId) {
-                      channel = server?.channels.find(
-                        (channel) => channel.id === message.channelId
-                      ) as Channel;
-                    }
-                    return (
-                      <Fragment key={index}>
-                        {channel && (
-                          <div className="flex items-center space-x-1 mt-1 mb-2">
-                            <Hash className="w-5 h-5 text-black dark:text-white" />
-                            <p
-                              className="font-semibold text-[1rem] text-black dark:text-white hover:underline cursor-pointer"
-                              onClick={() => {
-                                if (channel) {
-                                  router.push(
-                                    `/servers/${params?.serverId}/channels/${channel.id}`
-                                  );
-                                }
-                              }}
-                            >
-                              {channel.name}
-                            </p>
-                          </div>
-                        )}
-                        <SearchResultItem message={message} />
-                      </Fragment>
-                    );
-                  })}
-                  {searchData.totalPages > 1 && (
-                    <Paginator
-                      searchData={searchData}
-                      setSearchData={setSearchData}
-                      setIsLoading={setIsLoading}
-                    />
-                  )}
-                </>
+      {!isLoading && searchData.messages.length > 0 && (
+        <div className=" max-h-[440px] h-full flex flex-col flex-grow">
+          <ScrollArea className="block overflow-y-auto shadow-md border-[1px] rounded-b-md bg-[#2b2d31]">
+            <div className="flex flex-col p-3 px-4 text-xs text-zinc-300 h-[100%]">
+              {searchData.messages.map((message, index) => {
+                let channel: Channel | null = null;
+                const prevMessage =
+                  index > 0 ? searchData.messages[index - 1] : null;
+                if (prevMessage?.channelId !== message.channelId) {
+                  channel = server?.channels.find(
+                    (channel) => channel.id === message.channelId
+                  ) as Channel;
+                }
+                return (
+                  <Fragment key={index}>
+                    {channel && (
+                      <div className="flex items-center space-x-1 mt-1 mb-2">
+                        <Hash className="w-5 h-5 text-black dark:text-white" />
+                        <p
+                          className="font-semibold text-[1rem] text-black dark:text-white hover:underline cursor-pointer"
+                          onClick={() => {
+                            if (channel) {
+                              router.push(
+                                `/servers/${params?.serverId}/channels/${channel.id}`
+                              );
+                            }
+                          }}
+                        >
+                          {channel.name}
+                        </p>
+                      </div>
+                    )}
+                    <SearchResultItem message={message} />
+                  </Fragment>
+                );
+              })}
+              {searchData.totalPages > 1 && (
+                <Paginator
+                  searchData={searchData}
+                  setSearchData={setSearchData}
+                  setIsLoading={setIsLoading}
+                />
               )}
             </div>
           </ScrollArea>
+        </div>
+      )}
+      {!isLoading && searchData.messages.length === 0 && (
+        <div className="flex flex-col items-center justify-center h-[300px] shadow-md border-[1px] rounded-b-md bg-[#2b2d31]">
+          <Image
+            src={NoResultsIcon}
+            alt="no results"
+            width={150}
+            height={150}
+          />
+          <p className="text-sm text-zinc-300 mt-5">No results were found!</p>
         </div>
       )}
     </div>

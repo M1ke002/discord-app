@@ -88,8 +88,7 @@ const SearchBarMenu = ({
         setCurrentTags([...currentTags, { name: tag, value: '' }]);
       }
     } else if (type === 'from') {
-      currentTags[currentTags.length - 1].value =
-        value.nickname.substring(0, 4) + '...';
+      currentTags[currentTags.length - 1].value = value.nickname;
       currentTags[currentTags.length - 1].userId = value.id;
     }
   };

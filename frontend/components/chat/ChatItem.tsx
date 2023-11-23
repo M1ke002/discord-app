@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import TooltipActions from '../TooltipActions';
 import UserAvatar from '../UserAvatar';
 import { MemberRole, getRoleIcon } from '@/utils/constants';
+import { extractLinkInContent } from '@/utils/utils';
 import { cn } from '@/lib/utils';
 import { Edit, FileIcon, FileImage, Reply, Trash } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -102,59 +103,6 @@ const ChatItem = ({
       }, 600);
     }
   }, [clickedMessageId, inView, entry]);
-
-  const extractLinkInContent = (content: string) => {
-    const regex = /https?:\/\/[^\s]+/g;
-
-    const matches = content.match(regex);
-
-    //extract the normal text plus the links
-    const result: {
-      type: 'text' | 'link';
-      text: string;
-    }[] = [];
-    let lastIndex = 0;
-
-    matches?.forEach((match) => {
-      const index = content.indexOf(match);
-      const text = content.substring(lastIndex, index);
-      if (text.trim() !== '') {
-        result.push({
-          type: 'text',
-          text
-        });
-      }
-      result.push({
-        type: 'link',
-        text: match
-      });
-      lastIndex = index + match.length;
-    });
-    if (lastIndex !== content.length)
-      result.push({
-        type: 'text',
-        text: content.substring(lastIndex, content.length)
-      });
-    // console.log(result);
-
-    return result.map((item, index) => {
-      if (item.type === 'text') {
-        return <span key={index}>{item.text}</span>;
-      } else {
-        return (
-          <a
-            key={index}
-            href={item.text}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline dark:text-blue-400"
-          >
-            {item.text}
-          </a>
-        );
-      }
-    });
-  };
 
   const resetForm = () => {
     setEditingMessageId('');
@@ -293,7 +241,25 @@ const ChatItem = ({
                     {message.replyToMessage.content === '' &&
                       'Click to see attachment'}
                     {message.replyToMessage.content !== '' &&
-                      extractLinkInContent(message.replyToMessage.content)}
+                      extractLinkInContent(message.replyToMessage.content).map(
+                        (item, index) => {
+                          if (item.type === 'text') {
+                            return <span key={index}>{item.text}</span>;
+                          } else {
+                            return (
+                              <a
+                                key={index}
+                                href={item.text}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-500 hover:underline dark:text-blue-400"
+                              >
+                                {item.text}
+                              </a>
+                            );
+                          }
+                        }
+                      )}
                   </p>
                   {message.replyToMessage.file != null && (
                     <FileImage className="w-4 h-4 ml-1 text-zinc-300" />
@@ -347,7 +313,23 @@ const ChatItem = ({
           )}
           {editingMessageId !== message.id.toString() && (
             <div className="text-black dark:text-zinc-300 text-sm">
-              {extractLinkInContent(message.content)}
+              {extractLinkInContent(message.content).map((item, index) => {
+                if (item.type === 'text') {
+                  return <span key={index}>{item.text}</span>;
+                } else {
+                  return (
+                    <a
+                      key={index}
+                      href={item.text}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline dark:text-blue-400"
+                    >
+                      {item.text}
+                    </a>
+                  );
+                }
+              })}
               {message.updatedAt != null && (
                 <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">
                   (edited)

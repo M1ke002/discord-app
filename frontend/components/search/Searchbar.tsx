@@ -88,7 +88,11 @@ const SearchBar = () => {
   };
 
   const getSearchResults = async () => {
-    if (inputRef.current?.innerText.trim() === '' && currentTags.length === 0)
+    if (
+      (inputRef.current?.innerText.trim() === '' ||
+        placeHolder.hasPlaceholder) &&
+      currentTags.length === 0
+    )
       return;
     for (let i = 0; i < currentTags.length; i++) {
       if (!currentTags[i].value) return;

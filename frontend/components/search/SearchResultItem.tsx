@@ -2,6 +2,7 @@ import React from 'react';
 import UserAvatar from '../UserAvatar';
 import TooltipActions from '../TooltipActions';
 import { MemberRole, getRoleIcon } from '@/utils/constants';
+import { extractLinkInContent } from '@/utils/utils';
 import { format } from 'date-fns';
 import ChannelMessage from '@/types/ChannelMessage';
 import { cn } from '@/lib/utils';
@@ -78,7 +79,23 @@ const SearchResultItem = ({ message }: SearchResultItemProps) => {
             </div>
           </div>
           <div className="text-black dark:text-zinc-300 text-sm">
-            {message.content}
+            {extractLinkInContent(message.content).map((item, index) => {
+              if (item.type === 'text') {
+                return <span key={index}>{item.text}</span>;
+              } else {
+                return (
+                  <a
+                    key={index}
+                    href={item.text}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline dark:text-blue-400"
+                  >
+                    {item.text}
+                  </a>
+                );
+              }
+            })}
             {message.updatedAt != null && (
               <span className="text-[10px] mx-2 text-zinc-500 dark:text-zinc-400">
                 (edited)
