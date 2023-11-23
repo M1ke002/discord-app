@@ -60,7 +60,7 @@ const Navbar = () => {
   return (
     <div
       className="space-y-4 flex flex-col items-center h-full text-primary
-        w-full dark:bg-[#1E1F22] bg-[#E3E5E8] py-3"
+        w-full dark:bg-[color:var(--navbar-dark)] bg-[color:var(--navbar-light)] py-3"
     >
       <NavDirectMessages />
       <Separator className="my-1 h-[2px] bg-zinc-300 dark:bg-zinc-700 rounded-md w-11 mx-auto" />

@@ -26,7 +26,7 @@ const SearchResultItem = ({ message }: SearchResultItemProps) => {
 
   return (
     <div
-      className="bg-[#313338] hover:bg-zinc-700/50 rounded-md p-3 mb-2 cursor-pointer"
+      className="bg-white dark:bg-[color:var(--primary-dark)] hover:bg-zinc-200 dark:hover:bg-zinc-700/50 rounded-md p-3 mb-2 cursor-pointer"
       style={{ overflowWrap: 'anywhere' }}
       onClick={() => setClickedMessageId(message.id.toString())}
     >
@@ -50,7 +50,7 @@ const SearchResultItem = ({ message }: SearchResultItemProps) => {
                       ? 'text-rose-500'
                       : message.sender.role === MemberRole.MODERATOR
                       ? 'text-indigo-500'
-                      : 'text-white'
+                      : 'text-black dark:text-white'
                   )}
                 >
                   {message.sender.nickname}
@@ -78,7 +78,7 @@ const SearchResultItem = ({ message }: SearchResultItemProps) => {
               </span>
             </div>
           </div>
-          <div className="text-black dark:text-zinc-300 text-sm">
+          <div className="text-zinc-600 dark:text-zinc-300 text-sm">
             {extractLinkInContent(message.content).map((item, index) => {
               if (item.type === 'text') {
                 return <span key={index}>{item.text}</span>;
@@ -121,7 +121,7 @@ const SearchResultItem = ({ message }: SearchResultItemProps) => {
           )}
 
           {isPDFFile && (
-            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10 border w-64">
+            <div className="relative flex items-center p-2 mt-2 rounded-md bg-zinc-200/30 dark:bg-background/10 border w-64">
               <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
               <a
                 href={message.file?.fileUrl || undefined}

@@ -6,6 +6,12 @@ html,
 body,
 :root {
   height: 100%;
+  --primary: #5865f2;
+  --primary-dark: #313338;
+  --sidebar-dark: #2b2d31;
+  --sidebar-light: #F2F3F5;
+  --navbar-dark: #1e1f22;
+  --navbar-light: #E3E5E8;
 }
 
 /* custom scrollbar */
@@ -16,13 +22,13 @@ body,
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #2B2D31;
+  background: #ebedef;
   border-radius: 5px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #1E1F22;
+  background: #c4c9ce;
   border-radius: 5px;
   background-clip: padding-box;
 }
@@ -88,6 +94,14 @@ body,
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 24 5.7% 82.9%;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: #2B2D31;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #1E1F22;
   }
 }
  

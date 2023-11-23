@@ -22,7 +22,7 @@ const SearchbarMenuOption = ({
 }: SearchbarMenuOptionProps) => {
   return (
     <div
-      className="flex items-center px-3 py-2 text-sm cursor-pointer group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-zinc-300 rounded-sm"
+      className="flex items-center px-3 py-2 text-sm cursor-pointer group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 hover:text-black dark:hover:text-zinc-300 rounded-sm"
       onClick={() => {
         if (type === 'tag') {
           onOptionSelect(type, tag, '');
@@ -33,7 +33,9 @@ const SearchbarMenuOption = ({
     >
       {type === 'tag' && (
         <div>
-          <span className="font-semibold mr-1 text-zinc-300">{tag}:</span>
+          <span className="font-semibold mr-1 text-black dark:text-zinc-300">
+            {tag}:
+          </span>
           {tagDescription}
         </div>
       )}
@@ -46,7 +48,7 @@ const SearchbarMenuOption = ({
             className="w-[24px] h-[24px] mr-2"
             avatarFallbackClassName="text-[12px]"
           />
-          <span className="font-semibold mr-1 text-zinc-300">
+          <span className="font-semibold mr-1 text-black dark:text-zinc-300">
             {member?.nickname}
           </span>
         </div>

@@ -49,14 +49,14 @@ const UserProfile = () => {
   return (
     <div
       className={cn(
-        'h-full w-full md:w-[340px] flex-col dark:bg-[#232428] bg-[#F2F3F5]',
+        'h-full w-full md:w-[340px] flex-col dark:bg-[#232428] bg-[color:var(--sidebar-light)]',
         (!isUserProfileOpen ||
           type === 'channel' ||
           type === 'conversations') &&
           'md:hidden'
       )}
     >
-      <div className="h-[120px] bg-[#5865f2] relative">
+      <div className="h-[120px] bg-[color:var(--primary)] relative">
         {user && (
           <UserAvatar
             // src="https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg"

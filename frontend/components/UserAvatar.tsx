@@ -19,7 +19,10 @@ const UserAvatar = ({
     <Avatar className={className}>
       <AvatarImage src={src === '' ? undefined : src} />
       <AvatarFallback
-        className={cn('text-white bg-[#5865f2]', avatarFallbackClassName)}
+        className={cn(
+          'text-white bg-[color:var(--primary)]',
+          avatarFallbackClassName
+        )}
       >
         {username?.split('')[0].toUpperCase()}
       </AvatarFallback>

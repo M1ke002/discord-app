@@ -6,7 +6,7 @@ const LoadingScreen = () => {
   return (
     <div
       className={cn(
-        'flex flex-col flex-1 justify-center items-center absolute top-0 bottom-0 right-0 left-0 z-[3000] bg-[#2b2d31]'
+        'flex flex-col flex-1 justify-center items-center absolute top-0 bottom-0 right-0 left-0 z-[3000] bg-[color:var(--sidebar-dark)]'
       )}
     >
       <div className="flex flex-col items-center justify-center">

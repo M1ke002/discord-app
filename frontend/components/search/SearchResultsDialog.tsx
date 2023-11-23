@@ -90,12 +90,12 @@ const SearchResultsDialog = ({
       )}
       ref={searchResultsDialogRef}
     >
-      <div className="flex items-center justify-between px-4 py-2 text-zinc-300 bg-[#1e1f22] h-[56px] rounded-t-md">
+      <div className="flex items-center justify-between px-4 py-2 text-black dark:text-zinc-300 bg-[color:var(--navbar-light)] dark:bg-[color:var(--navbar-dark)] h-[56px] rounded-t-md">
         <span>
           {isLoading ? 'Searching...' : `${searchData.totalMessages} results`}
         </span>
         <button
-          className="rounded-md bg-[#3a3c42] hover:bg-zinc-600 p-1 px-2 text-sm"
+          className="rounded-md bg-zinc-300 hover:bg-zinc-300/50 dark:bg-[#3a3c42] dark:hover:bg-zinc-600 p-1 px-2 text-sm"
           onClick={() => {
             console.log('clearde');
             setToggleSearchDialog({ isOpen: false, type: 'searchOptions' });
@@ -106,13 +106,13 @@ const SearchResultsDialog = ({
       </div>
       {isLoading && (
         // placeholder div
-        <div className="flex items-center justify-center h-[70px] shadow-md border-[1px] rounded-b-md bg-[#2b2d31]">
+        <div className="flex items-center justify-center h-[70px] shadow-md border-[1px] rounded-b-md bg-[color:var(--sidebar-light)] dark:bg-[color:var(--sidebar-dark)]">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
         </div>
       )}
       {!isLoading && searchData.messages.length > 0 && (
         <div className=" max-h-[440px] h-full flex flex-col flex-grow">
-          <ScrollArea className="block overflow-y-auto shadow-md border-[1px] rounded-b-md bg-[#2b2d31]">
+          <ScrollArea className="block overflow-y-auto shadow-md border-[1px] rounded-b-md bg-[color:var(--sidebar-light)] dark:bg-[color:var(--sidebar-dark)]">
             <div className="flex flex-col p-3 px-4 text-xs text-zinc-300 h-[100%]">
               {searchData.messages.map((message, index) => {
                 let channel: Channel | null = null;
@@ -158,14 +158,16 @@ const SearchResultsDialog = ({
         </div>
       )}
       {!isLoading && searchData.messages.length === 0 && (
-        <div className="flex flex-col items-center justify-center h-[300px] shadow-md border-[1px] rounded-b-md bg-[#2b2d31]">
+        <div className="flex flex-col items-center justify-center h-[300px] shadow-md border-[1px] rounded-b-md bg-[color:var(--sidebar-light)] dark:bg-[color:var(--sidebar-dark)]">
           <Image
             src={NoResultsIcon}
             alt="no results"
             width={150}
             height={150}
           />
-          <p className="text-sm text-zinc-300 mt-5">No results were found!</p>
+          <p className="text-sm text-black dark:text-zinc-300 mt-5">
+            No results were found!
+          </p>
         </div>
       )}
     </div>

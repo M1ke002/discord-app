@@ -47,7 +47,7 @@ const ConversationSidebar = () => {
   }, [refetchConversationSidebar]);
 
   return (
-    <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
+    <div className="flex flex-col h-full text-primary w-full dark:bg-[color:var(--sidebar-dark)] bg-[color:var(--sidebar-light)]">
       <ServerHeader type="conversation" />
       <ScrollArea className="flex-1 px-3">
         <div className="mt-2">
@@ -67,7 +67,7 @@ const ConversationSidebar = () => {
 
         <div className="py-1">
           <div className="group">
-            <p className="flex items-center text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-200 transition py-2 px-2">
+            <p className="flex items-center text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition py-2 px-2">
               Direct messages
             </p>
           </div>

@@ -96,14 +96,14 @@ const SearchBarMenu = ({
   return (
     <div
       className={cn(
-        'hidden absolute top-9 -right-1 w-80 rounded-sm p-2 mr-2 font-medium text-black dark:text-neutral-400 space-y-[2px] bg-zinc-200 dark:bg-[#101011] z-[30]',
+        'hidden absolute top-9 -right-1 w-80 rounded-sm p-2 mr-2 font-medium text-black dark:text-neutral-400 space-y-[2px] bg-white dark:bg-[#101011] shadow-md border-[1px] z-[30]',
         toggleSearchDialog.isOpen &&
           toggleSearchDialog.type === 'searchOptions' &&
           'block'
       )}
       ref={searchbarMenuRef}
     >
-      <div className="px-3 py-2 text-xs font-bold uppercase text-zinc-300">
+      <div className="px-3 py-2 text-xs font-bold uppercase text-black dark:text-zinc-300">
         {(!latestTag || latestTag.value !== '') && 'Search options'}
         {latestTag?.name === 'from' && latestTag.value === '' && 'From user'}
         {latestTag?.name === 'has' &&
@@ -151,7 +151,7 @@ const SearchBarMenu = ({
               getSearchResults();
             }}
           >
-            <div className="py-2 text-xs font-semibold uppercase text-zinc-400">
+            <div className="py-2 text-xs font-semibold uppercase text-black dark:text-zinc-400">
               Click to search
             </div>
             <kbd className="pointer-events-none inline-flex select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground ml-auto">

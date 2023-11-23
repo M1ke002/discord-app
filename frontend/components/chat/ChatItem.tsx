@@ -30,7 +30,7 @@ import { useInView } from 'react-intersection-observer';
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
 
 const chatReplyIconClassName =
-  'before:block before:absolute before:top-[0%] before:right-[100%] before:h-[14px] before:left-[19px] before:mt-[7px] before:mr-[-34px] before:mb-[0px] before:ml-[0px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
+  'before:block before:absolute before:top-[0%] before:right-[100%] before:h-[14px] before:left-[19px] before:mt-[7px] before:mr-[-34px] before:mb-[0px] before:ml-[0px] before:border-t-[1.6px] before:border-t-zinc-300 dark:before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-300 dark:before:border-l-zinc-600 before:rounded-tl-[6px]';
 
 interface ChatItemProps {
   type: 'new' | 'continue';
@@ -160,7 +160,7 @@ const ChatItem = ({
         type === 'new' && 'mt-4',
         (replyToMessage?.id === message.id ||
           clickedMessageId === message.id.toString()) &&
-          'bg-[#393b48] hover:bg-[#393b48] transition',
+          'bg-[#f4f5ff] dark:bg-[#393b48] hover:bg-[#f4f5ff] dark:hover:bg-[#393b48] transition',
         replyToMessage?.id === message.id && 'border-l-2 border-blue-500'
       )}
       ref={messageRef}
@@ -189,7 +189,7 @@ const ChatItem = ({
             </div>
           ) : (
             <div>
-              <p className="hidden group-hover:block text-zinc-400 text-[10px]">
+              <p className="hidden group-hover:block text-black dark:text-zinc-400 text-[10px]">
                 {/* 2:24 AM */}
                 {format(new Date(message.createdAt), 'hh:mm a')}
               </p>
@@ -207,8 +207,8 @@ const ChatItem = ({
             <div className={cn('flex items-center mb-2 whitespace-nowrap')}>
               {message.replyToMessage == null && (
                 <>
-                  <div className="h-[18px] w-[18px] bg-black rounded-full flex items-center justify-center">
-                    <Reply className="w-4 h-4 text-zinc-400" />
+                  <div className="h-[18px] w-[18px] bg-zinc-300 dark:bg-black rounded-full flex items-center justify-center">
+                    <Reply className="w-4 h-4 text-black dark:text-zinc-400" />
                   </div>
                   <p className="text-xs text-black  dark:text-zinc-400 ml-1 italic">
                     Original message was deleted
@@ -280,7 +280,7 @@ const ChatItem = ({
                         : isChannelMessage(message) &&
                           message.sender.role === MemberRole.MODERATOR
                         ? 'text-indigo-500'
-                        : 'text-white'
+                        : 'text-black dark:text-white'
                     )}
                   >
                     {message.sender.nickname}
@@ -394,7 +394,7 @@ const ChatItem = ({
           )}
 
           {isPDFFile && (
-            <div className="relative flex items-center p-2 mt-2 rounded-md bg-background/10 border w-64">
+            <div className="relative flex items-center p-2 mt-2 rounded-md bg-zinc-200/30 dark:bg-background/10 border w-64">
               <FileIcon className="w-10 h-10 fill-indigo-200 stroke-indigo-400" />
               <a
                 href={message.file?.fileUrl || undefined}
@@ -410,7 +410,7 @@ const ChatItem = ({
 
         {/*action box to delete, edit, reply message */}
         {editingMessageId !== message.id.toString() && (
-          <div className="hidden group-hover:flex items-center gap-x-2 absolute p-2 -top-4 right-3 bg-white dark:bg-[#313338] border-[1px] rounded-sm border-neutral-200 dark:border-neutral-800">
+          <div className="hidden group-hover:flex items-center gap-x-2 absolute p-2 -top-4 right-3 bg-white dark:bg-[color:var(--primary-dark)] border-[1px] rounded-sm border-neutral-200 dark:border-neutral-800">
             <TooltipActions label="Reply">
               <Reply
                 onClick={() => setMessage(message)}

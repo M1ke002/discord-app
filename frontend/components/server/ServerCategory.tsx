@@ -41,7 +41,7 @@ const ServerCategory = ({
       className="flex items-center justify-between py-2 group"
       onClick={handleRotate}
     >
-      <p className="flex items-center text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-200 cursor-pointer transition">
+      <p className="flex items-center text-xs uppercase font-semibold text-zinc-500 dark:text-zinc-400 dark:group-hover:text-zinc-200 group-hover:text-zinc-700 cursor-pointer transition">
         <ChevronDown
           className="h-4 w-4 mr-1"
           style={{ transform: rotate, transition: 'all 0.2s linear' }}

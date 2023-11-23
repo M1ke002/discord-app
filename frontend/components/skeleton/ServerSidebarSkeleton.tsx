@@ -6,7 +6,7 @@ import { ScrollArea } from '../ui/scroll-area';
 
 export default function ServerSidebarSkeleton() {
   return (
-    <div className="flex flex-col h-full text-primary w-full dark:bg-[#2B2D31] bg-[#F2F3F5]">
+    <div className="flex flex-col h-full text-primary w-full dark:bg-[color:var(--sidebar-dark)] bg-[color:var(--sidebar-light)]">
       {/* ServerHeader part */}
       <div className="flex items-center w-full text-md font-semibold px-3 h-12 border-neutral-200 dark:border-neutral-800 border-b-2 hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 transition">
         <Skeleton className="h-5 w-[230px] dark:bg-zinc-600" />

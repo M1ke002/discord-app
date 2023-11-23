@@ -28,7 +28,10 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <body
         suppressHydrationWarning={true}
-        className={cn(font.className, 'bg-white dark:bg-[#313338]')}
+        className={cn(
+          font.className,
+          'bg-white dark:bg-[color:var(--primary-dark)]'
+        )}
       >
         <NextAuthProvider>
           <ThemeProvider

@@ -328,14 +328,14 @@ const UserSettingsModal = () => {
         </DialogHeader>
 
         <Tabs defaultValue="account">
-          <TabsList className="dark:bg-[#2B2D31] grid w-full grid-cols-2 mb-3">
+          <TabsList className="dark:bg-[color:var(--sidebar-dark)] grid w-full grid-cols-2 mb-3">
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="password">Password</TabsTrigger>
           </TabsList>
           <TabsContent value="account">
             <Form {...accountForm}>
               <form onSubmit={accountForm.handleSubmit(onAccountFormSubmit)}>
-                <Card className="dark:bg-[#2B2D31] shadow-md">
+                <Card className="dark:bg-[color:var(--sidebar-dark)] shadow-md">
                   <CardHeader>
                     <CardTitle className="text-[20px]">User profile</CardTitle>
                     <CardDescription>
@@ -444,7 +444,7 @@ const UserSettingsModal = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
+                                className="bg-zinc-300/50 dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Username"
                                 {...field}
                                 disabled={!canEdit || isAccountFormLoading}
@@ -469,7 +469,7 @@ const UserSettingsModal = () => {
                             </FormLabel>
                             <FormControl>
                               <Input
-                                className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
+                                className="bg-zinc-300/50 dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Nickname"
                                 {...field}
                                 disabled={!canEdit || isAccountFormLoading}
@@ -522,7 +522,7 @@ const UserSettingsModal = () => {
           <TabsContent value="password">
             <Form {...passwordForm}>
               <form onSubmit={passwordForm.handleSubmit(onPasswordFormSubmit)}>
-                <Card className="dark:bg-[#2B2D31] shadow-md">
+                <Card className="dark:bg-[color:var(--sidebar-dark)] shadow-md">
                   <CardHeader>
                     <CardTitle className="text-[20px]">
                       Change password
@@ -544,7 +544,7 @@ const UserSettingsModal = () => {
                             <FormControl>
                               <Input
                                 type="password"
-                                className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
+                                className="bg-zinc-300/50 dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Current password"
                                 {...field}
                                 disabled={isPasswordFormLoading}
@@ -568,7 +568,7 @@ const UserSettingsModal = () => {
                               <Input
                                 disabled={isPasswordFormLoading}
                                 type="password"
-                                className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
+                                className="bg-zinc-300/50 dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="New password"
                                 {...field}
                               />
@@ -590,7 +590,7 @@ const UserSettingsModal = () => {
                             <FormControl>
                               <Input
                                 type="password"
-                                className="dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
+                                className="bg-zinc-300/50 dark:bg-[#191b1d] border-0 focus-visible:ring-0 dark:text-white focus-visible:ring-offset-0"
                                 placeholder="Confirm new password"
                                 {...field}
                                 disabled={isPasswordFormLoading}

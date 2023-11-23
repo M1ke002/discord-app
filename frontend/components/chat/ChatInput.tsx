@@ -136,10 +136,10 @@ const ChatInput = ({
               <FormControl>
                 <div>
                   {replyToMessage && (
-                    <div className="flex items-center justify-between mx-4 py-2 px-4 bg-[#2B2D31] rounded-t-md">
-                      <p className="text-xs text-zinc-400">
+                    <div className="flex items-center justify-between mx-4 py-2 px-4 bg-[color:var(--sidebar-light)] dark:bg-[color:var(--sidebar-dark)] rounded-t-md">
+                      <p className="text-xs text-zinc-700 dark:text-zinc-400">
                         Replying to{' '}
-                        <span className="font-semibold text-zinc-300">
+                        <span className="font-semibold text-black dark:text-zinc-300">
                           {replyToMessage.sender.nickname}
                         </span>
                       </p>
@@ -156,14 +156,14 @@ const ChatInput = ({
                   {file && (
                     <div
                       className={cn(
-                        'flex items-center justify-between mx-4 py-2 px-4 dark:bg-zinc-700/50 border-b-[2px] border-zinc-700',
+                        'flex items-center justify-between mx-4 py-2 px-4 bg-zinc-200/90 dark:bg-zinc-700/50 border-b-[2px] border-zinc-300 dark:border-zinc-700',
                         !replyToMessage && 'rounded-t-md'
                       )}
                     >
-                      <p className="text-xs text-zinc-400">
+                      <p className="text-xs text-zinc-700 dark:text-zinc-400">
                         {file.name}
                         {' | '}
-                        <span className="font-semibold text-zinc-300">
+                        <span className="font-semibold text-black dark:text-zinc-300">
                           {file.size / 1000} KB
                         </span>
                       </p>
@@ -195,7 +195,7 @@ const ChatInput = ({
                           className="absolute top-3 left-8 h-[24px] w-[24px] bg-zinc-500 dark:bg-zinc-400 hover:bg-zinc-600 dark:hover:bg-zinc-300 rounded-full transition p-1 flex items-center justify-center"
                         >
                           <Plus
-                            className="h-4 w-4 text-white dark:text-[#313338]"
+                            className="h-4 w-4 text-white dark:text-[color:var(--primary-dark)]"
                             onClick={() => inputFile.current?.click()}
                           />
                         </button>
@@ -216,7 +216,7 @@ const ChatInput = ({
                       disabled={isLoading}
                       className={cn(
                         'px-14 py-6 bg-zinc-200/90 dark:bg-zinc-700/50 border-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-zinc-600 dark:text-zinc-200',
-                        replyToMessage && 'rounded-t-none'
+                        (replyToMessage || file) && 'rounded-t-none'
                       )}
                       placeholder="Message #general"
                       {...field}

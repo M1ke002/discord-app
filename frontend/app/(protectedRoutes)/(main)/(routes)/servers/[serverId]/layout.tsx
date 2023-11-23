@@ -22,7 +22,7 @@ const ServerLayout = ({
         <ServerSidebar serverId={params.serverId} />
       </div>
       <main className="h-full md:pl-60">
-        <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
+        <div className="bg-white dark:bg-[color:var(--primary-dark)] flex flex-col h-full">
           <ChatHeader serverId={params.serverId} />
           {/* 48px is the height of chat header */}
           <div className="flex h-[calc(100%-48px)]">

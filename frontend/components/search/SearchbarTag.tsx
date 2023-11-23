@@ -13,8 +13,8 @@ const SearchbarTag = ({ tagName, tagValue, deleteTag }: SearchbarTagProps) => {
     <TooltipActions
       label={tagName === 'has' ? `${tagName} file` : `${tagName}: ${tagValue}`}
     >
-      <div className="flex items-center bg-[#34383d] my-1 mr-1 px-1 rounded-sm w-[max-content]">
-        <div className="text-xs bg-transparent mr-1" tabIndex={0}>
+      <div className="flex items-center bg-[#80848e] dark:bg-[#34383d] my-1 mr-1 px-1 rounded-sm w-[max-content]">
+        <div className="text-xs text-white bg-transparent mr-1" tabIndex={0}>
           {tagName === 'has' && `${tagName} file`}
           {tagName !== 'has' &&
             (tagValue
@@ -26,7 +26,7 @@ const SearchbarTag = ({ tagName, tagValue, deleteTag }: SearchbarTagProps) => {
             e.stopPropagation();
             deleteTag(tagName);
           }}
-          className="w-[12px] h-[12px] text-zinc-500 dark:text-zinc-400 bg-transparent cursor-pointer"
+          className="w-[12px] h-[12px] text-white dark:text-zinc-400 bg-transparent cursor-pointer"
         />
       </div>
     </TooltipActions>

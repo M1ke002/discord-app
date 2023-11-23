@@ -133,9 +133,9 @@ const Paginator = ({
     <div className="flex items-center justify-center mt-3 space-x-1">
       <button
         className={cn(
-          'flex items-center p-2 hover:bg-[#26282c] text-zinc-500 dark:text-zinc-300 text-[14px]',
+          'flex items-center p-2 hover:bg-zinc-200 dark:hover:bg-[#26282c] text-black dark:text-zinc-300 text-[14px]',
           currentPage === 0 &&
-            'cursor-not-allowed text-zinc-300 dark:text-zinc-500'
+            'cursor-not-allowed text-zinc-500 dark:text-zinc-500'
         )}
         disabled={currentPage === 0}
         onClick={() => {
@@ -156,10 +156,10 @@ const Paginator = ({
           <button
             key={button.position}
             className={cn(
-              'w-[28px] h-[28px] rounded-full text-white font-bold text-[14px]',
+              'w-[28px] h-[28px] rounded-full text-black dark:text-white font-bold text-[14px]',
               button.value !== null && currentPage == button.value
-                ? 'bg-indigo-500'
-                : 'hover:bg-[#232428]'
+                ? 'bg-indigo-500 text-white'
+                : 'dark:hover:bg-[#232428] hover:bg-zinc-200'
             )}
             onClick={() => {
               if (button.value !== null) {
@@ -174,7 +174,7 @@ const Paginator = ({
 
       <button
         className={cn(
-          'flex items-center p-2 hover:bg-[#26282c] text-zinc-500 dark:text-zinc-300 text-[14px]',
+          'flex items-center p-2 hover:bg-zinc-200 dark:hover:bg-[#26282c] text-black dark:text-zinc-300 text-[14px]',
           currentPage + 1 === totalPages &&
             'cursor-not-allowed text-zinc-300 dark:text-zinc-500'
         )}

@@ -134,13 +134,13 @@ const SearchBar = () => {
 
   return (
     <div
-      className="relative flex items-center bg-zinc-200 dark:bg-[#1e1f22] rounded-md"
+      className="relative flex items-center bg-zinc-200 dark:bg-[color:var(--navbar-dark)] rounded-md"
       onMouseDown={() =>
         setToggleSearchDialog((prev) => ({ ...prev, isOpen: true }))
       }
     >
       <div
-        className="bg-zinc-200 dark:bg-[#1e1f22] w-[220px] h-[30px] overflow-hidden rounded-l-md"
+        className="bg-zinc-200 dark:bg-[color:var(--navbar-dark)] w-[220px] h-[30px] overflow-hidden rounded-l-md"
         ref={searchbarRef}
       >
         <div
@@ -169,7 +169,7 @@ const SearchBar = () => {
             onClick={clearSearchBar}
           />
         ) : (
-          <Search className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+          <Search className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
         )}
       </div>
       <SearchBarMenu

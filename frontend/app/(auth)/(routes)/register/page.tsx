@@ -116,16 +116,16 @@ const RegisterPage = () => {
   return (
     <div className="w-full h-full absolute inset-y-0 flex items-center justify-center">
       {/* <div className="container mx-auto h-full flex justify-center items-center"> */}
-      <div className="md:w-8/12 lg:w-4/12 bg-[#313338] border rounded-md shadow-md px-8 py-6">
+      <div className="md:w-8/12 lg:w-4/12 bg-[color:var(--primary-dark)] rounded-md shadow-md px-8 py-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="flex justify-center mb-2 font-semibold text-xl">
+            <div className="flex justify-center mb-2 font-semibold text-xl text-zinc-200">
               Create an account
             </div>
             {message.hasMessage && (
               <p
                 className={cn(
-                  'text-center py-2 mt-4 mb-6 rounded',
+                  'text-white text-center py-2 mt-4 mb-6 rounded',
                   message.messageType === 'success'
                     ? 'bg-green-300'
                     : 'bg-red-300'
@@ -147,7 +147,7 @@ const RegisterPage = () => {
                       <Input
                         disabled={isLoading}
                         type="text"
-                        className="bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="text-white bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="Enter user name"
                         {...field}
                       />
@@ -171,7 +171,7 @@ const RegisterPage = () => {
                       <Input
                         disabled={isLoading}
                         type="text"
-                        className="bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="text-white bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="Enter nickname"
                         {...field}
                       />
@@ -195,7 +195,7 @@ const RegisterPage = () => {
                       <Input
                         disabled={isLoading}
                         type="password"
-                        className="bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="text-white bg-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                         placeholder="Enter password"
                         {...field}
                       />
@@ -206,7 +206,7 @@ const RegisterPage = () => {
               />
             </div>
 
-            <button className="inline-block px-7 py-3 bg-[#5865f2] text-white font-medium text-sm leading-snug rounded shadow-md hover:bg-[#4752c4] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full">
+            <button className="inline-block px-7 py-3 bg-[color:var(--primary)] text-white font-medium text-sm leading-snug rounded shadow-md hover:bg-[#4752c4] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full">
               Sign up
             </button>
 

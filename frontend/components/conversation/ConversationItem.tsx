@@ -30,7 +30,7 @@ const ConversationItem = ({ id, name, avatarUrl }: ConversationItemProps) => {
 
       <p
         className={cn(
-          'ml-2 line-clamp-1 text-sm text-zinc-500 group-hover:text-zinc-600 dark:text-zinc-400 dark:group-hover:text-zinc-300 transition',
+          'ml-2 line-clamp-1 text-sm text-black group-hover:text-zinc-600 dark:text-zinc-400 dark:group-hover:text-zinc-300 transition',
           params.userId === id &&
             'text-primary dark:text-zinc-200 dark:group-hover:text-white'
         )}
