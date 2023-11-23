@@ -56,6 +56,10 @@ const SearchResultsDialog = ({
   const router = useRouter();
   const params = useParams();
 
+  //get the search content in the query string (&content=something)
+  const searchContent =
+    searchData.query.split('content=')[1]?.split('&')[0] || null;
+
   useEffect(() => {
     document.addEventListener('mousedown', handleOutsideClick);
     return () => {
@@ -142,7 +146,10 @@ const SearchResultsDialog = ({
                         </p>
                       </div>
                     )}
-                    <SearchResultItem message={message} />
+                    <SearchResultItem
+                      message={message}
+                      searchContent={searchContent}
+                    />
                   </Fragment>
                 );
               })}

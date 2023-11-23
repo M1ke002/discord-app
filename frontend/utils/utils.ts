@@ -64,3 +64,42 @@ export const extractLinkInContent = (content: string) => {
 
   return result;
 };
+
+export const extractSearchContent = (
+  content: string,
+  searchContent: string
+) => {
+  //extract the normal text and the search content into an array
+  const result: {
+    type: 'text' | 'highlight';
+    text: string;
+  }[] = [];
+
+  const regex = new RegExp(searchContent, 'gi');
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(content)) !== null) {
+    const index = match.index;
+    const text = content.substring(lastIndex, index);
+    if (text.trim() !== '') {
+      result.push({
+        type: 'text',
+        text
+      });
+    }
+    result.push({
+      type: 'highlight',
+      text: match[0]
+    });
+    lastIndex = index + match[0].length;
+  }
+  if (lastIndex !== content.length)
+    result.push({
+      type: 'text',
+      text: content.substring(lastIndex, content.length)
+    });
+
+  // console.log(result);
+  return result;
+};

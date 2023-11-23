@@ -2,7 +2,7 @@ import React from 'react';
 import UserAvatar from '../UserAvatar';
 import TooltipActions from '../TooltipActions';
 import { MemberRole, getRoleIcon } from '@/utils/constants';
-import { extractLinkInContent } from '@/utils/utils';
+import { extractLinkInContent, extractSearchContent } from '@/utils/utils';
 import { format } from 'date-fns';
 import ChannelMessage from '@/types/ChannelMessage';
 import { cn } from '@/lib/utils';
@@ -12,9 +12,13 @@ import { useClickedMessageId } from '@/hooks/zustand/useClickedMessageId';
 
 interface SearchResultItemProps {
   message: ChannelMessage;
+  searchContent: string | null;
 }
 
-const SearchResultItem = ({ message }: SearchResultItemProps) => {
+const SearchResultItem = ({
+  message,
+  searchContent
+}: SearchResultItemProps) => {
   const { setClickedMessageId } = useClickedMessageId();
 
   const fileExtension = message.file?.fileUrl?.split('.').pop();
@@ -81,7 +85,26 @@ const SearchResultItem = ({ message }: SearchResultItemProps) => {
           <div className="text-zinc-600 dark:text-zinc-300 text-sm">
             {extractLinkInContent(message.content).map((item, index) => {
               if (item.type === 'text') {
-                return <span key={index}>{item.text}</span>;
+                if (searchContent) {
+                  // extract search content to highlight
+                  return extractSearchContent(item.text, searchContent).map(
+                    (textItem, textIndex) => {
+                      return (
+                        <span
+                          key={textIndex}
+                          className={cn(
+                            textItem.type === 'highlight' &&
+                              'bg-[#fbe7c1] dark:bg-[#6b5936]'
+                          )}
+                        >
+                          {textItem.text}
+                        </span>
+                      );
+                    }
+                  );
+                } else {
+                  return <span key={index}>{item.text}</span>;
+                }
               } else {
                 return (
                   <a
