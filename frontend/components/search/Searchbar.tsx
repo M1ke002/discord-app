@@ -29,10 +29,7 @@ const SearchBar = () => {
       userId?: string;
     }[]
   >([]);
-  const [placeHolder, setPlaceHolder] = useState({
-    hasPlaceholder: true,
-    text: 'Search'
-  });
+  const [hasPlaceholder, setHasPlaceholder] = useState(true);
   const [searchData, setSearchData] = useState<{
     query: string;
     totalPages: number;
@@ -48,6 +45,7 @@ const SearchBar = () => {
     messages: [],
     totalMessages: 0
   });
+  const [text, setText] = useState('Search');
 
   const searchbarRef = useRef<HTMLDivElement>(null);
   const searchbarMenuRef = useRef<HTMLDivElement>(null);
@@ -80,20 +78,15 @@ const SearchBar = () => {
 
   const clearSearchBar = () => {
     setCurrentTags([]);
-    if (inputRef.current) {
-      inputRef.current.innerText = '';
-    }
-    setPlaceHolder({ ...placeHolder, hasPlaceholder: true });
-    setXIconVisible(false);
+    setHasPlaceholder(true);
   };
 
   const getSearchResults = async () => {
-    if (
-      (inputRef.current?.innerText.trim() === '' ||
-        placeHolder.hasPlaceholder) &&
-      currentTags.length === 0
-    )
+    const content = text.trim();
+    if ((content === '' || hasPlaceholder) && currentTags.length === 0) {
       return;
+    }
+
     for (let i = 0; i < currentTags.length; i++) {
       if (!currentTags[i].value) return;
     }
@@ -108,8 +101,8 @@ const SearchBar = () => {
         query += `&${tag.name}=${tag.value}`;
       }
     });
-    if (inputRef.current?.innerText.trim() !== '') {
-      query += `&content=${inputRef.current?.innerText}`;
+    if (content !== '') {
+      query += `&content=${content}`;
     }
     query += `&serverId=${params.serverId}`;
     console.log(query);
@@ -155,8 +148,10 @@ const SearchBar = () => {
             handleScrollLeft={handleScrollLeft}
             currentTags={currentTags}
             inputRef={inputRef}
-            placeHolder={placeHolder}
-            setPlaceHolder={setPlaceHolder}
+            text={text}
+            setText={setText}
+            hasPlaceholder={hasPlaceholder}
+            setHasPlaceholder={setHasPlaceholder}
             setXIconVisible={setXIconVisible}
             getSearchResults={getSearchResults}
           />
@@ -180,6 +175,8 @@ const SearchBar = () => {
         currentTags={currentTags}
         setCurrentTags={setCurrentTags}
         getSearchResults={getSearchResults}
+        text={text}
+        setText={setText}
       />
       <SearchResultsDialog
         toggleSearchDialog={toggleSearchDialog}

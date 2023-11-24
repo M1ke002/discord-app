@@ -9,7 +9,6 @@ interface SearchbarMenuOptionProps {
   tag?: string;
   tagDescription?: string;
   member?: Member;
-  messageContains?: string;
 }
 
 const SearchbarMenuOption = ({
@@ -17,8 +16,7 @@ const SearchbarMenuOption = ({
   type,
   tag,
   tagDescription,
-  member,
-  messageContains
+  member
 }: SearchbarMenuOptionProps) => {
   return (
     <div

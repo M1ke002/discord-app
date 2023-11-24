@@ -17,6 +17,7 @@ import { Check, Copy, RefreshCw } from 'lucide-react';
 import { useOrigin } from '@/hooks/useOrigin';
 import { useRouter } from 'next/navigation';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
+import { MemberRole } from '@/utils/constants';
 
 const InviteModal = () => {
   const { type, isOpen, onOpen, onClose, data } = useModal();
@@ -27,7 +28,7 @@ const InviteModal = () => {
   const router = useRouter();
 
   const isModalOpen = type === 'invite' && isOpen;
-  const { server } = data;
+  const { server, memberRole } = data;
   // const inviteUrl = `${origin}/invite/${server?.inviteCode}`;
 
   const onCopy = () => {
@@ -85,20 +86,23 @@ const InviteModal = () => {
               {isCopied ? (
                 <Check className="w-4 h-4 text-green-500" />
               ) : (
-                <Copy className="w-4 h-4" />
+                <Copy className="w-4 h-4 text-black" />
               )}
             </Button>
           </div>
-          <Button
-            variant="link"
-            size="sm"
-            className="text-xs text-zinc-500 mt-4 px-0"
-            onClick={generateNewInviteCode}
-            disabled={isLoading}
-          >
-            Generate a new invite code
-            <RefreshCw className="w-4 h-4 ml-2" />
-          </Button>
+          {(memberRole === MemberRole.ADMIN ||
+            memberRole === MemberRole.MODERATOR) && (
+            <Button
+              variant="link"
+              size="sm"
+              className="text-xs text-zinc-500 mt-4 px-0"
+              onClick={generateNewInviteCode}
+              disabled={isLoading}
+            >
+              Generate a new invite code
+              <RefreshCw className="w-4 h-4 ml-2" />
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

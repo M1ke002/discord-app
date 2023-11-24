@@ -1,9 +1,10 @@
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useServerData } from '@/hooks/zustand/useServerData';
 import SearchbarMenuOption from './SearchbarMenuOption';
 import { Separator } from '../ui/separator';
+import Member from '@/types/Member';
 
 interface SearchBarMenuProps {
   toggleSearchDialog: {
@@ -29,6 +30,8 @@ interface SearchBarMenuProps {
     }[]
   ) => void;
   getSearchResults: () => void;
+  text: string;
+  setText: (text: string) => void;
 }
 
 const SearchBarMenu = ({
@@ -38,9 +41,12 @@ const SearchBarMenu = ({
   searchbarMenuRef,
   currentTags,
   setCurrentTags,
-  getSearchResults
+  getSearchResults,
+  text,
+  setText
 }: SearchBarMenuProps) => {
   const { server } = useServerData();
+  const [userList, setUserList] = useState<Member[]>([]);
 
   // console.log('users: ' + JSON.stringify(server?.users));
   const latestTag =
@@ -52,6 +58,24 @@ const SearchBarMenu = ({
       document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [toggleSearchDialog.type, toggleSearchDialog.isOpen]);
+
+  useEffect(() => {
+    // console.log('text' + text);
+    if (server?.users) {
+      if (text === '') {
+        //show max 10 users
+        setUserList(server.users.slice(0, 10));
+      } else {
+        setUserList(
+          server.users
+            .filter((user) =>
+              user.nickname.toLowerCase().includes(text.toLowerCase())
+            )
+            .slice(0, 10)
+        );
+      }
+    }
+  }, [server, text]);
 
   const handleOutsideClick = (e: MouseEvent) => {
     // console.log('outside click menu');
@@ -90,6 +114,9 @@ const SearchBarMenu = ({
     } else if (type === 'from') {
       currentTags[currentTags.length - 1].value = value.nickname;
       currentTags[currentTags.length - 1].userId = value.id;
+      if (text !== '') {
+        setText('');
+      }
     }
   };
 
@@ -106,9 +133,6 @@ const SearchBarMenu = ({
       <div className="px-3 py-2 text-xs font-bold uppercase text-black dark:text-zinc-300">
         {(!latestTag || latestTag.value !== '') && 'Search options'}
         {latestTag?.name === 'from' && latestTag.value === '' && 'From user'}
-        {latestTag?.name === 'has' &&
-          latestTag.value === '' &&
-          'Message contains'}
       </div>
       {(!latestTag || latestTag.value !== '') && (
         <>
@@ -128,16 +152,24 @@ const SearchBarMenu = ({
       )}
       {latestTag?.name === 'from' &&
         latestTag.value === '' &&
-        server?.users.map((user) => {
-          return (
-            <SearchbarMenuOption
-              key={user.id}
-              onOptionSelect={onOptionSelect}
-              type="from"
-              member={user}
-            />
-          );
-        })}
+        (userList.length > 0 ? (
+          userList.map((user) => {
+            return (
+              <SearchbarMenuOption
+                key={user.id}
+                onOptionSelect={onOptionSelect}
+                type="from"
+                member={user}
+              />
+            );
+          })
+        ) : (
+          <div className="px-3 py-2 text-sm rounded-sm">
+            <span className="flex items-center justify-center text-black dark:text-zinc-300 w-full">
+              No user found
+            </span>
+          </div>
+        ))}
       {(!latestTag || latestTag.value !== '') && (
         <>
           <Separator className="bg-zinc-200 dark:bg-zinc-800 my-2 rounded-md" />

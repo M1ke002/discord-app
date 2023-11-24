@@ -59,16 +59,14 @@ const ServerHeader = ({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 text-xs font-medium text-black dark:text-neutral-400 space-y-[2px]">
-        {isModerator && (
-          <DropdownMenuItem
-            onClick={() => onOpen('invite', { server })}
-            className="text-indigo-600 dark:text-indigo-400 px-3 py-2 text-sm cursor-pointer"
-          >
-            Invite people
-            <UserPlus className="h-4 w-4 ml-auto" />
-            {/* ml-auto will automatically margin-left most the item */}
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem
+          onClick={() => onOpen('invite', { server, memberRole: role })}
+          className="text-indigo-600 dark:text-indigo-400 px-3 py-2 text-sm cursor-pointer"
+        >
+          Invite people
+          <UserPlus className="h-4 w-4 ml-auto" />
+          {/* ml-auto will automatically margin-left most the item */}
+        </DropdownMenuItem>
 
         {isAdmin && (
           <DropdownMenuItem

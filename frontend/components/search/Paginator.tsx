@@ -151,7 +151,6 @@ const Paginator = ({
       {/* render maximum 5 pages button */}
 
       {pageButtons.map((button) => {
-        console.log(currentPage, button.value);
         return (
           <button
             key={button.position}

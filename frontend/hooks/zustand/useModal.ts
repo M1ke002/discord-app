@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import Server from '@/types/Server';
 import Channel from '@/types/Channel';
 import Category from '@/types/Category';
+import { MemberRole } from '@/utils/constants';
 
 export type ModalType =
   | 'newServerOptions'
@@ -26,6 +27,7 @@ interface ModalData {
   serverId?: string;
   categories?: Category[];
   selectedCategory?: Category;
+  memberRole?: MemberRole;
   channel?: Channel;
   channelId?: string;
   userId?: string;

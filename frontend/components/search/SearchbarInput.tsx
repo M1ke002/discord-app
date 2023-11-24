@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ContentEditable from 'react-contenteditable';
 import { cn } from '@/lib/utils';
 
 interface SearchbarInputProps {
@@ -9,14 +10,10 @@ interface SearchbarInputProps {
     userId?: string;
   }[];
   inputRef: any;
-  placeHolder: {
-    hasPlaceholder: boolean;
-    text: string;
-  };
-  setPlaceHolder: (placeHolder: {
-    hasPlaceholder: boolean;
-    text: string;
-  }) => void;
+  text: string;
+  setText: (text: string) => void;
+  hasPlaceholder: boolean;
+  setHasPlaceholder: (hasPlaceholder: boolean) => void;
   setXIconVisible: (visible: boolean) => void;
   getSearchResults: () => void;
 }
@@ -25,58 +22,67 @@ const SearchbarInput = ({
   handleScrollLeft,
   currentTags,
   inputRef,
-  placeHolder,
-  setPlaceHolder,
+  text,
+  setText,
+  hasPlaceholder,
+  setHasPlaceholder,
   setXIconVisible,
   getSearchResults
 }: SearchbarInputProps) => {
   //for showing/hiding placeholder
   useEffect(() => {
-    if (placeHolder.hasPlaceholder && currentTags.length > 0) {
-      setPlaceHolder({ ...placeHolder, hasPlaceholder: false });
-    } else if (
-      !placeHolder.hasPlaceholder &&
-      currentTags.length === 0 &&
-      inputRef.current?.innerText === ''
-    ) {
-      setPlaceHolder({ ...placeHolder, hasPlaceholder: true });
+    if (hasPlaceholder && currentTags.length > 0) {
+      setHasPlaceholder(false);
+    } else if (!hasPlaceholder && currentTags.length === 0 && text === '') {
+      setHasPlaceholder(true);
     }
-  }, [currentTags.length, inputRef.current]);
+  }, [currentTags.length]);
+
+  //change text based on placeholder
+  useEffect(() => {
+    if (hasPlaceholder) {
+      setText('Search');
+    } else {
+      setText('');
+    }
+  }, [hasPlaceholder]);
 
   useEffect(() => {
     //for showing/hiding x icon
-    if (
-      currentTags.length > 0 ||
-      (!placeHolder.hasPlaceholder && inputRef.current?.innerText !== '')
-    ) {
+    if (currentTags.length > 0 || (!hasPlaceholder && text !== '')) {
       setXIconVisible(true);
-    } else if (placeHolder.hasPlaceholder) {
+    } else if (hasPlaceholder || text === '') {
       setXIconVisible(false);
     }
 
-    //set onFocus, onBlur and onInput events for inputRef
+    //set onFocus, onBlur and onKeydown events for inputRef
     if (inputRef.current) {
       inputRef.current.onfocus = () => {
-        if (placeHolder.hasPlaceholder) {
-          setPlaceHolder({ ...placeHolder, hasPlaceholder: false });
+        if (hasPlaceholder) {
+          setHasPlaceholder(false);
+          setText('');
         }
       };
 
       inputRef.current.onblur = () => {
-        if (
-          !placeHolder.hasPlaceholder &&
-          currentTags.length === 0 &&
-          inputRef.current?.innerText === ''
-        ) {
-          setPlaceHolder({ ...placeHolder, hasPlaceholder: true });
+        if (!hasPlaceholder && currentTags.length === 0 && text === '') {
+          setHasPlaceholder(true);
+          setText('Search');
         }
       };
 
-      inputRef.current.oninput = () => {
-        if (inputRef.current?.innerText === '' && currentTags.length === 0) {
-          setXIconVisible(false);
-        } else {
-          setXIconVisible(true);
+      inputRef.current.onkeydown = (
+        event: React.KeyboardEvent<HTMLSpanElement>
+      ) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          //handle submit logic here
+          getSearchResults();
+        } else if (
+          event.key === 'ArrowLeft' &&
+          window.getSelection()?.anchorOffset === 0
+        ) {
+          handleScrollLeft();
         }
       };
     }
@@ -85,41 +91,27 @@ const SearchbarInput = ({
       if (inputRef.current) {
         inputRef.current.onfocus = null;
         inputRef.current.onblur = null;
-        inputRef.current.oninput = null;
+        inputRef.current.onkeydown = null;
       }
     };
-  }, [inputRef.current, placeHolder.hasPlaceholder, currentTags.length]);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      //handle submit logic here
-      getSearchResults();
-    } else if (
-      event.key === 'ArrowLeft' &&
-      window.getSelection()?.anchorOffset === 0
-    ) {
-      handleScrollLeft();
-    }
-  };
+  }, [inputRef.current, hasPlaceholder, currentTags.length, text]);
 
   return (
     <span className="w-[100%]">
-      <span
+      <ContentEditable
+        html={text}
+        tagName="span"
         className={cn(
           'block h-[30px] flex-grow flex-shrink-0 w-[100%] border-none whitespace-nowrap text-xs pr-3',
           'leading-[30px]',
-          placeHolder.hasPlaceholder && 'text-zinc-400 dark:text-zinc-500'
+          hasPlaceholder && 'text-zinc-400 dark:text-zinc-500'
         )}
         style={{ outline: '1px solid transparent' }}
-        contentEditable={true}
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        ref={inputRef}
-        suppressContentEditableWarning={true}
-      >
-        {placeHolder.hasPlaceholder && <>{placeHolder.text}</>}
-      </span>
+        onChange={(e) => {
+          setText(e.target.value.replace(/&nbsp;/g, ' '));
+        }}
+        innerRef={inputRef}
+      />
     </span>
   );
 };
