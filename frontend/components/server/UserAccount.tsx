@@ -6,13 +6,15 @@ import { signOut } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useModal } from '@/hooks/zustand/useModal';
 import { useSession } from 'next-auth/react';
+import { useIsMicrophoneMuted } from '@/hooks/zustand/useIsMicrophoneMuted';
 
 //TODO: change props to accept a Member object instead
 
 const UserAccount = () => {
   const { data: session } = useSession();
   const { onOpen } = useModal();
-  const [mute, setMute] = useState(false);
+  // const [mute, setMute] = useState(false);
+  const { muted, setMuted } = useIsMicrophoneMuted();
 
   return (
     <div className="mt-auto flex items-center px-2 py-2 bg-[#e9ebee] dark:bg-[#252529]">
@@ -30,12 +32,15 @@ const UserAccount = () => {
         </div>
       </div>
       <div className="ml-auto">
-        <TooltipActions label={mute ? 'Unmute' : 'Mute'}>
+        <TooltipActions label={muted ? 'Unmute' : 'Mute'}>
           <button
             className="group hover:bg-zinc-700/10 dark:hover:bg-zinc-700/50 transition p-2 rounded-md"
-            onClick={() => setMute((prevState) => !prevState)}
+            onClick={() => {
+              setMuted(!muted);
+              localStorage.setItem('muted', (!muted).toString());
+            }}
           >
-            {mute ? (
+            {muted ? (
               <MicOff className="h-4 w-4 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
             ) : (
               <Mic className="h-4 w-4 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />

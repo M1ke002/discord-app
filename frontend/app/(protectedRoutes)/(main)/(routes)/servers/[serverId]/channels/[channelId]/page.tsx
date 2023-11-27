@@ -9,8 +9,13 @@ import ChatInput from '@/components/chat/ChatInput';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
 import { useServerChannelData } from '@/hooks/zustand/useServerChannelData';
 import { useServerData } from '@/hooks/zustand/useServerData';
+import { useToggleChat } from '@/hooks/zustand/useToggleChat';
 import { cn } from '@/lib/utils';
 import ChatMessages from '@/components/chat/ChatMessages';
+import { ChannelType } from '@/utils/constants';
+import MediaRoom from '@/components/media/MediaRoom';
+import LiveKitRoomProvider from '@/components/providers/LiveKitRoomProvider';
+import { usePathname } from 'next/navigation';
 
 interface ChannelIDpageProps {
   params: {
@@ -27,6 +32,12 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { channel, setChannel } = useServerChannelData();
   const { server, setServer } = useServerData();
   const { isMemberListOpen } = useMemberList();
+  const { showChat, setShowChat } = useToggleChat();
+  const pathName = usePathname();
+
+  useEffect(() => {
+    setShowChat(false);
+  }, [pathName, setShowChat]);
 
   useEffect(() => {
     if (!session) {
@@ -72,20 +83,62 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
           isMemberListOpen && type === 'channel' && 'md:pr-[243px]'
         )}
       >
-        <ChatMessages
-          type="channel"
-          apiUrl="/messages"
-          currUser={member}
-          serverId={params.serverId}
-          channelId={params.channelId}
-          chatWelcomeName={channel.name}
-        />
-        <ChatInput
-          apiUrl="/messages"
-          userId={session.user.id.toString()}
-          channelId={params.channelId}
-          serverId={params.serverId}
-        />
+        {channel.type === 'VOICE' && (
+          <div className="flex items-center h-full overflow-x-hidden">
+            <LiveKitRoomProvider
+              chatId={channel.id.toString()}
+              isAudio={true}
+              isVideo={false}
+            >
+              <MediaRoom />
+            </LiveKitRoomProvider>
+            {showChat && (
+              <div className="flex flex-col h-full max-w-[450px]">
+                <ChatMessages
+                  type="channel"
+                  apiUrl="/messages"
+                  currUser={member}
+                  serverId={params.serverId}
+                  channelId={params.channelId}
+                  chatWelcomeName={channel.name}
+                />
+                <ChatInput
+                  apiUrl="/messages"
+                  userId={session.user.id.toString()}
+                  channelId={params.channelId}
+                  serverId={params.serverId}
+                />
+              </div>
+            )}
+          </div>
+        )}
+        {channel.type === 'VIDEO' && (
+          <LiveKitRoomProvider
+            chatId={channel.id.toString()}
+            isAudio={true}
+            isVideo={false}
+          >
+            <MediaRoom />
+          </LiveKitRoomProvider>
+        )}
+        {channel.type === 'TEXT' && (
+          <>
+            <ChatMessages
+              type="channel"
+              apiUrl="/messages"
+              currUser={member}
+              serverId={params.serverId}
+              channelId={params.channelId}
+              chatWelcomeName={channel.name}
+            />
+            <ChatInput
+              apiUrl="/messages"
+              userId={session.user.id.toString()}
+              channelId={params.channelId}
+              serverId={params.serverId}
+            />
+          </>
+        )}
       </div>
     );
   }
