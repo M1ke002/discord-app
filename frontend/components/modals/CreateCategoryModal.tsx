@@ -30,12 +30,6 @@ import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 
-// enum ChannelType {
-//     Text = "text",
-//     Audio = "audio",
-//     Video = "video"
-// }
-
 //for validation
 const formSchema = z.object({
   name: z.string().min(1, {

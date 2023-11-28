@@ -20,7 +20,7 @@ const UserAvatar = ({
       <AvatarImage src={src === '' ? undefined : src} />
       <AvatarFallback
         className={cn(
-          'text-white bg-[color:var(--primary)]',
+          'text-white bg-[color:var(--primary-theme)]',
           avatarFallbackClassName
         )}
       >

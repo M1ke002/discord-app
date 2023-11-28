@@ -39,6 +39,7 @@ export interface ControlBarProps extends React.HTMLAttributes<HTMLDivElement> {
    * @alpha
    */
   saveUserChoices?: boolean;
+  mode: 'videoCall' | 'channelCall';
 }
 
 /**
@@ -61,6 +62,7 @@ export function CustomControlBar({
   variation,
   controls,
   saveUserChoices = true,
+  mode,
   ...props
 }: ControlBarProps) {
   const { muted, setMuted } = useIsMicrophoneMuted();
@@ -188,7 +190,7 @@ export function CustomControlBar({
         </CustomChatToggle>
       )}
       {visibleControls.leave && (
-        <CustomDisconnectButton>
+        <CustomDisconnectButton mode={mode}>
           {showIcon && <LogOut />}
           {showText && 'Leave'}
         </CustomDisconnectButton>

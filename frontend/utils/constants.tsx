@@ -39,9 +39,9 @@ export const getRoleIcon = (customClasses: string) => {
 // }
 
 export enum ChannelType {
-  TEXT = 'text',
-  VOICE = 'voice',
-  VIDEO = 'video'
+  TEXT = 'TEXT',
+  VOICE = 'VOICE',
+  VIDEO = 'VIDEO'
 }
 
 export enum MemberRole {

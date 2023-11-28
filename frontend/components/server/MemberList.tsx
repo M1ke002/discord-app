@@ -11,7 +11,7 @@ import Member from '@/types/Member';
 import MemberListItem from './MemberListItem';
 import { useRefetchComponents } from '@/hooks/zustand/useRefetchComponent';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
-import { getRoleIcon } from '@/utils/constants';
+import { ChannelType, getRoleIcon } from '@/utils/constants';
 import { Minus } from 'lucide-react';
 
 const MemberList = ({ serverId }: { serverId: string }) => {
@@ -19,7 +19,7 @@ const MemberList = ({ serverId }: { serverId: string }) => {
   const axiosAuth = useAxiosAuth();
   const { isMemberListOpen } = useMemberList();
   const { refetchMemberList } = useRefetchComponents();
-  const { type } = useChatHeaderData();
+  const { type, channelType } = useChatHeaderData();
   const [server, setServer] = useState<Server>();
   const [memberRoles, setMemberRoles] = useState<
     Array<{ role: string; count: number }>
@@ -68,7 +68,8 @@ const MemberList = ({ serverId }: { serverId: string }) => {
         'h-full w-full md:w-[240px] flex-col dark:bg-[color:var(--sidebar-dark)] bg-[color:var(--sidebar-light)]',
         (!isMemberListOpen ||
           type === 'conversation' ||
-          type === 'conversations') &&
+          type === 'conversations' ||
+          (type === 'channel' && channelType !== ChannelType.TEXT)) &&
           'md:hidden'
       )}
     >

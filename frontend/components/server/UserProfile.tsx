@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useChatHeaderData } from '@/hooks/zustand/useChatHeaderData';
 import { Separator } from '../ui/separator';
 import UserAvatar from '../UserAvatar';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import User from '@/types/User';
 import { format } from 'date-fns';
 
@@ -20,6 +20,9 @@ const UserProfile = () => {
   const { isUserProfileOpen } = useUserProfile();
   const { type } = useChatHeaderData();
   const [user, setUser] = useState<User>();
+  const searchParams = useSearchParams();
+
+  const isVideoCall = searchParams.get('videoCall');
 
   const userId = params.userId;
 
@@ -52,14 +55,14 @@ const UserProfile = () => {
         'h-full w-full md:w-[340px] flex-col dark:bg-[#232428] bg-[color:var(--sidebar-light)]',
         (!isUserProfileOpen ||
           type === 'channel' ||
-          type === 'conversations') &&
+          type === 'conversations' ||
+          isVideoCall) &&
           'md:hidden'
       )}
     >
-      <div className="h-[120px] bg-[color:var(--primary)] relative">
+      <div className="h-[120px] bg-[color:var(--primary-theme)] relative">
         {user && (
           <UserAvatar
-            // src="https://utfs.io/f/f7fde577-81f8-4ca0-8414-0663410bd819-n92lk7.jpg"
             src={user.file?.fileUrl}
             username={user.username}
             className="w-[90px] h-[90px] absolute top-[56%] left-[4%] border-[7px] border-[#232428]"

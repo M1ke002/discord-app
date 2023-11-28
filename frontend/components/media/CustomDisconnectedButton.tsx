@@ -6,6 +6,7 @@ import { useDisconnectButton } from '@/hooks/media/useDisconnectButton';
 export interface DisconnectButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   stopTracks?: boolean;
+  mode: 'videoCall' | 'channelCall';
 }
 
 /**

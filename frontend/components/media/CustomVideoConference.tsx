@@ -32,6 +32,7 @@ import { CustomControlBar } from './CustomControlBar';
 import { CustomParticipantTile } from './CustomParticipantTile';
 import { CustomFocusLayout } from './CustomFocusLayout';
 import { CustomChat } from './CustomChat';
+import User from '@/types/User';
 
 /**
  * @public
@@ -41,6 +42,9 @@ export interface VideoConferenceProps
   chatMessageFormatter?: MessageFormatter;
   chatMessageEncoder?: MessageEncoder;
   chatMessageDecoder?: MessageDecoder;
+  mode: 'videoCall' | 'channelCall';
+  currentUser?: User;
+  otherUser?: User;
 }
 
 /**
@@ -65,6 +69,9 @@ export function CustomVideoConference({
   chatMessageFormatter,
   chatMessageDecoder,
   chatMessageEncoder,
+  mode,
+  currentUser,
+  otherUser,
   ...props
 }: VideoConferenceProps) {
   const [widgetState, setWidgetState] = React.useState<WidgetState>({
@@ -145,22 +152,40 @@ export function CustomVideoConference({
             {!focusTrack ? (
               <div className="lk-grid-layout-wrapper">
                 <GridLayout tracks={tracks}>
-                  <CustomParticipantTile />
+                  <CustomParticipantTile
+                    mode={mode}
+                    currentUser={currentUser}
+                    otherUser={otherUser}
+                  />
                 </GridLayout>
               </div>
             ) : (
               <div className="lk-focus-layout-wrapper">
                 <FocusLayoutContainer>
                   <CarouselLayout tracks={carouselTracks}>
-                    <CustomParticipantTile />
+                    <CustomParticipantTile
+                      mode={mode}
+                      currentUser={currentUser}
+                      otherUser={otherUser}
+                    />
                   </CarouselLayout>
-                  {focusTrack && <CustomFocusLayout trackRef={focusTrack} />}
+                  {focusTrack && (
+                    <CustomFocusLayout
+                      trackRef={focusTrack}
+                      mode={mode}
+                      currentUser={currentUser}
+                      otherUser={otherUser}
+                    />
+                  )}
                 </FocusLayoutContainer>
               </div>
             )}
-            <CustomControlBar controls={{ chat: true }} />
+            <CustomControlBar
+              controls={{ chat: mode === 'channelCall' ? true : false }}
+              mode={mode}
+            />
           </div>
-          <CustomChat
+          <Chat
             style={{ display: widgetState.showChat ? 'grid' : 'none' }}
             messageFormatter={chatMessageFormatter}
             messageEncoder={chatMessageEncoder}

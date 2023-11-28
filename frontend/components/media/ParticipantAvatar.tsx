@@ -7,11 +7,16 @@ import { useServerData } from '@/hooks/zustand/useServerData';
 import Member from '@/types/Member';
 import UserAvatar from '../UserAvatar';
 import ParticipantPlaceholder from './ParticipantPlaceholder';
+import User from '@/types/User';
 
 /** @public */
 export interface ParticipantNameProps
   extends React.HTMLAttributes<HTMLSpanElement>,
-    UseParticipantInfoOptions {}
+    UseParticipantInfoOptions {
+  mode: 'videoCall' | 'channelCall';
+  currentUser?: User;
+  otherUser?: User;
+}
 
 /**
  * The `ParticipantName` component displays the name of the participant as a string within an HTML span element.
@@ -25,11 +30,14 @@ export interface ParticipantNameProps
  */
 export function ParticipantAvatar({
   participant,
+  mode,
+  currentUser,
+  otherUser,
   ...props
 }: ParticipantNameProps) {
   const { server } = useServerData();
   const p = useEnsureParticipant(participant);
-  const [user, setUser] = React.useState<Member | null>(null);
+  const [user, setUser] = React.useState<Member | User | null>(null);
 
   const { className, infoObserver } = React.useMemo(() => {
     return setupParticipantName(p);
@@ -42,15 +50,25 @@ export function ParticipantAvatar({
   });
 
   React.useEffect(() => {
-    if (server && p.identity) {
-      console.log('name', p.identity);
-      //get the user info by name
-      const member = server.users.find((user) => user.nickname === p.identity);
-      if (member) {
-        setUser(member);
+    if (mode === 'videoCall') {
+      if (currentUser && p.identity === currentUser.nickname) {
+        setUser(currentUser);
+      } else if (otherUser && p.identity === otherUser.nickname) {
+        setUser(otherUser);
+      }
+    } else if (mode === 'channelCall') {
+      if (server && p.identity) {
+        console.log('name', p.identity);
+        //get the user info by name
+        const member = server.users.find(
+          (user) => user.nickname === p.identity
+        );
+        if (member) {
+          setUser(member);
+        }
       }
     }
-  }, [server, p]);
+  }, [mode, currentUser, otherUser, server, p]);
 
   const mergedProps = React.useMemo(() => {
     // return mergeProps(props, { className, 'data-lk-participant-name': name });

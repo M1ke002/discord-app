@@ -6,7 +6,7 @@ html,
 body,
 :root {
   height: 100%;
-  --primary: #5865f2;
+  --primary-theme: #5865f2;
   --primary-dark: #313338;
   --sidebar-dark: #2b2d31;
   --sidebar-light: #F2F3F5;

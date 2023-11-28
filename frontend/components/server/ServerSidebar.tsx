@@ -8,7 +8,7 @@ import SidebarSearch from './SidebarSearch';
 import { Separator } from '../ui/separator';
 import ServerCategory from './ServerCategory';
 import { getChannelIcon, getRoleIcon } from '@/utils/constants';
-import { ChannelType, MemberRole } from '@/utils/constants';
+import { MemberRole } from '@/utils/constants';
 import {
   Collapsible,
   CollapsibleContent,
@@ -78,9 +78,6 @@ const ServerSidebar = ({ serverId }: ServerSidebarProps) => {
   if (session && server) {
     // console.log('got server' + JSON.stringify(server));
 
-    // const textChannels = server.channels.filter(channel => channel.type === ChannelType.TEXT);
-    // const audioChannels = server.channels.filter(channel => channel.type === ChannelType.AUDIO);
-    // const videoChannels = server.channels.filter(channel => channel.type === ChannelType.VIDEO);
     const categories = server.categories;
 
     //get the logged in user's role in the server

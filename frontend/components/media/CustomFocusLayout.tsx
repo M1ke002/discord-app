@@ -6,6 +6,7 @@ import type {
 } from '@livekit/components-core';
 import type { ParticipantClickEvent } from '@livekit/components-core';
 import { CustomParticipantTile } from './CustomParticipantTile';
+import User from '@/types/User';
 
 /** @public */
 export interface FocusLayoutContainerProps
@@ -37,6 +38,9 @@ export interface FocusLayoutProps extends React.HTMLAttributes<HTMLElement> {
   /** @deprecated This property will be removed in a future version use `trackRef` instead. */
   track?: TrackReferenceOrPlaceholder;
   onParticipantClick?: (evt: ParticipantClickEvent) => void;
+  mode: 'videoCall' | 'channelCall';
+  currentUser?: User;
+  otherUser?: User;
 }
 
 /**
@@ -46,8 +50,19 @@ export interface FocusLayoutProps extends React.HTMLAttributes<HTMLElement> {
 export function CustomFocusLayout({
   trackRef,
   track,
+  mode,
+  currentUser,
+  otherUser,
   ...htmlProps
 }: FocusLayoutProps) {
   const trackReference = trackRef ?? track;
-  return <CustomParticipantTile {...trackReference} {...htmlProps} />;
+  return (
+    <CustomParticipantTile
+      {...trackReference}
+      {...htmlProps}
+      mode={mode}
+      currentUser={currentUser}
+      otherUser={otherUser}
+    />
+  );
 }

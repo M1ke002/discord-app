@@ -206,7 +206,7 @@ const RegisterPage = () => {
               />
             </div>
 
-            <button className="inline-block px-7 py-3 bg-[color:var(--primary)] text-white font-medium text-sm leading-snug rounded shadow-md hover:bg-[#4752c4] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full">
+            <button className="inline-block px-7 py-3 bg-[color:var(--primary-theme)] text-white font-medium text-sm leading-snug rounded shadow-md hover:bg-[#4752c4] hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full">
               Sign up
             </button>
 

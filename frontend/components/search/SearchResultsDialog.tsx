@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import SearchResultItem from './SearchResultItem';
-import { Hash, Loader2 } from 'lucide-react';
+import { Hash, Loader2, Video, Volume2 } from 'lucide-react';
 import { ScrollArea } from '../ui/scroll-area';
 import Paginator from './Paginator';
 import ChannelMessage from '@/types/ChannelMessage';
@@ -10,6 +10,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Channel from '@/types/Channel';
 import NoResultsIcon from '@/public/no-results.svg';
 import Image from 'next/image';
+import { ChannelType } from '@/utils/constants';
 
 interface SearchResultsDialogProps {
   toggleSearchDialog: {
@@ -101,7 +102,6 @@ const SearchResultsDialog = ({
         <button
           className="rounded-md bg-zinc-300 hover:bg-zinc-300/50 dark:bg-[#3a3c42] dark:hover:bg-zinc-600 p-1 px-2 text-sm"
           onClick={() => {
-            console.log('clearde');
             setToggleSearchDialog({ isOpen: false, type: 'searchOptions' });
           }}
         >
@@ -131,7 +131,15 @@ const SearchResultsDialog = ({
                   <Fragment key={index}>
                     {channel && (
                       <div className="flex items-center space-x-1 mt-1 mb-2">
-                        <Hash className="w-5 h-5 text-black dark:text-white" />
+                        {channel.type === ChannelType.TEXT && (
+                          <Hash className="w-5 h-5 text-black dark:text-white" />
+                        )}
+                        {channel.type === ChannelType.VOICE && (
+                          <Volume2 className="w-5 h-5 text-black dark:text-white" />
+                        )}
+                        {channel.type === ChannelType.VIDEO && (
+                          <Video className="w-5 h-5 text-black dark:text-white" />
+                        )}
                         <p
                           className="font-semibold text-[1rem] text-black dark:text-white hover:underline cursor-pointer"
                           onClick={() => {

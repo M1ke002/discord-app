@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { ChannelType, MemberRole } from '@/utils/constants';
+import { MemberRole } from '@/utils/constants';
 import TooltipActions from '../TooltipActions';
 import {
   ChevronDown,

@@ -31,6 +31,7 @@ import ParticipantPlaceholder from './ParticipantPlaceholder';
 // import { LockLockedIcon, ScreenShareIcon } from '../../assets/icons';
 import { Lock, ScreenShare } from 'lucide-react';
 import { ParticipantAvatar } from './ParticipantAvatar';
+import User from '@/types/User';
 
 /**
  * The `ParticipantContextIfNeeded` component only creates a `ParticipantContext`
@@ -89,6 +90,9 @@ export interface ParticipantTileProps
   /** @deprecated This parameter will be removed in a future version use `trackRef` instead. */
   publication?: TrackPublication;
   onParticipantClick?: (event: ParticipantClickEvent) => void;
+  mode: 'videoCall' | 'channelCall';
+  currentUser?: User;
+  otherUser?: User;
 }
 
 /**
@@ -115,6 +119,9 @@ export function CustomParticipantTile({
   onParticipantClick,
   publication,
   disableSpeakingIndicator,
+  mode,
+  currentUser,
+  otherUser,
   ...htmlProps
 }: ParticipantTileProps) {
   // TODO: remove deprecated props and refactor in a future version.
@@ -183,7 +190,11 @@ export function CustomParticipantTile({
               )}
               <div className="lk-participant-placeholder">
                 {/* <ParticipantPlaceholder /> */}
-                <ParticipantAvatar />
+                <ParticipantAvatar
+                  mode={mode}
+                  currentUser={currentUser}
+                  otherUser={otherUser}
+                />
               </div>
               <div className="lk-participant-metadata">
                 <div className="lk-participant-metadata-item">

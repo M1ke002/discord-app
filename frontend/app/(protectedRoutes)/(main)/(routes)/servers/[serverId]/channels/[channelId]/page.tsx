@@ -12,10 +12,10 @@ import { useServerData } from '@/hooks/zustand/useServerData';
 import { useToggleChat } from '@/hooks/zustand/useToggleChat';
 import { cn } from '@/lib/utils';
 import ChatMessages from '@/components/chat/ChatMessages';
-import { ChannelType } from '@/utils/constants';
 import MediaRoom from '@/components/media/MediaRoom';
 import LiveKitRoomProvider from '@/components/providers/LiveKitRoomProvider';
 import { usePathname } from 'next/navigation';
+import { ChannelType } from '@/utils/constants';
 
 interface ChannelIDpageProps {
   params: {
@@ -28,7 +28,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { data: session } = useSession();
   const axiosAuth = useAxiosAuth();
   const router = useRouter();
-  const { type, setChatHeaderData } = useChatHeaderData();
+  const { type, channelType, setChatHeaderData } = useChatHeaderData();
   const { channel, setChannel } = useServerChannelData();
   const { server, setServer } = useServerData();
   const { isMemberListOpen } = useMemberList();
@@ -52,7 +52,12 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
           `/channels/${params.channelId}`
         );
         if (channelResponse.status == 200) {
-          setChatHeaderData('channel', channelResponse.data.name);
+          setChatHeaderData(
+            'channel',
+            channelResponse.data.name,
+            undefined,
+            channelResponse.data.type
+          );
           setChannel(channelResponse.data);
         }
         const serverResponse = await axiosAuth.get(
@@ -80,7 +85,10 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
       <div
         className={cn(
           'flex flex-col w-full h-full md:pr-[3px]',
-          isMemberListOpen && type === 'channel' && 'md:pr-[243px]'
+          isMemberListOpen &&
+            type === 'channel' &&
+            channelType === ChannelType.TEXT &&
+            'md:pr-[243px]'
         )}
       >
         {channel.type === 'VOICE' && (
@@ -90,7 +98,7 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
               isAudio={true}
               isVideo={false}
             >
-              <MediaRoom />
+              <MediaRoom type="channelCall" />
             </LiveKitRoomProvider>
             {showChat && (
               <div className="flex flex-col h-full max-w-[450px]">
@@ -114,11 +122,11 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
         )}
         {channel.type === 'VIDEO' && (
           <LiveKitRoomProvider
-            chatId={channel.id.toString()}
+            chatId={`channelCall:${channel.id}`}
             isAudio={true}
             isVideo={false}
           >
-            <MediaRoom />
+            <MediaRoom type="channelCall" />
           </LiveKitRoomProvider>
         )}
         {channel.type === 'TEXT' && (

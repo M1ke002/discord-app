@@ -10,14 +10,19 @@ import ChatInput from '@/components/chat/ChatInput';
 import ChatMessages from '@/components/chat/ChatMessages';
 import { cn } from '@/lib/utils';
 import User from '@/types/User';
+import LiveKitRoomProvider from '@/components/providers/LiveKitRoomProvider';
+import MediaRoom from '@/components/media/MediaRoom';
 
 interface ConversationPageProps {
   params: {
     userId: string;
   };
+  searchParams: {
+    videoCall?: boolean;
+  };
 }
 
-const ConversationPage = ({ params }: ConversationPageProps) => {
+const ConversationPage = ({ params, searchParams }: ConversationPageProps) => {
   const { data: session } = useSession();
   const router = useRouter();
   const axiosAuth = useAxiosAuth();
@@ -57,21 +62,41 @@ const ConversationPage = ({ params }: ConversationPageProps) => {
       <div
         className={cn(
           'flex flex-col w-full h-full md:pr-[3px]',
-          isUserProfileOpen && type === 'conversation' && 'md:pr-[343px]'
+          isUserProfileOpen &&
+            type === 'conversation' &&
+            !searchParams.videoCall &&
+            'md:pr-[343px]'
         )}
       >
-        <ChatMessages
-          type="conversation"
-          apiUrl="/direct-messages"
-          currUser={session.user}
-          otherUser={otherUser}
-          chatWelcomeName={otherUser?.nickname || ''}
-        />
-        <ChatInput
-          apiUrl="/direct-messages"
-          userId={session.user.id.toString()}
-          otherUserId={params.userId}
-        />
+        {searchParams.videoCall && (
+          <LiveKitRoomProvider
+            chatId={`videoCall:${session.user.id + otherUser.id}`}
+            isAudio={true}
+            isVideo={false}
+          >
+            <MediaRoom
+              type="videoCall"
+              currentUser={session.user}
+              otherUser={otherUser}
+            />
+          </LiveKitRoomProvider>
+        )}
+        {!searchParams.videoCall && (
+          <>
+            <ChatMessages
+              type="conversation"
+              apiUrl="/direct-messages"
+              currUser={session.user}
+              otherUser={otherUser}
+              chatWelcomeName={otherUser?.nickname || ''}
+            />
+            <ChatInput
+              apiUrl="/direct-messages"
+              userId={session.user.id.toString()}
+              otherUserId={params.userId}
+            />
+          </>
+        )}
       </div>
     );
   }

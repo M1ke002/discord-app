@@ -1,14 +1,27 @@
 'use client';
-import React, { use } from 'react';
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useIsMicrophoneMuted } from '@/hooks/zustand/useIsMicrophoneMuted';
+import User from '@/types/User';
 
 import '@livekit/components-styles';
 import { useMaybeRoomContext } from '@livekit/components-react';
 import { CustomVideoConference } from './CustomVideoConference';
 
-const MediaRoom = () => {
+type VideoCall = {
+  type: 'videoCall';
+  currentUser: User;
+  otherUser: User;
+};
+
+type ChannelCall = {
+  type: 'channelCall';
+};
+
+type MediaRoomProps = VideoCall | ChannelCall;
+
+const MediaRoom = (mode: MediaRoomProps) => {
   const { muted } = useIsMicrophoneMuted();
   const room = useMaybeRoomContext();
 
@@ -27,7 +40,11 @@ const MediaRoom = () => {
 
   return (
     <>
-      <CustomVideoConference />
+      <CustomVideoConference
+        mode={mode.type}
+        currentUser={mode.type === 'videoCall' ? mode.currentUser : undefined}
+        otherUser={mode.type === 'videoCall' ? mode.otherUser : undefined}
+      />
     </>
   );
 };
