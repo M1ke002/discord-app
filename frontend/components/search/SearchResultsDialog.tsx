@@ -157,6 +157,7 @@ const SearchResultsDialog = ({
                     <SearchResultItem
                       message={message}
                       searchContent={searchContent}
+                      setToggleSearchDialog={setToggleSearchDialog}
                     />
                   </Fragment>
                 );

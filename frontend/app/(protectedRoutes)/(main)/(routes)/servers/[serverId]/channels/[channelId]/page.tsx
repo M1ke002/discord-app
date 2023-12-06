@@ -16,6 +16,7 @@ import MediaRoom from '@/components/media/MediaRoom';
 import LiveKitRoomProvider from '@/components/providers/LiveKitRoomProvider';
 import { usePathname } from 'next/navigation';
 import { ChannelType } from '@/utils/constants';
+import { useMessageTracker } from '@/hooks/zustand/useMessageTracker';
 
 interface ChannelIDpageProps {
   params: {
@@ -34,10 +35,17 @@ const ChannelIDpage = ({ params }: ChannelIDpageProps) => {
   const { isMemberListOpen } = useMemberList();
   const { showChat, setShowChat } = useToggleChat();
   const pathName = usePathname();
+  const { clearBottomMessageTracker, clearTopMessageTracker } =
+    useMessageTracker();
 
   useEffect(() => {
     setShowChat(false);
   }, [pathName, setShowChat]);
+
+  // useEffect(() => {
+  //   clearBottomMessageTracker();
+  //   clearTopMessageTracker();
+  // }, []);
 
   useEffect(() => {
     if (!session) {

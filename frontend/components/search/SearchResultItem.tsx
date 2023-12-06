@@ -8,18 +8,25 @@ import ChannelMessage from '@/types/ChannelMessage';
 import { cn } from '@/lib/utils';
 import { FileIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useClickedMessageId } from '@/hooks/zustand/useClickedMessageId';
+import { useClickedMessage } from '@/hooks/zustand/useClickedMessage';
+import { useParams, useRouter } from 'next/navigation';
 
 interface SearchResultItemProps {
   message: ChannelMessage;
   searchContent: string | null;
+  setToggleSearchDialog: Function;
 }
 
 const SearchResultItem = ({
   message,
-  searchContent
+  searchContent,
+  setToggleSearchDialog
 }: SearchResultItemProps) => {
-  const { setClickedMessageId } = useClickedMessageId();
+  const router = useRouter();
+  const params = useParams();
+  const serverId = params.serverId;
+  const channelId = params.channelId;
+  const { setClickedMessage } = useClickedMessage();
 
   const fileExtension = message.file?.fileUrl?.split('.').pop();
   const isImageFile =
@@ -32,7 +39,13 @@ const SearchResultItem = ({
     <div
       className="bg-white dark:bg-[color:var(--primary-dark)] hover:bg-zinc-200 dark:hover:bg-zinc-700/50 rounded-md p-3 mb-2 cursor-pointer"
       style={{ overflowWrap: 'anywhere' }}
-      onClick={() => setClickedMessageId(message.id.toString())}
+      onClick={() => {
+        if (message.channelId.toString() !== channelId) {
+          router.push(`/servers/${serverId}/channels/${message.channelId}`);
+        }
+        setClickedMessage(message);
+        setToggleSearchDialog((prev: any) => ({ ...prev, isOpen: false }));
+      }}
     >
       <div className="flex gap-x-2 w-full relative items-start">
         <div className="min-w-[48px]">

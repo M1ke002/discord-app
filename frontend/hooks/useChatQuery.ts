@@ -30,9 +30,13 @@ export const useChatQuery = ({
   const pageLimitRef = useRef(DEFAULT_PAGE_LIMIT);
 
   //TODO: bug -> fetchMessages is called twice when the page is loaded
-  const fetchMessages = async ({ pageParam = 0 }) => {
-    console.log('fetching messages in useChatQuery');
-    let queryString = `${apiUrl}?cursor=${pageParam}&limit=${pageLimitRef.current}`;
+  const fetchMessages = async (
+    pageParam = 0,
+    direction = 'forward',
+    meta: Record<string, unknown> | undefined //additional data
+  ) => {
+    console.log('fetching messages in useChatQuery, direction: ' + direction);
+    let queryString = `${apiUrl}?cursor=${pageParam}&limit=${pageLimitRef.current}&direction=${direction}`;
     if (messageType === 'channelMessages') {
       queryString += `&channelId=${channelId}&serverId=${serverId}`;
     } else if (messageType === 'directMessages') {
@@ -52,21 +56,42 @@ export const useChatQuery = ({
     }
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useInfiniteQuery({
-      queryKey: [queryKey], //the cached data is stored under this key name
-      queryFn: fetchMessages,
-      getNextPageParam: (lastPage) => {
-        if (lastPage) {
-          return lastPage.nextCursor;
-        } else {
-          return null;
-        }
-      },
-      refetchInterval: isConnected ? false : 1000,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false
-    });
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    status
+  } = useInfiniteQuery({
+    queryKey: [queryKey], //the cached data is stored under this key name
+    queryFn: ({ pageParam, direction, meta }) =>
+      fetchMessages(pageParam, direction, meta),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage) {
+        return lastPage.nextCursor;
+      } else {
+        return null;
+      }
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (firstPage) {
+        return firstPage.previousCursor;
+      } else {
+        return null;
+      }
+    },
+    maxPages: 2,
+    refetchInterval: isConnected ? false : 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    meta: {
+      test: 'testvalue'
+    }
+  });
 
   const fetchNextPageWithLimit = (limit: number) => {
     pageLimitRef.current = limit;
@@ -76,9 +101,12 @@ export const useChatQuery = ({
   return {
     data,
     fetchNextPage,
+    fetchPreviousPage,
     fetchNextPageWithLimit,
     hasNextPage,
+    hasPreviousPage,
     isFetchingNextPage,
+    isFetchingPreviousPage,
     status
   };
 };

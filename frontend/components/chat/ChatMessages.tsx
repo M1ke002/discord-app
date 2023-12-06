@@ -1,4 +1,5 @@
 import { useChatQuery } from '@/hooks/useChatQuery';
+import { useQueryClient } from '@tanstack/react-query';
 import ChatItem from './ChatItem';
 import ChatItemSeparator from './ChatItemSeparator';
 import ChatWelcome from './ChatWelcome';
@@ -8,12 +9,15 @@ import { Loader2, ServerCrash } from 'lucide-react';
 import { useChatSocket } from '@/hooks/useChatSocket';
 import ChatItemSkeleton from '../skeleton/ChatItemSkeleton';
 import Member from '@/types/Member';
-import { checkIsNewDay } from '@/utils/utils';
+import { checkIsNewDay, isChannelMessage } from '@/utils/utils';
 import User from '@/types/User';
 import DirectMessage from '@/types/DirectMessage';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import InfiniteChatScroll from './InfiniteChatScroll';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
-import { useClickedMessageId } from '@/hooks/zustand/useClickedMessageId';
+import { useInView } from 'react-intersection-observer';
+import { useClickedMessage } from '@/hooks/zustand/useClickedMessage';
+import { useMessageTracker } from '@/hooks/zustand/useMessageTracker';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
@@ -43,13 +47,48 @@ const ChatMessages = ({
   const deleteMessageKey = `chat:${chatId}:delete-message`;
 
   const [editingMessageId, setEditingMessageId] = useState('');
-  // const [clickedMessageId, setClickedMessageId] = useState('');
-  const { clickedMessageId, setClickedMessageId } = useClickedMessageId();
+  const [topMessageTracker, setTopMessageTracker] = useState<{
+    currentTopMessage: ChannelMessage | DirectMessage | null;
+    prevTopMessage: ChannelMessage | DirectMessage | null;
+  }>({
+    currentTopMessage: null,
+    prevTopMessage: null
+  });
+  const [bottomMessageTracker, setBottomMessageTracker] = useState<{
+    currentBottomMessage: ChannelMessage | DirectMessage | null;
+    prevBottomMessage: ChannelMessage | DirectMessage | null;
+  }>({
+    currentBottomMessage: null,
+    prevBottomMessage: null
+  });
+  // const {
+  //   topMessageTracker,
+  //   setTopMessageTracker,
+  //   bottomMessageTracker,
+  //   setBottomMessageTracker,
+  //   clearTopMessageTracker,
+  //   clearBottomMessageTracker
+  // } = useMessageTracker();
+  const [hasScrolledToBottomMessage, setHasScrolledToBottomMessage] =
+    useState(false);
+  const { clickedMessage, setClickedMessage } = useClickedMessage();
 
   const axiosAuth = useAxiosAuth();
 
-  const chatRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [bottomMessageRef, bottomMessageInView, bottomMessageEntry] = useInView(
+    { threshold: 0 }
+  );
+  const [topMessageRef, topMessageInView, topMessageEntry] = useInView({
+    threshold: 0
+  });
+  const [bottomElementRef, bottomElementInView, bottomElementEntry] = useInView(
+    { threshold: 0 }
+  );
+  const [topElementRef, topElementInView, topElementEntry] = useInView({
+    threshold: 0
+  });
+
+  const queryClient = useQueryClient();
 
   //this hook is used to listen to changes in messages and update messages in real time
   useChatSocket({
@@ -64,9 +103,12 @@ const ChatMessages = ({
   const {
     data,
     fetchNextPage,
+    fetchPreviousPage,
     fetchNextPageWithLimit,
     hasNextPage,
+    hasPreviousPage,
     isFetchingNextPage,
+    isFetchingPreviousPage,
     status
   } = useChatQuery({
     messageType,
@@ -78,26 +120,220 @@ const ChatMessages = ({
     userId2: otherUser?.id.toString()
   });
 
+  //for scrolling up -> current top message id must be less than previous top message id (older message)
+  useEffect(() => {
+    if (
+      !topMessageTracker.currentTopMessage ||
+      !topMessageTracker.prevTopMessage
+    )
+      return;
+
+    if (
+      topMessageTracker.currentTopMessage.id >
+      topMessageTracker.prevTopMessage.id
+    )
+      return;
+    console.log(
+      'current top message id: ',
+      topMessageTracker.currentTopMessage.content,
+      'prev top message id: ',
+      topMessageTracker.prevTopMessage.content
+    );
+    console.log(
+      'scrolling to top message',
+      topMessageTracker.prevTopMessage.content
+    );
+    const messageElement = document.getElementById(
+      topMessageTracker.prevTopMessage.id.toString()
+    );
+    if (messageElement) {
+      console.log('found element', messageElement);
+      // messageElement.scrollIntoView({
+      //   behavior: 'instant',
+      //   block: 'start'
+      // });
+      console.log(messageElement.offsetTop);
+      //scroll to just above the message
+      document.getElementById('chat-messages-container')?.scrollTo({
+        top: messageElement.offsetTop - 48 - 100, //48 is height of chat header, 100 is additional offset
+        behavior: 'instant'
+      });
+    }
+  }, [topMessageTracker]);
+
+  //for scrolling down -> current bottom message id must be greater than previous bottom message id (newer message)
+  useEffect(() => {
+    if (
+      !bottomMessageTracker.currentBottomMessage ||
+      !bottomMessageTracker.prevBottomMessage
+    )
+      return;
+
+    if (
+      bottomMessageTracker.currentBottomMessage.id <
+      bottomMessageTracker.prevBottomMessage.id
+    ) {
+      console.log(
+        'current bottom message id is less than prev bottom message',
+        bottomMessageTracker.currentBottomMessage.content,
+        bottomMessageTracker.prevBottomMessage.content
+      );
+      return;
+    }
+
+    console.log(
+      'current bottom message id: ',
+      bottomMessageTracker.currentBottomMessage.content,
+      'prev bottom message id: ',
+      bottomMessageTracker.prevBottomMessage.content
+    );
+    console.log(
+      'scrolling to bottom message',
+      bottomMessageTracker.prevBottomMessage.content
+    );
+    const messageElement = document.getElementById(
+      bottomMessageTracker.prevBottomMessage.id.toString()
+    );
+    if (messageElement) {
+      console.log('found element', messageElement);
+      // messageElement.scrollIntoView({
+      //   behavior: 'instant',
+      //   block: 'end'
+      // });
+
+      //scroll to just below the message
+      document.getElementById('chat-messages-container')?.scrollTo({
+        top: messageElement.offsetTop - window.innerHeight + 200,
+        behavior: 'instant'
+      });
+    }
+  }, [bottomMessageTracker]);
+
+  // scroll to the bottom message when first load messages
+  // useEffect(() => {
+  //   if (data && !hasScrolledToBottomMessage) {
+  //     if (!hasPreviousPage) {
+  //       setHasScrolledToBottomMessage(true);
+  //       return;
+  //     }
+  //     console.log('scrolling to bottom message...');
+  //     const bottomMessageElement = document.getElementById(
+  //       data.pages[0].messages[0].id
+  //     );
+  //     if (bottomMessageElement) {
+  //       bottomMessageElement.scrollIntoView({
+  //         block: 'end',
+  //         behavior: 'instant'
+  //       });
+  //     }
+  //     setHasScrolledToBottomMessage(true);
+  //   }
+  // }, [data, hasScrolledToBottomMessage, hasPreviousPage]);
+
+  useEffect(() => {
+    if (data) {
+      if (
+        clickedMessage &&
+        isChannelMessage(clickedMessage) &&
+        clickedMessage.channelId.toString() === channelId
+      ) {
+        //scroll to the clicked message
+        console.log('scrolling to clicked message...', clickedMessage.content);
+        const messageElement = document.getElementById(
+          clickedMessage.id.toString()
+        );
+
+        if (messageElement) {
+          console.log('found clicked message element', messageElement);
+          //check if messageElement is in view
+          const chatMessageContainer = document.getElementById(
+            'chat-messages-container'
+          );
+          // const isInView = messageElement
+          //   ? messageElement.offsetTop >=
+          //       document.getElementById('chat-messages-container')
+          //         ?.scrollTop! &&
+          //     messageElement.offsetTop <=
+          //       document.getElementById('chat-messages-container')?.scrollTop! +
+          //         window.innerHeight
+          //   : false;
+          const isInView =
+            messageElement.offsetTop >= chatMessageContainer?.scrollTop! &&
+            messageElement.offsetTop <=
+              chatMessageContainer?.scrollTop! + window.innerHeight;
+          const behavior = isInView ? 'smooth' : 'instant';
+          messageElement.scrollIntoView({
+            block: 'center',
+            behavior: behavior
+          });
+          setHasScrolledToBottomMessage(true);
+          setTimeout(() => {
+            setClickedMessage(null);
+          }, 600);
+        }
+      } else if (!hasScrolledToBottomMessage) {
+        if (!hasPreviousPage) {
+          setHasScrolledToBottomMessage(true);
+          return;
+        }
+        console.log('scrolling to bottom message...');
+        const bottomMessageElement = document.getElementById(
+          data.pages[0].messages[0].id
+        );
+        if (bottomMessageElement) {
+          bottomMessageElement.scrollIntoView({
+            block: 'end',
+            behavior: 'instant'
+          });
+        }
+        setHasScrolledToBottomMessage(true);
+      }
+    }
+  }, [data, hasPreviousPage, clickedMessage, channelId]);
+
   //scroll to a reply message when a reply message is clicked
   useEffect(() => {
     const handleReplyMessageClick = async () => {
       try {
-        if (clickedMessageId !== '') {
-          const messageElement = document.getElementById(clickedMessageId);
+        if (
+          clickedMessage &&
+          isChannelMessage(clickedMessage) &&
+          clickedMessage.channelId.toString() === channelId
+        ) {
+          const messageElement = document.getElementById(
+            clickedMessage.id.toString()
+          );
           if (!messageElement) {
-            //the message is not yet rendered -> need to fetch older messages
-            let query = `${apiUrl}/count?fromMessageId=${clickedMessageId}&toMessageId=${
-              messages[messages.length - 1].id
-            }`;
-            if (type === 'channel') {
-              query += `&channelId=${channelId}`;
-            } else {
-              query += `&userId1=${currUser?.id}&userId2=${otherUser?.id}`;
-            }
+            let query = `${apiUrl}?cursor=${clickedMessage.id}&limit=30&direction=around&channelId=${channelId}&serverId=${serverId}`;
+            console.log(query);
             const res = await axiosAuth.get(query);
             console.log(res.data);
-            const count = res.data.response;
-            if (count) fetchNextPageWithLimit(Number(count));
+
+            queryClient.setQueryData([queryKey], (oldData: any) => {
+              return {
+                pages: [
+                  {
+                    messages: [...res.data.messages],
+                    nextCursor: res.data.nextCursor,
+                    previousCursor: res.data.previousCursor
+                  }
+                ],
+                pageParams: [0]
+              };
+            });
+
+            //reset top message tracker
+            // clearTopMessageTracker();
+            setTopMessageTracker({
+              currentTopMessage: null,
+              prevTopMessage: null
+            });
+            //reset bottom message tracker
+            // clearBottomMessageTracker();
+            setBottomMessageTracker({
+              currentBottomMessage: null,
+              prevBottomMessage: null
+            });
           }
         }
       } catch (error) {
@@ -105,7 +341,7 @@ const ChatMessages = ({
       }
     };
     handleReplyMessageClick();
-  }, [clickedMessageId]);
+  }, [clickedMessage, channelId, queryKey, queryClient]);
 
   //get all messages from all pages
   const messages = useMemo(
@@ -116,7 +352,26 @@ const ChatMessages = ({
     [data]
   );
 
-  if (status === 'loading') {
+  //function to scroll to the oldest previously rendered message when new messages are loaded
+  // const onTopMessageChange = (messageId: string) => {
+  //   if (topMessageId === '') {
+  //     setTopMessageId(messageId);
+  //     return;
+  //   }
+  //   //scroll to the oldest message
+  //   if (!isFetchingNextPage) {
+  //     console.log('scrolling to prev top message...', topMessageEntry?.target);
+
+  //     topMessageEntry?.target?.scrollIntoView({
+  //       behavior: 'instant',
+  //       block: 'start'
+  //     });
+  //   }
+  //   //update the oldest message id
+  //   setTopMessageId(messageId);
+  // };
+
+  if (status === 'pending') {
     console.log('loading messages...');
     return (
       <div className="flex flex-col flex-1 justify-center items-center">
@@ -141,27 +396,25 @@ const ChatMessages = ({
 
   return (
     <div
-      ref={chatRef}
       className="flex flex-col-reverse flex-1 py-4 overflow-y-auto h-full"
       id="chat-messages-container"
     >
-      <div ref={bottomRef} />
-
-      <InfiniteScroll
-        dataLength={messages?.length}
-        next={fetchNextPage}
-        hasMore={!!hasNextPage}
-        className="flex flex-col-reverse"
-        scrollThreshold="450px" //the height of the chatItemSkeleton div: 448px
+      <InfiniteChatScroll
+        getNext={fetchNextPage}
+        getPrev={fetchPreviousPage}
+        hasNext={!!hasNextPage}
+        hasPrev={!!hasPreviousPage}
+        isAtTop={topElementInView}
+        isAtBottom={bottomElementInView}
+        topChild={topElementEntry?.target}
+        bottomChild={bottomElementEntry?.target}
         loader={
           <div>
             <ChatItemSkeleton variant={1} />
-            <ChatItemSkeleton variant={6} />
-            <ChatItemSkeleton variant={4} />
+            {/* <ChatItemSkeleton variant={6} />
+            <ChatItemSkeleton variant={4} /> */}
           </div>
         }
-        scrollableTarget="chat-messages-container"
-        inverse={true}
       >
         <div className="flex flex-col-reverse mt-auto">
           {messages?.map(
@@ -179,8 +432,19 @@ const ChatMessages = ({
               const isContinue = isSameSender && isLessThanFiveMinutes;
               const isNewDay = checkIsNewDay(currMessageDate, prevMessageDate);
 
+              const isTopMessage = prevMessage ? false : true;
+              const isBottomMessage = message.id === messages[0].id;
+
               return (
                 <Fragment key={index}>
+                  {isBottomMessage && hasPreviousPage && (
+                    <div ref={bottomElementRef} className="mt-1">
+                      <ChatItemSkeleton variant={1} />
+                      <ChatItemSkeleton variant={6} />
+                      <ChatItemSkeleton variant={4} />
+                    </div>
+                  )}
+
                   <ChatItem
                     type={isContinue ? 'continue' : 'new'}
                     message={message}
@@ -191,14 +455,26 @@ const ChatMessages = ({
                     apiUrl={apiUrl}
                     serverId={serverId}
                     channelId={channelId}
+                    isTopMessage={isTopMessage}
+                    isBottomMessage={isBottomMessage}
+                    setBottomMessageTracker={setBottomMessageTracker}
+                    setTopMessageTracker={setTopMessageTracker}
                   />
+
                   {isNewDay && <ChatItemSeparator date={message.createdAt} />}
+                  {isTopMessage && hasNextPage && (
+                    <div ref={topElementRef}>
+                      <ChatItemSkeleton variant={1} />
+                      <ChatItemSkeleton variant={6} />
+                      <ChatItemSkeleton variant={4} />
+                    </div>
+                  )}
                 </Fragment>
               );
             }
           )}
         </div>
-      </InfiniteScroll>
+      </InfiniteChatScroll>
 
       {!hasNextPage && (
         <ChatWelcome
