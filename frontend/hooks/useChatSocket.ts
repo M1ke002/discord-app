@@ -9,13 +9,15 @@ interface useChatSocketProps {
   updateMessageKey: string;
   deleteMessageKey: string;
   queryKey: string;
+  hasPreviousPage: boolean;
 }
 
 export const useChatSocket = ({
   createMessageKey,
   updateMessageKey,
   deleteMessageKey,
-  queryKey
+  queryKey,
+  hasPreviousPage
 }: useChatSocketProps) => {
   const queryClient = useQueryClient();
   const { socket } = useSocket();
@@ -30,6 +32,9 @@ export const useChatSocket = ({
         '[createMessageKey] received message from socket: ' +
           JSON.stringify(message)
       );
+
+      //if there is previous page, do nothing
+      if (hasPreviousPage) return;
       queryClient.setQueryData([queryKey], (oldData: any) => {
         //if no data, add new data to it
         if (!oldData || !oldData.pages || oldData.pages.length === 0) {

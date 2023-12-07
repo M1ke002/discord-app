@@ -9,7 +9,8 @@ import { cn } from '@/lib/utils';
 import { FileIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useClickedMessage } from '@/hooks/zustand/useClickedMessage';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import { useAroundMessage } from '@/hooks/zustand/useSearchAroundMessage';
 
 interface SearchResultItemProps {
   message: ChannelMessage;
@@ -22,11 +23,10 @@ const SearchResultItem = ({
   searchContent,
   setToggleSearchDialog
 }: SearchResultItemProps) => {
-  const router = useRouter();
   const params = useParams();
-  const serverId = params.serverId;
   const channelId = params.channelId;
   const { setClickedMessage } = useClickedMessage();
+  const { setAroundMessage } = useAroundMessage();
 
   const fileExtension = message.file?.fileUrl?.split('.').pop();
   const isImageFile =
@@ -41,7 +41,16 @@ const SearchResultItem = ({
       style={{ overflowWrap: 'anywhere' }}
       onClick={() => {
         if (message.channelId.toString() !== channelId) {
-          router.push(`/servers/${serverId}/channels/${message.channelId}`);
+          setAroundMessage(message.id.toString(), message.channelId.toString());
+        } else {
+          //check if the message html element is rendered
+          const messageElement = document.getElementById(message.id.toString());
+          if (!messageElement) {
+            setAroundMessage(
+              message.id.toString(),
+              message.channelId.toString()
+            );
+          }
         }
         setClickedMessage(message);
         setToggleSearchDialog((prev: any) => ({ ...prev, isOpen: false }));

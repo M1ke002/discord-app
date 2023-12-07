@@ -26,6 +26,7 @@ import { isChannelMessage, isServerMember } from '@/utils/utils';
 import Image from 'next/image';
 import { useInView } from 'react-intersection-observer';
 import { useMessageTracker } from '@/hooks/zustand/useMessageTracker';
+import { useAroundMessage } from '@/hooks/zustand/useSearchAroundMessage';
 
 // const chatReplyIconClassName =
 //   'before:block before:absolute before:top-[37%] before:right-[100%] before:bottom-0 before:left-[-36px] before:mt-[-1px] before:mr-[4px] before:mb-[3px] before:ml-[-1px] before:border-t-[1.6px] before:border-t-zinc-600 before:border-l-[1.6px] before:border-l-zinc-600 before:rounded-tl-[6px]';
@@ -72,6 +73,7 @@ const ChatItem = ({
   const { onOpen } = useModal();
   const { message: replyToMessage, setMessage } = useReplyToMessage();
   const { clickedMessage, setClickedMessage } = useClickedMessage();
+  const { setAroundMessage } = useAroundMessage();
 
   const [messageRef, inView, entry] = useInView({
     threshold: 0
@@ -284,8 +286,21 @@ const ChatItem = ({
                       message.replyToMessage.content === '' && 'italic'
                     )}
                     onClick={() => {
-                      if (message.replyToMessage)
+                      if (message.replyToMessage) {
                         setClickedMessage(message.replyToMessage);
+                        //check if the replyToMessage html element is rendered
+                        const replyToMessageElement = document.getElementById(
+                          message.replyToMessage.id.toString()
+                        );
+                        if (!replyToMessageElement) {
+                          if (isChannelMessage(message)) {
+                            setAroundMessage(
+                              message.replyToMessage.id.toString(),
+                              message.channelId.toString()
+                            );
+                          }
+                        }
+                      }
                     }}
                   >
                     {message.replyToMessage.content === '' &&

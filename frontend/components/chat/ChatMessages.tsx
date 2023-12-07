@@ -18,6 +18,7 @@ import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useInView } from 'react-intersection-observer';
 import { useClickedMessage } from '@/hooks/zustand/useClickedMessage';
 import { useMessageTracker } from '@/hooks/zustand/useMessageTracker';
+import { useAroundMessage } from '@/hooks/zustand/useSearchAroundMessage';
 
 interface ChatMessagesProps {
   type: 'channel' | 'conversation';
@@ -45,6 +46,9 @@ const ChatMessages = ({
   const createMessageKey = `chat:${chatId}:new-message`;
   const updateMessageKey = `chat:${chatId}:update-message`;
   const deleteMessageKey = `chat:${chatId}:delete-message`;
+
+  const { aroundMessageId, messageChannelId, setAroundMessage } =
+    useAroundMessage();
 
   const [editingMessageId, setEditingMessageId] = useState('');
   const [topMessageTracker, setTopMessageTracker] = useState<{
@@ -88,16 +92,6 @@ const ChatMessages = ({
     threshold: 0
   });
 
-  const queryClient = useQueryClient();
-
-  //this hook is used to listen to changes in messages and update messages in real time
-  useChatSocket({
-    createMessageKey,
-    updateMessageKey,
-    deleteMessageKey,
-    queryKey
-  });
-
   const messageType = type === 'channel' ? 'channelMessages' : 'directMessages';
 
   const {
@@ -109,7 +103,8 @@ const ChatMessages = ({
     hasPreviousPage,
     isFetchingNextPage,
     isFetchingPreviousPage,
-    status
+    status,
+    refetch
   } = useChatQuery({
     messageType,
     queryKey,
@@ -117,7 +112,21 @@ const ChatMessages = ({
     serverId,
     channelId,
     userId1: currUser?.id.toString(),
-    userId2: otherUser?.id.toString()
+    userId2: otherUser?.id.toString(),
+    aroundMessageId: aroundMessageId || undefined,
+    messageChannelId: messageChannelId || undefined,
+    setAroundMessage,
+    setTopMessageTracker,
+    setBottomMessageTracker
+  });
+
+  //this hook is used to listen to changes in messages and update messages in real time
+  useChatSocket({
+    createMessageKey,
+    updateMessageKey,
+    deleteMessageKey,
+    queryKey,
+    hasPreviousPage
   });
 
   //for scrolling up -> current top message id must be less than previous top message id (older message)
@@ -209,27 +218,6 @@ const ChatMessages = ({
     }
   }, [bottomMessageTracker]);
 
-  // scroll to the bottom message when first load messages
-  // useEffect(() => {
-  //   if (data && !hasScrolledToBottomMessage) {
-  //     if (!hasPreviousPage) {
-  //       setHasScrolledToBottomMessage(true);
-  //       return;
-  //     }
-  //     console.log('scrolling to bottom message...');
-  //     const bottomMessageElement = document.getElementById(
-  //       data.pages[0].messages[0].id
-  //     );
-  //     if (bottomMessageElement) {
-  //       bottomMessageElement.scrollIntoView({
-  //         block: 'end',
-  //         behavior: 'instant'
-  //       });
-  //     }
-  //     setHasScrolledToBottomMessage(true);
-  //   }
-  // }, [data, hasScrolledToBottomMessage, hasPreviousPage]);
-
   useEffect(() => {
     if (data) {
       if (
@@ -249,14 +237,6 @@ const ChatMessages = ({
           const chatMessageContainer = document.getElementById(
             'chat-messages-container'
           );
-          // const isInView = messageElement
-          //   ? messageElement.offsetTop >=
-          //       document.getElementById('chat-messages-container')
-          //         ?.scrollTop! &&
-          //     messageElement.offsetTop <=
-          //       document.getElementById('chat-messages-container')?.scrollTop! +
-          //         window.innerHeight
-          //   : false;
           const isInView =
             messageElement.offsetTop >= chatMessageContainer?.scrollTop! &&
             messageElement.offsetTop <=
@@ -291,85 +271,20 @@ const ChatMessages = ({
     }
   }, [data, hasPreviousPage, clickedMessage, channelId]);
 
-  //scroll to a reply message when a reply message is clicked
-  useEffect(() => {
-    const handleReplyMessageClick = async () => {
-      try {
-        if (
-          clickedMessage &&
-          isChannelMessage(clickedMessage) &&
-          clickedMessage.channelId.toString() === channelId
-        ) {
-          const messageElement = document.getElementById(
-            clickedMessage.id.toString()
-          );
-          if (!messageElement) {
-            let query = `${apiUrl}?cursor=${clickedMessage.id}&limit=30&direction=around&channelId=${channelId}&serverId=${serverId}`;
-            console.log(query);
-            const res = await axiosAuth.get(query);
-            console.log(res.data);
-
-            queryClient.setQueryData([queryKey], (oldData: any) => {
-              return {
-                pages: [
-                  {
-                    messages: [...res.data.messages],
-                    nextCursor: res.data.nextCursor,
-                    previousCursor: res.data.previousCursor
-                  }
-                ],
-                pageParams: [0]
-              };
-            });
-
-            //reset top message tracker
-            // clearTopMessageTracker();
-            setTopMessageTracker({
-              currentTopMessage: null,
-              prevTopMessage: null
-            });
-            //reset bottom message tracker
-            // clearBottomMessageTracker();
-            setBottomMessageTracker({
-              currentBottomMessage: null,
-              prevBottomMessage: null
-            });
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    handleReplyMessageClick();
-  }, [clickedMessage, channelId, queryKey, queryClient]);
-
   //get all messages from all pages
   const messages = useMemo(
     () =>
       data?.pages.reduce((prev, page) => {
-        return [...prev, ...page?.messages];
+        if (page) {
+          return [...prev, ...page.messages];
+        } else {
+          return [...prev];
+        }
       }, [] as (ChannelMessage | DirectMessage)[]),
     [data]
   );
 
-  //function to scroll to the oldest previously rendered message when new messages are loaded
-  // const onTopMessageChange = (messageId: string) => {
-  //   if (topMessageId === '') {
-  //     setTopMessageId(messageId);
-  //     return;
-  //   }
-  //   //scroll to the oldest message
-  //   if (!isFetchingNextPage) {
-  //     console.log('scrolling to prev top message...', topMessageEntry?.target);
-
-  //     topMessageEntry?.target?.scrollIntoView({
-  //       behavior: 'instant',
-  //       block: 'start'
-  //     });
-  //   }
-  //   //update the oldest message id
-  //   setTopMessageId(messageId);
-  // };
+  console.log(data);
 
   if (status === 'pending') {
     console.log('loading messages...');

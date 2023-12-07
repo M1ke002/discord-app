@@ -30,12 +30,14 @@ const InfiniteChatScroll = ({
 }: InfiniteChatScrollProps) => {
   useEffect(() => {
     if (topChild && isAtTop && hasNext) {
+      console.log('get next (older messages)');
       getNext();
     }
   }, [isAtTop, getNext, hasNext, topChild]);
 
   useEffect(() => {
     if (bottomChild && isAtBottom && hasPrev) {
+      console.log('get prev (newer messages)');
       getPrev();
     }
   }, [isAtBottom, getPrev, hasPrev, bottomChild]);
