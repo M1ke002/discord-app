@@ -22,17 +22,18 @@ public class ChannelMessageController {
     @Autowired
     private SocketIOServer socketIOServer;
 
-    //example request: http://localhost:8080/api/v1/messages?cursor=123&limit=20&channelId=1&serverId=1
+    //example request: http://localhost:8080/api/v1/messages?cursor=123&limit=20&direction=forward&channelId=1&serverId=1
     @GetMapping("")
     public ResponseEntity<?> getMessages(
             @RequestParam("cursor") Long cursor,
             @RequestParam("limit") Integer limit,
+            @RequestParam("direction") String direction, //can be "forward" or "backward" or "around"
             @RequestParam("channelId") Long channelId,
             @RequestParam("serverId") Long serverId) {
         if (limit == null) {
             limit = 30;
         }
-        ChannelMessageResponse channelMessageResponse = channelMessageService.getMessages(cursor, limit, channelId, serverId);
+        ChannelMessageResponse channelMessageResponse = channelMessageService.getMessages(cursor, limit, direction, channelId, serverId);
         if (channelMessageResponse == null) {
             return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
         }

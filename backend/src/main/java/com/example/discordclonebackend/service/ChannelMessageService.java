@@ -8,7 +8,7 @@ import com.example.discordclonebackend.dto.response.SearchChannelMessageResponse
 import java.util.List;
 
 public interface ChannelMessageService {
-    public ChannelMessageResponse getMessages(Long cursor, Integer limit, Long channelId, Long serverId);
+    public ChannelMessageResponse getMessages(Long cursor, Integer limit, String direction, Long channelId, Long serverId);
 
     public Long getMessagesCount(Long fromMessageId, Long toMessageId, Long channelId);
 

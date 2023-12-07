@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface ChannelMessageRepository extends JpaRepository<ChannelMessage, Long> {
     Page<ChannelMessage> findAllByChannelId(Long channelId, Pageable pageable);
     Page<ChannelMessage> findAllByChannelIdAndCreatedAtBefore(Long channelId, Date createdAt, Pageable pageable);
+    Page<ChannelMessage> findAllByChannelIdAndCreatedAtAfter(Long channelId, Date createdAt, Pageable pageable);
     @Query("SELECT COUNT(cm) FROM ChannelMessage cm WHERE cm.channel.id = :channelId AND cm.createdAt >= :fromMessageCreatedDate AND cm.createdAt < :toMessageCreatedDate")
     Long countMessagesBetweenCreatedAt(Date fromMessageCreatedDate, Date toMessageCreatedDate, Long channelId);
 

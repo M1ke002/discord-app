@@ -21,10 +21,11 @@ public class ChannelMessageDto {
     private Date updatedAt;
 
     //this constructor is used for the replyToMessage property since we don't need all the properties of the ChannelMessageDto
-    public ChannelMessageDto(Long id, String content, FileDto file, ServerMemberDto sender) {
+    public ChannelMessageDto(Long id, String content, FileDto file, Long channelId, ServerMemberDto sender) {
         this.id = id;
         this.content = content;
         this.file = file;
+        this.channelId = channelId;
         this.sender = sender;
     }
 }

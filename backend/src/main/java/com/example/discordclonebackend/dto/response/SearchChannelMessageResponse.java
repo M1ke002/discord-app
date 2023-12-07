@@ -14,4 +14,5 @@ import java.util.List;
 public class SearchChannelMessageResponse {
     private List<ChannelMessageDto> messages = new ArrayList<>();;
     private Integer totalPages;
+    private Long totalMessages;
 }

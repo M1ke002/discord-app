@@ -10,13 +10,11 @@ import com.example.discordclonebackend.entity.*;
 import com.example.discordclonebackend.repository.*;
 import com.example.discordclonebackend.service.ChannelMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +41,12 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
     private UserServerMappingRepository userServerMappingRepository;
 
     @Override
-    public ChannelMessageResponse getMessages(Long cursor, Integer limit, Long channelId, Long serverId) {
+    public ChannelMessageResponse getMessages(Long cursor, Integer limit, String direction, Long channelId, Long serverId) {
+        if (!direction.equals("forward") && !direction.equals("backward") && !direction.equals("around")) {
+            System.out.println("Invalid direction");
+            return null;
+        }
+
         //check if server exists
         if (!serverRepository.existsById(serverId)) {
             System.out.println("Server doesn't exist");
@@ -55,12 +58,22 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             return null;
         }
 
-        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
-        Page<ChannelMessage> channelMessagesPage;
+        Page<ChannelMessage> channelMessagesPage = null;
+        ChannelMessageResponse channelMessageResponse = new ChannelMessageResponse();
 
-        //if cursor is 0 then fetch the messages starting from the newest message
+        //nextCursor indicates whether there is an older (previous) message
+        //previousCursor indicates whether there is a newer (next) message
+        //if cursor is 0 then fetch the messages starting from the newest message, doesn't need to check direction
         if (cursor == 0) {
+            Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
             channelMessagesPage = channelMessageRepository.findAllByChannelId(channelId, pageable);
+            channelMessageResponse.setPreviousCursor(null);
+            if (channelMessagesPage.hasNext()) {
+                //set the next cursor to the last message's id of the current page
+                channelMessageResponse.setNextCursor(channelMessagesPage.getContent().get(channelMessagesPage.getContent().size() - 1).getId());
+            } else {
+                channelMessageResponse.setNextCursor(null);
+            }
         } else {
             //get all the messages before the cursor message
             ChannelMessage cursorMessage = channelMessageRepository.findById(cursor).orElse(null);
@@ -69,8 +82,71 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                 System.out.println("Cursor message doesn't exist");
                 return null;
             }
-            channelMessagesPage = channelMessageRepository.findAllByChannelIdAndCreatedAtBefore(channelId, cursorMessage.getCreatedAt(), pageable);
+
+            if (direction.equals("forward")) {
+                Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+                //forward means get older messages
+                channelMessagesPage = channelMessageRepository.findAllByChannelIdAndCreatedAtBefore(channelId, cursorMessage.getCreatedAt(), pageable);
+                //set the previous cursor to the first message's id of the current page
+                channelMessageResponse.setPreviousCursor(channelMessagesPage.getContent().get(0).getId());
+                if (channelMessagesPage.hasNext()) {
+                    //set the next cursor to the last message's id of the current page
+                    channelMessageResponse.setNextCursor(channelMessagesPage.getContent().get(channelMessagesPage.getContent().size() - 1).getId());
+                } else {
+                    channelMessageResponse.setNextCursor(null);
+                }
+            } else if (direction.equals("backward")) {
+                Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").ascending());
+                //backward means get newer messages
+                channelMessagesPage = channelMessageRepository.findAllByChannelIdAndCreatedAtAfter(channelId, cursorMessage.getCreatedAt(), pageable);
+                //set the next cursor to the first message's id of the current page
+                channelMessageResponse.setNextCursor(channelMessagesPage.getContent().get(0).getId());
+                if (channelMessagesPage.hasNext()) {
+                    //set the previous cursor to the first message's id of the current page
+                    channelMessageResponse.setPreviousCursor(channelMessagesPage.getContent().get(channelMessagesPage.getContent().size() - 1).getId());
+                } else {
+                    channelMessageResponse.setPreviousCursor(null);
+                }
+                //reverse the order of the messages in the page so that the newest message is at the beginning
+                List<ChannelMessage> reversedMessages = new ArrayList<>(channelMessagesPage.getContent());
+                Collections.reverse(reversedMessages);
+                channelMessagesPage = new PageImpl<>(reversedMessages);
+
+            } else {
+                //around means get older and newer messages around the cursor message
+                //first get the older messages
+                Pageable pageable = PageRequest.of(0, limit/2, Sort.by("createdAt").descending());
+                Page<ChannelMessage> channelMessagesPageBefore = channelMessageRepository.findAllByChannelIdAndCreatedAtBefore(channelId, cursorMessage.getCreatedAt(), pageable);
+                if (channelMessagesPageBefore.hasNext()) {
+                    //set the next cursor to the last message's id of the current page
+                    channelMessageResponse.setNextCursor(channelMessagesPageBefore.getContent().get(channelMessagesPageBefore.getContent().size() - 1).getId());
+                } else {
+                    channelMessageResponse.setNextCursor(null);
+                }
+
+                //get the newer messages
+                pageable = PageRequest.of(0, limit/2, Sort.by("createdAt").ascending());
+                Page<ChannelMessage> channelMessagesPageAfter = channelMessageRepository.findAllByChannelIdAndCreatedAtAfter(channelId, cursorMessage.getCreatedAt(), pageable);
+                if (channelMessagesPageAfter.hasNext()) {
+                    //set the previous cursor to the first message's id of the current page
+                    channelMessageResponse.setPreviousCursor(channelMessagesPageAfter.getContent().get(channelMessagesPageAfter.getContent().size() - 1).getId());
+                } else {
+                    channelMessageResponse.setPreviousCursor(null);
+                }
+                //reverse the order of the messages in the page so that the newest message is at the beginning
+                List<ChannelMessage> reversedMessages = new ArrayList<>(channelMessagesPageAfter.getContent());
+                Collections.reverse(reversedMessages);
+                channelMessagesPageAfter = new PageImpl<>(reversedMessages);
+
+                //combine the older, cursor message and newer messages into a single page in descending createdAt order (newest message first)
+                List<ChannelMessage> channelMessages = new ArrayList<>();
+                channelMessages.addAll(channelMessagesPageAfter.getContent());
+                channelMessages.add(cursorMessage);
+                channelMessages.addAll(channelMessagesPageBefore.getContent());
+                channelMessagesPage = new PageImpl<>(channelMessages);
+            }
         }
+
         List<ChannelMessageDto> channelMessageDtos = channelMessagesPage.stream().map(channelMessage -> {
             ChannelMessageDto channelMessageDto = new ChannelMessageDto();
             channelMessageDto.setId(channelMessage.getId());
@@ -112,6 +188,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                                 replyToMessage.getFile().getFileUrl(),
                                 replyToMessage.getFile().getFileKey()
                         ) : null,
+                        replyToMessage.getChannel().getId(),
                         new ServerMemberDto(
                                 replyToMessageSender.getId(),
                                 replyToMessageSender.getUsername(),
@@ -134,15 +211,8 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             channelMessageDto.setUpdatedAt(channelMessage.getUpdatedAt());
             return channelMessageDto;
         }).collect(Collectors.toList());
-        ChannelMessageResponse channelMessageResponse = new ChannelMessageResponse();
+
         channelMessageResponse.setMessages(channelMessageDtos);
-        //check if there is a next message
-        if (channelMessagesPage.hasNext()) {
-            //set the next cursor to the last message's id of the current page
-            channelMessageResponse.setNextCursor(channelMessagesPage.getContent().get(channelMessagesPage.getContent().size() - 1).getId());
-        } else {
-            channelMessageResponse.setNextCursor(null);
-        }
 
         return channelMessageResponse;
     }
@@ -265,6 +335,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                             replyToMessage.getFile().getFileUrl(),
                             replyToMessage.getFile().getFileKey()
                     ) : null,
+                    replyToMessage.getChannel().getId(),
                     new ServerMemberDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
@@ -353,6 +424,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                             replyToMessage.getFile().getFileUrl(),
                             replyToMessage.getFile().getFileKey()
                     ) : null,
+                    replyToMessage.getChannel().getId(),
                     new ServerMemberDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
@@ -459,6 +531,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         SearchChannelMessageResponse searchChannelMessageResponse = new SearchChannelMessageResponse();
         searchChannelMessageResponse.setMessages(channelMessageDtos);
         searchChannelMessageResponse.setTotalPages(channelMessagesPage.getTotalPages());
+        searchChannelMessageResponse.setTotalMessages(channelMessagesPage.getTotalElements());
 
         return searchChannelMessageResponse;
     }

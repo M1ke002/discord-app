@@ -14,9 +14,11 @@ import java.util.List;
 public class ChannelMessageResponse {
     private List<ChannelMessageDto> messages = new ArrayList<>();;
     private Long nextCursor;
+    private Long previousCursor;
 
-    public ChannelMessageResponse(Long nextCursor) {
+    public ChannelMessageResponse(Long nextCursor, Long previousCursor) {
         this.nextCursor = nextCursor;
+        this.previousCursor = previousCursor;
     }
 
 
