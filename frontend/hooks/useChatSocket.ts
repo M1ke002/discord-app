@@ -33,7 +33,7 @@ export const useChatSocket = ({
           JSON.stringify(message)
       );
 
-      //if there is previous page, do nothing
+      //if user is not at bottom of page, dont show new message
       if (hasPreviousPage) return;
       queryClient.setQueryData([queryKey], (oldData: any) => {
         //if no data, add new data to it
@@ -105,6 +105,32 @@ export const useChatSocket = ({
         }
 
         const newPages = oldData.pages.map((page: any) => {
+          let isDeletedMessageInPage = page.messages.find(
+            (currMessage: ChannelMessage | DirectMessage) =>
+              currMessage.id === messageId
+          );
+          if (!isDeletedMessageInPage) return page;
+          //check if deleted message is the first or last position in the messages array
+          const isFirstMessage = page.messages[0]?.id === messageId;
+          const isLastMessage =
+            page.messages[page.messages.length - 1]?.id === messageId;
+          //the first message(messages[0]) is the bottom displayed message -> refers to previousCursor
+          if (
+            page.previousCursor &&
+            isFirstMessage &&
+            page.messages.length > 1
+          ) {
+            //update previousCursor
+            page.previousCursor = page.messages[1].id;
+          } else if (
+            page.nextCursor &&
+            isLastMessage &&
+            page.messages.length > 1
+          ) {
+            //update nextCursor
+            page.nextCursor = page.messages[page.messages.length - 2].id;
+          }
+
           return {
             ...page,
             messages: page.messages
@@ -146,6 +172,7 @@ export const useChatSocket = ({
     updateMessageKey,
     deleteMessageKey,
     queryKey,
-    queryClient
+    queryClient,
+    hasPreviousPage
   ]);
 };

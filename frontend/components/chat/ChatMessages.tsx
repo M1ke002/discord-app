@@ -129,7 +129,7 @@ const ChatMessages = ({
     hasPreviousPage
   });
 
-  //for scrolling up -> current top message id must be less than previous top message id (older message)
+  //for scrolling up to prevTopMessage -> current top message id must be less than previous top message id (older message)
   useEffect(() => {
     if (
       !topMessageTracker.currentTopMessage ||
@@ -138,7 +138,7 @@ const ChatMessages = ({
       return;
 
     if (
-      topMessageTracker.currentTopMessage.id >
+      topMessageTracker.currentTopMessage.id >=
       topMessageTracker.prevTopMessage.id
     )
       return;
@@ -170,7 +170,7 @@ const ChatMessages = ({
     }
   }, [topMessageTracker]);
 
-  //for scrolling down -> current bottom message id must be greater than previous bottom message id (newer message)
+  //for scrolling down to prevBottomMessage-> current bottom message id must be greater than previous bottom message id (newer message)
   useEffect(() => {
     if (
       !bottomMessageTracker.currentBottomMessage ||
@@ -179,7 +179,7 @@ const ChatMessages = ({
       return;
 
     if (
-      bottomMessageTracker.currentBottomMessage.id <
+      bottomMessageTracker.currentBottomMessage.id <=
       bottomMessageTracker.prevBottomMessage.id
     ) {
       console.log(

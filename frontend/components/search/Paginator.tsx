@@ -67,13 +67,13 @@ const Paginator = ({
             ? '3'
             : pagesArray.length > 5 && currentPage + 3 >= pagesArray.length
             ? `${pagesArray[pagesArray.length - 2]}`
-            : '',
+            : `${currentPage + 1}`,
         value:
           currentPage + 1 <= 3 || pagesArray.length <= 5
             ? 2
             : pagesArray.length > 5 && currentPage + 3 >= pagesArray.length
             ? pagesArray[pagesArray.length - 2] - 1
-            : null
+            : currentPage
       });
     }
 

@@ -100,7 +100,10 @@ const SearchResultItem = ({
                 </p>
               </TooltipActions>
               <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1">
-                {format(new Date(message.createdAt), 'MM/dd/yyyy hh:mm a')}
+                {format(new Date(message.createdAt), 'MM/dd/yyyy') ===
+                format(new Date(), 'MM/dd/yyyy')
+                  ? `Today at ${format(new Date(message.createdAt), 'hh:mm a')}`
+                  : format(new Date(message.createdAt), 'MM/dd/yyyy hh:mm a')}
               </span>
             </div>
           </div>

@@ -371,7 +371,13 @@ const ChatItem = ({
                 </TooltipActions>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1">
                   {/* 05/12/2022 10:30 PM */}
-                  {format(new Date(message.createdAt), 'MM/dd/yyyy hh:mm a')}
+                  {format(new Date(message.createdAt), 'MM/dd/yyyy') ===
+                  format(new Date(), 'MM/dd/yyyy')
+                    ? `Today at ${format(
+                        new Date(message.createdAt),
+                        'hh:mm a'
+                      )}`
+                    : format(new Date(message.createdAt), 'MM/dd/yyyy hh:mm a')}
                 </span>
               </div>
             </div>
