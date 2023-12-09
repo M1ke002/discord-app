@@ -14,8 +14,10 @@ import java.util.List;
 public class DirectMessageResponse {
     private List<DirectMessageDto> messages = new ArrayList<>();
     private Long nextCursor;
+    private Long previousCursor;
 
-    public DirectMessageResponse(Long nextCursor) {
+    public DirectMessageResponse(Long nextCursor, Long previousCursor) {
         this.nextCursor = nextCursor;
+        this.previousCursor = previousCursor;
     }
 }

@@ -102,7 +102,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                 //set the next cursor to the first message's id of the current page
                 channelMessageResponse.setNextCursor(channelMessagesPage.getContent().get(0).getId());
                 if (channelMessagesPage.hasNext()) {
-                    //set the previous cursor to the first message's id of the current page
+                    //set the previous cursor to the last message's id of the current page (the newest message)
                     channelMessageResponse.setPreviousCursor(channelMessagesPage.getContent().get(channelMessagesPage.getContent().size() - 1).getId());
                 } else {
                     channelMessageResponse.setPreviousCursor(null);
@@ -128,7 +128,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                 pageable = PageRequest.of(0, limit/2, Sort.by("createdAt").ascending());
                 Page<ChannelMessage> channelMessagesPageAfter = channelMessageRepository.findAllByChannelIdAndCreatedAtAfter(channelId, cursorMessage.getCreatedAt(), pageable);
                 if (channelMessagesPageAfter.hasNext()) {
-                    //set the previous cursor to the first message's id of the current page
+                    //set the previous cursor to the last message's id of the current page (the newest message)
                     channelMessageResponse.setPreviousCursor(channelMessagesPageAfter.getContent().get(channelMessagesPageAfter.getContent().size() - 1).getId());
                 } else {
                     channelMessageResponse.setPreviousCursor(null);

@@ -219,55 +219,56 @@ const ChatMessages = ({
   }, [bottomMessageTracker]);
 
   useEffect(() => {
-    if (data) {
+    if (!data) return;
+    if (clickedMessage) {
+      //if the clicked message is not in the current channel, return
       if (
-        clickedMessage &&
         isChannelMessage(clickedMessage) &&
-        clickedMessage.channelId.toString() === channelId
-      ) {
-        //scroll to the clicked message
-        console.log('scrolling to clicked message...', clickedMessage.content);
-        const messageElement = document.getElementById(
-          clickedMessage.id.toString()
-        );
+        clickedMessage.channelId.toString() !== channelId
+      )
+        return;
+      //scroll to the clicked message
+      console.log('scrolling to clicked message...', clickedMessage.content);
+      const messageElement = document.getElementById(
+        clickedMessage.id.toString()
+      );
 
-        if (messageElement) {
-          console.log('found clicked message element', messageElement);
-          //check if messageElement is in view
-          const chatMessageContainer = document.getElementById(
-            'chat-messages-container'
-          );
-          const isInView =
-            messageElement.offsetTop >= chatMessageContainer?.scrollTop! &&
-            messageElement.offsetTop <=
-              chatMessageContainer?.scrollTop! + window.innerHeight;
-          const behavior = isInView ? 'smooth' : 'instant';
-          messageElement.scrollIntoView({
-            block: 'center',
-            behavior: behavior
-          });
-          setHasScrolledToBottomMessage(true);
-          setTimeout(() => {
-            setClickedMessage(null);
-          }, 600);
-        }
-      } else if (!hasScrolledToBottomMessage) {
-        if (!hasPreviousPage) {
-          setHasScrolledToBottomMessage(true);
-          return;
-        }
-        console.log('scrolling to bottom message...');
-        const bottomMessageElement = document.getElementById(
-          data.pages[0].messages[0].id
+      if (messageElement) {
+        console.log('found clicked message element', messageElement);
+        //check if messageElement is in view
+        const chatMessageContainer = document.getElementById(
+          'chat-messages-container'
         );
-        if (bottomMessageElement) {
-          bottomMessageElement.scrollIntoView({
-            block: 'end',
-            behavior: 'instant'
-          });
-        }
+        const isInView =
+          messageElement.offsetTop >= chatMessageContainer?.scrollTop! &&
+          messageElement.offsetTop <=
+            chatMessageContainer?.scrollTop! + window.innerHeight;
+        const behavior = isInView ? 'smooth' : 'instant';
+        messageElement.scrollIntoView({
+          block: 'center',
+          behavior: behavior
+        });
         setHasScrolledToBottomMessage(true);
+        setTimeout(() => {
+          setClickedMessage(null);
+        }, 600);
       }
+    } else if (!hasScrolledToBottomMessage) {
+      if (!hasPreviousPage) {
+        setHasScrolledToBottomMessage(true);
+        return;
+      }
+      console.log('scrolling to bottom message...');
+      const bottomMessageElement = document.getElementById(
+        data.pages[0].messages[0].id
+      );
+      if (bottomMessageElement) {
+        bottomMessageElement.scrollIntoView({
+          block: 'end',
+          behavior: 'instant'
+        });
+      }
+      setHasScrolledToBottomMessage(true);
     }
   }, [data, hasPreviousPage, clickedMessage, channelId]);
 

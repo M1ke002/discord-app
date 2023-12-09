@@ -20,17 +20,18 @@ public class DirectMessageController {
     @Autowired
     private DirectMessageService directMessageService;
 
-    //example request: http://localhost:8080/api/v1/direct-messages?page=0&limit=20&userId1=1&userId2=2
+    //example request: http://localhost:8080/api/v1/direct-messages?page=0&limit=20&direction=forward&userId1=1&userId2=2
     @GetMapping("")
     public ResponseEntity<?> getDirectMessages(
             @RequestParam("cursor") Long cursor,
             @RequestParam("limit") Integer limit,
+            @RequestParam("direction") String direction, //can be "forward" or "backward" or "around"
             @RequestParam("userId1") Long userId1,
             @RequestParam("userId2") Long userId2) {
         if (limit == null) {
             limit = 20;
         }
-        DirectMessageResponse directMessageResponse = directMessageService.getMessages(cursor, limit, userId1, userId2);
+        DirectMessageResponse directMessageResponse = directMessageService.getMessages(cursor, limit, direction, userId1, userId2);
         if (directMessageResponse == null) {
             return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
         }

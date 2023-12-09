@@ -76,9 +76,14 @@ export const useChatQuery = ({
     console.log(
       'fetching messages in useChatQuery, aroundMessageId: ' + aroundMessageId
     );
+    let queryString = `${apiUrl}?cursor=${aroundMessageId}&limit=${pageLimitRef.current}&direction=around`;
+    if (messageType === 'channelMessages') {
+      queryString += `&channelId=${channelId}&serverId=${serverId}`;
+    } else if (messageType === 'directMessages') {
+      queryString += `&userId1=${userId1}&userId2=${userId2}`;
+    }
+    console.log('queryString: ' + queryString);
     try {
-      let queryString = `${apiUrl}?cursor=${aroundMessageId}&limit=${pageLimitRef.current}&direction=around&channelId=${channelId}&serverId=${serverId}`;
-      console.log(queryString);
       const res = await axiosAuth.get(queryString);
       console.log(res.data);
       return res.data;
@@ -106,13 +111,15 @@ export const useChatQuery = ({
     queryFn: ({ pageParam, direction, meta }) => {
       if (!aroundMessageId) {
         return fetchMessages(pageParam, direction, meta);
-      } else if (
-        aroundMessageId &&
-        messageChannelId &&
-        messageChannelId === channelId
-      ) {
-        console.log('[FETCH IN QUERYFN]');
-        return fetchMessagesAround(aroundMessageId);
+      } else {
+        if (
+          (messageType === 'channelMessages' &&
+            messageChannelId === channelId) ||
+          messageType === 'directMessages'
+        ) {
+          console.log('[FETCH IN QUERYFN]');
+          return fetchMessagesAround(aroundMessageId);
+        }
       }
     },
     initialPageParam: 0,
@@ -148,24 +155,26 @@ export const useChatQuery = ({
   };
 
   useEffect(() => {
-    const fetchMessagesAround = async (messageChannelId?: string) => {
+    const fetchMessagesAround = async (
+      messageType: string,
+      messageChannelId?: string
+    ) => {
       try {
         let isMessageInCache = false;
-        if (messageChannelId) {
+        if (messageType === 'channelMessages' && messageChannelId) {
           //check if the message is already available in the cache of that channel
           const data: any = queryClient.getQueryData([
-            `chat:${messageChannelId}`
+            queryKey.replace(/:.*/, `:${messageChannelId}`)
           ]);
           if (data) {
             data.pages.forEach((page: any) => {
-              page.messages.forEach((message: any) => {
-                if (message.id.toString() === aroundMessageId) {
-                  isMessageInCache = true;
-                  console.log('message is in cache', data, aroundMessageId);
-                  return;
-                }
-              });
-              if (isMessageInCache) {
+              if (
+                page.messages.find(
+                  (message: any) => message.id.toString() === aroundMessageId
+                )
+              ) {
+                isMessageInCache = true;
+                console.log('message is in cache', data, aroundMessageId);
                 return;
               }
             });
@@ -173,16 +182,21 @@ export const useChatQuery = ({
         }
 
         if (!isMessageInCache) {
-          let queryString = `${apiUrl}?cursor=${aroundMessageId}&limit=${
-            pageLimitRef.current
-          }&direction=around&channelId=${
-            messageChannelId ? messageChannelId : channelId
-          }&serverId=${serverId}`;
+          let queryString = `${apiUrl}?cursor=${aroundMessageId}&limit=${pageLimitRef.current}&direction=around`;
+          if (messageType === 'channelMessages') {
+            queryString += `&channelId=${
+              messageChannelId ? messageChannelId : channelId
+            }&serverId=${serverId}`;
+          } else if (messageType === 'directMessages') {
+            queryString += `&userId1=${userId1}&userId2=${userId2}`;
+          }
           console.log(queryString);
           const res = await axiosAuth.get(queryString);
           console.log(res.data);
           //replace querykey (chat:chatId) with chat:messageChannelId
-          const key = !messageChannelId ? queryKey : `chat:${messageChannelId}`;
+          const key = !messageChannelId
+            ? queryKey
+            : queryKey.replace(/:.*/, `:${messageChannelId}`);
           queryClient.setQueryData([key], (oldData: any) => {
             return {
               pages: [
@@ -206,12 +220,17 @@ export const useChatQuery = ({
     };
     if (data && aroundMessageId) {
       console.log('[REFETCH IN USEEFFECT]');
-      //if the message is in the same channel
-      if (messageChannelId === channelId) {
-        fetchMessagesAround();
-      } else {
-        fetchMessagesAround(messageChannelId);
+      if (messageType === 'channelMessages') {
+        //if the message is in the same channel
+        if (messageChannelId === channelId) {
+          fetchMessagesAround(messageType);
+        } else {
+          fetchMessagesAround(messageType, messageChannelId);
+        }
+      } else if (messageType === 'directMessages') {
+        fetchMessagesAround(messageType);
       }
+
       //reset top message tracker
       // clearTopMessageTracker();
       setTopMessageTracker({

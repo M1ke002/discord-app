@@ -15,12 +15,11 @@ import com.example.discordclonebackend.repository.FileRepository;
 import com.example.discordclonebackend.repository.UserRepository;
 import com.example.discordclonebackend.service.DirectMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +40,12 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     private UserRepository userRepository;
 
     @Override
-    public DirectMessageResponse getMessages(Long cursor, Integer limit, Long userId1, Long userId2) {
+    public DirectMessageResponse getMessages(Long cursor, Integer limit, String direction, Long userId1, Long userId2) {
+        if (!direction.equals("forward") && !direction.equals("backward") && !direction.equals("around")) {
+            System.out.println("Invalid direction");
+            return null;
+        }
+
         //check if users exist
         if (!userRepository.existsById(userId1) || !userRepository.existsById(userId2)) {
             System.out.println("User 1 or 2 not found");
@@ -53,6 +57,8 @@ public class DirectMessageServiceImpl implements DirectMessageService {
             return null;
         }
 
+
+
         //check if a conversation exists between the two users
         Conversation conversation = conversationRepository.findByUser1IdAndUser2Id(userId1, userId2);
         if (conversation == null) {
@@ -61,15 +67,23 @@ public class DirectMessageServiceImpl implements DirectMessageService {
         //conversation still not found -> return empty array of messages
         if (conversation == null) {
             System.out.println("Conversation not found");
-            return new DirectMessageResponse(null);
+            return new DirectMessageResponse(null, null);
         }
 
         //get messages
-        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
-        Page<DirectMessage> directMessagesPage;
+        Page<DirectMessage> directMessagesPage = null;
+        DirectMessageResponse directMessageResponse = new DirectMessageResponse();
 
         if (cursor == 0) {
+            Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
             directMessagesPage = directMessageRepository.findAllByConversationId(conversation.getId(), pageable);
+            directMessageResponse.setPreviousCursor(null);
+            if (directMessagesPage.hasNext()) {
+                //set the next cursor to the last message's id of the current page
+                directMessageResponse.setNextCursor(directMessagesPage.getContent().get(directMessagesPage.getContent().size() - 1).getId());
+            } else {
+                directMessageResponse.setNextCursor(null);
+            }
         } else {
             //get all the messages before the cursor message
             DirectMessage cursorMessage = directMessageRepository.findById(cursor).orElse(null);
@@ -77,7 +91,69 @@ public class DirectMessageServiceImpl implements DirectMessageService {
                 System.out.println("Cursor message not found");
                 return null;
             }
-            directMessagesPage = directMessageRepository.findAllByConversationIdAndCreatedAtBefore(conversation.getId(), cursorMessage.getCreatedAt(), pageable);
+
+            if (direction.equals("forward")) {
+                Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+                //forward means get older messages
+                directMessagesPage = directMessageRepository.findAllByConversationIdAndCreatedAtBefore(conversation.getId(), cursorMessage.getCreatedAt(), pageable);
+                //set the previous cursor to the first message's id of the current page
+                directMessageResponse.setPreviousCursor(directMessagesPage.getContent().get(0).getId());
+                if (directMessagesPage.hasNext()) {
+                    //set the next cursor to the last message's id of the current page
+                    directMessageResponse.setNextCursor(directMessagesPage.getContent().get(directMessagesPage.getContent().size() - 1).getId());
+                } else {
+                    directMessageResponse.setNextCursor(null);
+                }
+            } else if (direction.equals("backward")) {
+                Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").ascending());
+                //backward means get newer messages
+                directMessagesPage = directMessageRepository.findAllByConversationIdAndCreatedAtAfter(conversation.getId(), cursorMessage.getCreatedAt(), pageable);
+                //set the next cursor to the first message's id of the current page
+                directMessageResponse.setNextCursor(directMessagesPage.getContent().get(0).getId());
+                if (directMessagesPage.hasNext()) {
+                    //set the previous cursor to the last message's id of the current page (the newest message)
+                    directMessageResponse.setPreviousCursor(directMessagesPage.getContent().get(directMessagesPage.getContent().size() - 1).getId());
+                } else {
+                    directMessageResponse.setPreviousCursor(null);
+                }
+                //reverse the order of the messages in the page so that the newest message is at the beginning
+                List<DirectMessage> reversedMessages = new ArrayList<>(directMessagesPage.getContent());
+                Collections.reverse(reversedMessages);
+                directMessagesPage = new PageImpl<>(reversedMessages);
+
+            } else {
+                //around means get older and newer messages around the cursor message
+                //first get the older messages
+                Pageable pageable = PageRequest.of(0, limit/2, Sort.by("createdAt").descending());
+                Page<DirectMessage> directMessagesPageBefore = directMessageRepository.findAllByConversationIdAndCreatedAtBefore(conversation.getId(), cursorMessage.getCreatedAt(), pageable);
+                if (directMessagesPageBefore.hasNext()) {
+                    //set the next cursor to the last message's id of the current page
+                    directMessageResponse.setNextCursor(directMessagesPageBefore.getContent().get(directMessagesPageBefore.getContent().size() - 1).getId());
+                } else {
+                    directMessageResponse.setNextCursor(null);
+                }
+
+                //get the newer messages
+                pageable = PageRequest.of(0, limit/2, Sort.by("createdAt").ascending());
+                Page<DirectMessage> directMessagesPageAfter = directMessageRepository.findAllByConversationIdAndCreatedAtAfter(conversation.getId(), cursorMessage.getCreatedAt(), pageable);
+                if (directMessagesPageAfter.hasNext()) {
+                    //set the previous cursor to the last message's id of the current page (the newest message)
+                    directMessageResponse.setPreviousCursor(directMessagesPageAfter.getContent().get(directMessagesPageAfter.getContent().size() - 1).getId());
+                } else {
+                    directMessageResponse.setPreviousCursor(null);
+                }
+                //reverse the order of the messages in the page so that the newest message is at the beginning
+                List<DirectMessage> reversedMessages = new ArrayList<>(directMessagesPageAfter.getContent());
+                Collections.reverse(reversedMessages);
+                directMessagesPageAfter = new PageImpl<>(reversedMessages);
+
+                //combine the older, cursor message and newer messages into a single page in descending createdAt order (newest message first)
+                List<DirectMessage> directMessages = new ArrayList<>();
+                directMessages.addAll(directMessagesPageAfter.getContent());
+                directMessages.add(cursorMessage);
+                directMessages.addAll(directMessagesPageBefore.getContent());
+                directMessagesPage = new PageImpl<>(directMessages);
+            }
         }
 
         List<DirectMessageDto> directMessageDtos = directMessagesPage.stream().map(directMessage -> {
@@ -141,14 +217,8 @@ public class DirectMessageServiceImpl implements DirectMessageService {
             return directMessageDto;
         }).collect(Collectors.toList());
 
-        DirectMessageResponse directMessageResponse = new DirectMessageResponse();
         directMessageResponse.setMessages(directMessageDtos);
-        if (directMessagesPage.hasNext()) {
-            //set the next cursor to the last message's id of the current page
-            directMessageResponse.setNextCursor(directMessagesPage.getContent().get(directMessagesPage.getContent().size() - 1).getId());
-        } else {
-            directMessageResponse.setNextCursor(null);
-        }
+
         return directMessageResponse;
     }
 

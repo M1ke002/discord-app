@@ -298,6 +298,11 @@ const ChatItem = ({
                               message.replyToMessage.id.toString(),
                               message.channelId.toString()
                             );
+                          } else {
+                            setAroundMessage(
+                              message.replyToMessage.id.toString(),
+                              null
+                            );
                           }
                         }
                       }
