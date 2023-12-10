@@ -1,11 +1,11 @@
 import UploadthingFile from './File';
-import Member from './Member';
+import User from './User';
 
 interface ChannelMessage {
   id: number;
   content: string;
   file: UploadthingFile | null;
-  sender: Member;
+  sender: User;
   channelId: number;
   replyToMessage: ChannelMessage | null;
   hasReplyMessage: boolean;

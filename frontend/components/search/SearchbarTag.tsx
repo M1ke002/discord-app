@@ -18,7 +18,9 @@ const SearchbarTag = ({ tagName, tagValue, deleteTag }: SearchbarTagProps) => {
           {tagName === 'has' && `${tagName} file`}
           {tagName !== 'has' &&
             (tagValue
-              ? `${tagName}: ${tagValue.substring(0, 4) + '...'}`
+              ? `${tagName}: ${
+                  tagValue.substring(0, 4) + (tagValue.length > 4 ? '...' : '')
+                }`
               : `${tagName}:`)}
         </div>
         <X

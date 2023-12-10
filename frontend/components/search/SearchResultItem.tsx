@@ -1,7 +1,7 @@
 import React from 'react';
 import UserAvatar from '../UserAvatar';
 import TooltipActions from '../TooltipActions';
-import { MemberRole, getRoleIcon } from '@/utils/constants';
+import { ChannelType, MemberRole, getRoleIcon } from '@/utils/constants';
 import { extractLinkInContent, extractSearchContent } from '@/utils/utils';
 import { format } from 'date-fns';
 import ChannelMessage from '@/types/ChannelMessage';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { useClickedMessage } from '@/hooks/zustand/useClickedMessage';
 import { useParams } from 'next/navigation';
 import { useAroundMessage } from '@/hooks/zustand/useSearchAroundMessage';
+import { useServerData } from '@/hooks/zustand/useServerData';
 
 interface SearchResultItemProps {
   message: ChannelMessage;
@@ -27,6 +28,7 @@ const SearchResultItem = ({
   const channelId = params.channelId;
   const { setClickedMessage } = useClickedMessage();
   const { setAroundMessage } = useAroundMessage();
+  const { server } = useServerData();
 
   const fileExtension = message.file?.fileUrl?.split('.').pop();
   const isImageFile =
@@ -40,6 +42,11 @@ const SearchResultItem = ({
       className="bg-white dark:bg-[color:var(--primary-dark)] hover:bg-zinc-200 dark:hover:bg-zinc-700/50 rounded-md p-3 mb-2 cursor-pointer"
       style={{ overflowWrap: 'anywhere' }}
       onClick={() => {
+        if (!server) return;
+        const isTextChannel =
+          server.channels.find((channel) => channel.id === message.channelId)
+            ?.type === ChannelType.TEXT;
+        if (!isTextChannel) return;
         if (message.channelId.toString() !== channelId) {
           setAroundMessage(message.id.toString(), message.channelId.toString());
         } else {

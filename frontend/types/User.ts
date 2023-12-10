@@ -5,6 +5,7 @@ interface User {
   username: string;
   nickname: string;
   file: UploadthingFile | null;
+  role?: string;
   createdAt?: string;
   updatedAt?: string | null;
 }

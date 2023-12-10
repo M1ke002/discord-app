@@ -3,6 +3,7 @@ package com.example.discordclonebackend.service.impl;
 import com.example.discordclonebackend.dto.ChannelMessageDto;
 import com.example.discordclonebackend.dto.FileDto;
 import com.example.discordclonebackend.dto.ServerMemberDto;
+import com.example.discordclonebackend.dto.UserDto;
 import com.example.discordclonebackend.dto.request.ChannelMessageRequest;
 import com.example.discordclonebackend.dto.response.ChannelMessageResponse;
 import com.example.discordclonebackend.dto.response.SearchChannelMessageResponse;
@@ -153,7 +154,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             channelMessageDto.setChannelId(channelMessage.getChannel().getId());
             User sender = channelMessage.getUser();
             UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(sender.getId(), serverId);
-            channelMessageDto.setSender(new ServerMemberDto(
+            channelMessageDto.setSender(new UserDto(
                     sender.getId(),
                     sender.getUsername(),
                     sender.getNickname(),
@@ -189,7 +190,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                                 replyToMessage.getFile().getFileKey()
                         ) : null,
                         replyToMessage.getChannel().getId(),
-                        new ServerMemberDto(
+                        new UserDto(
                                 replyToMessageSender.getId(),
                                 replyToMessageSender.getUsername(),
                                 replyToMessageSender.getNickname(),
@@ -300,7 +301,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         channelMessageDto.setId(channelMessage.getId());
         channelMessageDto.setChannelId(channelMessage.getChannel().getId());
         channelMessageDto.setSender(
-                new ServerMemberDto(
+                new UserDto(
                         user.getId(),
                         user.getUsername(),
                         user.getNickname(),
@@ -336,7 +337,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                             replyToMessage.getFile().getFileKey()
                     ) : null,
                     replyToMessage.getChannel().getId(),
-                    new ServerMemberDto(
+                    new UserDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
                             replyToMessageSender.getNickname(),
@@ -388,7 +389,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
         channelMessageDto.setChannelId(channelMessage.getChannel().getId());
         User sender = channelMessage.getUser();
         channelMessageDto.setSender(
-                new ServerMemberDto(
+                new UserDto(
                         sender.getId(),
                         sender.getUsername(),
                         sender.getNickname(),
@@ -425,7 +426,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
                             replyToMessage.getFile().getFileKey()
                     ) : null,
                     replyToMessage.getChannel().getId(),
-                    new ServerMemberDto(
+                    new UserDto(
                             replyToMessageSender.getId(),
                             replyToMessageSender.getUsername(),
                             replyToMessageSender.getNickname(),
@@ -498,7 +499,7 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
             channelMessageDto.setChannelId(channelMessage.getChannel().getId());
             User sender = channelMessage.getUser();
             UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(sender.getId(), serverId);
-            channelMessageDto.setSender(new ServerMemberDto(
+            channelMessageDto.setSender(new UserDto(
                     sender.getId(),
                     sender.getUsername(),
                     sender.getNickname(),
