@@ -19,8 +19,8 @@ public class ChannelMessageController {
     @Autowired
     private ChannelMessageService channelMessageService;
 
-    @Autowired
-    private SocketIOServer socketIOServer;
+//    @Autowired
+//    private SocketIOServer socketIOServer;
 
     //example request: http://localhost:8080/api/v1/channelMessages?cursor=123&limit=20&direction=forward&channelId=1&serverId=1
     @GetMapping("")
@@ -80,7 +80,7 @@ public class ChannelMessageController {
 
     @GetMapping("test")
     public ResponseEntity<?> test() {
-        socketIOServer.getBroadcastOperations().sendEvent("testSocket", new StringResponse("test"));
+//        socketIOServer.getBroadcastOperations().sendEvent("testSocket", new StringResponse("test"));
         return ResponseEntity.ok(new StringResponse("test"));
     }
 
@@ -91,7 +91,7 @@ public class ChannelMessageController {
             return ResponseEntity.badRequest().body(new StringResponse("Message creation failed"));
         }
         String event = "chat:" + channelMessageRequest.getChannelId() + ":new-message";
-        socketIOServer.getBroadcastOperations().sendEvent(event, createdChannelMessageDto);
+//        socketIOServer.getBroadcastOperations().sendEvent(event, createdChannelMessageDto);
         return ResponseEntity.ok(createdChannelMessageDto);
     }
 
@@ -102,7 +102,7 @@ public class ChannelMessageController {
             return ResponseEntity.badRequest().body(new StringResponse("Message update failed"));
         }
         String event = "chat:" + channelMessageRequest.getChannelId() + ":update-message";
-        socketIOServer.getBroadcastOperations().sendEvent(event, updatedChannelMessageDto);
+//        socketIOServer.getBroadcastOperations().sendEvent(event, updatedChannelMessageDto);
         return ResponseEntity.ok(updatedChannelMessageDto);
     }
 
@@ -118,7 +118,7 @@ public class ChannelMessageController {
             return ResponseEntity.badRequest().body(new StringResponse("Message deletion failed"));
         }
         String event = "chat:" + channelId + ":delete-message";
-        socketIOServer.getBroadcastOperations().sendEvent(event, messageId);
+//        socketIOServer.getBroadcastOperations().sendEvent(event, messageId);
         return ResponseEntity.ok(new StringResponse("Message deleted successfully"));
     }
 }

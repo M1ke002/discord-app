@@ -3,6 +3,6 @@ COPY . .
 RUN mvn clean package -Pprod -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim
-COPY --from=build /target/discordclonebackend-0.0.1-SNAPSHOT.jar discordclonebackend.jar
+COPY --from=build /target/*.jar discordclonebackend.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "discordclonebackend.jar"]

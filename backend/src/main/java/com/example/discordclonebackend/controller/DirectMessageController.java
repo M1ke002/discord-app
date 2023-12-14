@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/direct-messages")
 public class DirectMessageController {
 
-    @Autowired
-    private SocketIOServer socketIOServer;
+//    @Autowired
+//    private SocketIOServer socketIOServer;
 
     @Autowired
     private DirectMessageService directMessageService;
@@ -71,8 +71,8 @@ public class DirectMessageController {
         }
         String event1 = "chat:" + directMessageRequest.getUserId1() + "-" + directMessageRequest.getUserId2() + ":new-message";
         String event2 = "chat:" + directMessageRequest.getUserId2() + "-" + directMessageRequest.getUserId1() + ":new-message";
-        socketIOServer.getBroadcastOperations().sendEvent(event1, directMessageDto);
-        socketIOServer.getBroadcastOperations().sendEvent(event2, directMessageDto);
+//        socketIOServer.getBroadcastOperations().sendEvent(event1, directMessageDto);
+//        socketIOServer.getBroadcastOperations().sendEvent(event2, directMessageDto);
         return ResponseEntity.ok(directMessageDto);
     }
 
@@ -84,8 +84,8 @@ public class DirectMessageController {
         }
         String event1 = "chat:" + directMessageRequest.getUserId1() + "-" + directMessageRequest.getUserId2() + ":update-message";
         String event2 = "chat:" + directMessageRequest.getUserId2() + "-" + directMessageRequest.getUserId1() + ":update-message";
-        socketIOServer.getBroadcastOperations().sendEvent(event1, directMessageDto);
-        socketIOServer.getBroadcastOperations().sendEvent(event2, directMessageDto);
+//        socketIOServer.getBroadcastOperations().sendEvent(event1, directMessageDto);
+//        socketIOServer.getBroadcastOperations().sendEvent(event2, directMessageDto);
         return ResponseEntity.ok(directMessageDto);
     }
 
@@ -100,8 +100,8 @@ public class DirectMessageController {
         }
         String event1 = "chat:" + userId + "-" + otherUserId + ":delete-message";
         String event2 = "chat:" + otherUserId + "-" + userId + ":delete-message";
-        socketIOServer.getBroadcastOperations().sendEvent(event1, directMessageId);
-        socketIOServer.getBroadcastOperations().sendEvent(event2, directMessageId);
+//        socketIOServer.getBroadcastOperations().sendEvent(event1, directMessageId);
+//        socketIOServer.getBroadcastOperations().sendEvent(event2, directMessageId);
         return ResponseEntity.ok(new StringResponse("Message deleted"));
     }
 }
