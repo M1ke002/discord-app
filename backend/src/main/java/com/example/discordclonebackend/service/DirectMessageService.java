@@ -14,4 +14,6 @@ public interface DirectMessageService {
     public Boolean deleteMessage(Long directMessageId, Long userId, Long otherUserId);
 
     public Long getMessagesCount(Long fromMessageId, Long toMessageId, Long userId1, Long userId2);
+
+    public DirectMessageDto getMessageById(Long messageId);
 }

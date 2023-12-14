@@ -219,6 +219,85 @@ public class ChannelMessageServiceImpl implements ChannelMessageService {
     }
 
     @Override
+    public ChannelMessageDto getMessageById(Long messageId, Long serverId) {
+        //check if server exists
+        if (!serverRepository.existsById(serverId)) {
+            System.out.println("Server doesn't exist");
+            return null;
+        }
+
+        //get the message
+        ChannelMessage channelMessage = channelMessageRepository.findById(messageId).orElse(null);
+        if (channelMessage == null) {
+            System.out.println("Message doesn't exist");
+            return null;
+        }
+
+        ChannelMessageDto channelMessageDto = new ChannelMessageDto();
+        channelMessageDto.setId(channelMessage.getId());
+        channelMessageDto.setChannelId(channelMessage.getChannel().getId());
+        User sender = channelMessage.getUser();
+        UserServerMapping userServerMapping = userServerMappingRepository.findByUserIdAndServerId(sender.getId(), serverId);
+        channelMessageDto.setSender(new UserDto(
+                sender.getId(),
+                sender.getUsername(),
+                sender.getNickname(),
+                sender.getFile() != null ? new FileDto(
+                        sender.getFile().getFileName(),
+                        sender.getFile().getFileUrl(),
+                        sender.getFile().getFileKey()
+                ) : null,
+                userServerMapping != null ? userServerMapping.getRole() : null,
+                sender.getCreatedAt(),
+                sender.getUpdatedAt()
+        ));
+        channelMessageDto.setFile(
+                channelMessage.getFile() != null ? new FileDto(
+                        channelMessage.getFile().getFileName(),
+                        channelMessage.getFile().getFileUrl(),
+                        channelMessage.getFile().getFileKey()
+                ) : null
+        );
+        channelMessageDto.setContent(channelMessage.getContent());
+
+        //get the replyToMessage if it exists
+        ChannelMessage replyToMessage = channelMessage.getReplyToMessage();
+        if (replyToMessage != null) {
+            User replyToMessageSender = replyToMessage.getUser();
+            UserServerMapping replyToMessageUserServerMapping = userServerMappingRepository.findByUserIdAndServerId(replyToMessageSender.getId(), serverId);
+            channelMessageDto.setReplyToMessage(new ChannelMessageDto(
+                    replyToMessage.getId(),
+                    replyToMessage.getContent(),
+                    replyToMessage.getFile() != null ? new FileDto(
+                            replyToMessage.getFile().getFileName(),
+                            replyToMessage.getFile().getFileUrl(),
+                            replyToMessage.getFile().getFileKey()
+                    ) : null,
+                    replyToMessage.getChannel().getId(),
+                    new UserDto(
+                            replyToMessageSender.getId(),
+                            replyToMessageSender.getUsername(),
+                            replyToMessageSender.getNickname(),
+                            replyToMessageSender.getFile() != null ? new FileDto(
+                                    replyToMessageSender.getFile().getFileName(),
+                                    replyToMessageSender.getFile().getFileUrl(),
+                                    replyToMessageSender.getFile().getFileKey()
+                            ) : null,
+                            replyToMessageUserServerMapping != null ? replyToMessageUserServerMapping.getRole() : null,
+                            replyToMessageSender.getCreatedAt(),
+                            replyToMessageSender.getUpdatedAt()
+                    )
+            ));
+        } else {
+            channelMessageDto.setReplyToMessage(null);
+        }
+        channelMessageDto.setHasReplyMessage(channelMessage.isHasReplyMessage());
+        channelMessageDto.setCreatedAt(channelMessage.getCreatedAt());
+        channelMessageDto.setUpdatedAt(channelMessage.getUpdatedAt());
+        return channelMessageDto;
+    }
+
+    @Override
     public Long getMessagesCount(Long fromMessageId, Long toMessageId, Long channelId) {
         //check if channel exists
         if (!channelRepository.existsById(channelId)) {

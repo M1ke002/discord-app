@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/channels")
-@CrossOrigin("*")
 public class ChannelController {
-    //TODO: need create channel, edit channel, delete channel, get channel by id, (get all channels in server - optional)
 
     @Autowired
     private ChannelService channelService;

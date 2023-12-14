@@ -1,32 +1,32 @@
-server:
-  port: 8080
-
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: root
-    url: jdbc:mysql://localhost:3306/discord_clone
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: 'true'
-  mvc:
-    dispatch-options-request: true
-
-logging:
-  level:
-    root: DEBUG
-    org.springframework.security: TRACE
-
-# Set JWT Secret Key
-jwt:
-  JWT_SECRET: thisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthentication
-  JWT_EXPIRATION_MS: 60000 #was 60000
-  #set refresh token expiration time to 1 day
-  JWT_REFRESH_EXPIRATION_MS: 86400000 #86400000
-  accessTokenCookieName: accessToken
-  refreshTokenCookieName: refreshToken
-
-
-
+#server:
+#  port: 8080
+#
+#spring:
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: root
+#    password: root
+#    url: jdbc:mysql://localhost:3306/discord_clone
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: 'true'
+#  mvc:
+#    dispatch-options-request: true
+#
+#logging:
+#  level:
+#    root: DEBUG
+#    org.springframework.security: TRACE
+#
+## Set JWT Secret Key
+#jwt:
+#  JWT_SECRET: thisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthenticationthisxisxmyxcustomxSecretxkeyxforxauthentication
+#  JWT_EXPIRATION_MS: 60000 #was 60000
+#  #set refresh token expiration time to 1 day
+#  JWT_REFRESH_EXPIRATION_MS: 86400000 #86400000
+#  accessTokenCookieName: accessToken
+#  refreshTokenCookieName: refreshToken
+#
+#
+#

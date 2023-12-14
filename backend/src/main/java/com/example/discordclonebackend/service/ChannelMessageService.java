@@ -19,4 +19,6 @@ public interface ChannelMessageService {
     public Boolean deleteMessage(Long messageId, Long userId, Long serverId);
 
     public SearchChannelMessageResponse searchMessages(Integer page, Long userId, Boolean hasFile, String content, Long serverId);
+
+    public ChannelMessageDto getMessageById(Long messageId, Long serverId);
 }

@@ -1,6 +1,7 @@
 package com.example.discordclonebackend.controller;
 
 import com.corundumstudio.socketio.SocketIOServer;
+import com.example.discordclonebackend.dto.ChannelMessageDto;
 import com.example.discordclonebackend.dto.DirectMessageDto;
 import com.example.discordclonebackend.dto.request.DirectMessageRequest;
 import com.example.discordclonebackend.dto.response.DirectMessageResponse;
@@ -36,6 +37,16 @@ public class DirectMessageController {
             return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
         }
         return ResponseEntity.ok(directMessageResponse);
+    }
+
+    //example request: http://localhost:8080/api/v1/direct-messages/1
+    @GetMapping("/{messageId}")
+    public ResponseEntity<?> getMessageById(@PathVariable("messageId") Long messageId) {
+        DirectMessageDto directMessageDto = directMessageService.getMessageById(messageId);
+        if (directMessageDto == null) {
+            return ResponseEntity.badRequest().body(new StringResponse("Message not found"));
+        }
+        return ResponseEntity.ok(directMessageDto);
     }
 
     //example request: http://localhost:8080/api/v1/messages/count?fromMessageId=1&toMessageId=2&userId1=1&userId2=2

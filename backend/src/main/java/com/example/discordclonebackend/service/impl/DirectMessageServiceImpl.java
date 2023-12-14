@@ -223,6 +223,75 @@ public class DirectMessageServiceImpl implements DirectMessageService {
     }
 
     @Override
+    public DirectMessageDto getMessageById(Long messageId) {
+        //get the message
+        DirectMessage directMessage = directMessageRepository.findById(messageId).orElse(null);
+        if (directMessage == null) {
+            System.out.println("Message not found");
+            return null;
+        }
+
+        DirectMessageDto directMessageDto = new DirectMessageDto();
+        directMessageDto.setId(directMessage.getId());
+        directMessageDto.setContent(directMessage.getContent());
+        directMessageDto.setFile(
+                directMessage.getFile() != null ? new FileDto(
+                        directMessage.getFile().getFileName(),
+                        directMessage.getFile().getFileUrl(),
+                        directMessage.getFile().getFileKey()
+                ) : null
+        );
+        User sender = directMessage.getUser();
+        directMessageDto.setSender(new UserDto(
+                sender.getId(),
+                sender.getUsername(),
+                sender.getNickname(),
+                sender.getFile() != null ? new FileDto(
+                        sender.getFile().getFileName(),
+                        sender.getFile().getFileUrl(),
+                        sender.getFile().getFileKey()
+                ) : null,
+                sender.getCreatedAt(),
+                sender.getUpdatedAt()
+        ));
+
+        //get the replyToMessage if it exists
+        DirectMessage replyToMessage = directMessage.getReplyToMessage();
+        if (replyToMessage != null) {
+            User replyToMessageSender = replyToMessage.getUser();
+            directMessageDto.setReplyToMessage(
+                    new DirectMessageDto(
+                            replyToMessage.getId(),
+                            replyToMessage.getContent(),
+                            replyToMessage.getFile() != null ? new FileDto(
+                                    replyToMessage.getFile().getFileName(),
+                                    replyToMessage.getFile().getFileUrl(),
+                                    replyToMessage.getFile().getFileKey()
+                            ) : null,
+                            new UserDto(
+                                    replyToMessageSender.getId(),
+                                    replyToMessageSender.getUsername(),
+                                    replyToMessageSender.getNickname(),
+                                    replyToMessageSender.getFile() != null ? new FileDto(
+                                            replyToMessageSender.getFile().getFileName(),
+                                            replyToMessageSender.getFile().getFileUrl(),
+                                            replyToMessageSender.getFile().getFileKey()
+                                    ) : null,
+                                    replyToMessageSender.getCreatedAt(),
+                                    replyToMessageSender.getUpdatedAt()
+                            )
+                    )
+            );
+        } else {
+            directMessageDto.setReplyToMessage(null);
+        }
+        directMessageDto.setHasReplyMessage(directMessage.isHasReplyMessage());
+        directMessageDto.setCreatedAt(directMessage.getCreatedAt());
+        directMessageDto.setUpdatedAt(directMessage.getUpdatedAt());
+        return directMessageDto;
+    }
+
+    @Override
     public Long getMessagesCount(Long fromMessageId, Long toMessageId, Long userId1, Long userId2) {
         //check if a conversation exists between the two users
         Conversation conversation = conversationRepository.findByUser1IdAndUser2Id(userId1, userId2);

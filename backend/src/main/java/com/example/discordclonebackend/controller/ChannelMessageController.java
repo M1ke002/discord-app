@@ -22,7 +22,7 @@ public class ChannelMessageController {
     @Autowired
     private SocketIOServer socketIOServer;
 
-    //example request: http://localhost:8080/api/v1/messages?cursor=123&limit=20&direction=forward&channelId=1&serverId=1
+    //example request: http://localhost:8080/api/v1/channelMessages?cursor=123&limit=20&direction=forward&channelId=1&serverId=1
     @GetMapping("")
     public ResponseEntity<?> getMessages(
             @RequestParam("cursor") Long cursor,
@@ -38,6 +38,18 @@ public class ChannelMessageController {
             return ResponseEntity.badRequest().body(new StringResponse("Message retrieval failed"));
         }
         return ResponseEntity.ok(channelMessageResponse);
+    }
+
+    //example request: http://localhost:8080/api/v1/channelMessages/1?serverId=1
+    @GetMapping("/{messageId}")
+    public ResponseEntity<?> getMessageById(
+            @PathVariable("messageId") Long messageId,
+            @RequestParam("serverId") Long serverId) {
+        ChannelMessageDto channelMessageDto = channelMessageService.getMessageById(messageId, serverId);
+        if (channelMessageDto == null) {
+            return ResponseEntity.badRequest().body(new StringResponse("Message not found"));
+        }
+        return ResponseEntity.ok(channelMessageDto);
     }
 
     //example request: http://localhost:8080/api/v1/messages/count?fromMessageId=1&toMessageId=2&channelId=1
