@@ -68,7 +68,8 @@ const LeaveServerModal = () => {
               {server?.name}
             </span>
           }
-          ? You won't be able to rejoin unless you have an invite link.
+          {/* ? You won't be able to rejoin unless you have an invite link. */}?
+          You won&apos;t be able to rejoin unless you have an invite link.
         </DialogDescription>
         <DialogFooter className="bg-gray-100 px-6 py-4">
           <div className="flex items-center ml-auto">

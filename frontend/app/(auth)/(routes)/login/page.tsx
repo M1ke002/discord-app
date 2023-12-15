@@ -110,7 +110,7 @@ const LoginPage = () => {
               Welcome back!
             </div>
             <div className="flex justify-center mb-1 font-semibold text-sm text-zinc-400">
-              We're so excited to see you again!
+              We&apos;re so excited to see you again!
             </div>
             {message.hasMessage && (
               <p
