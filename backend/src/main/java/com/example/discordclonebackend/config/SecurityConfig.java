@@ -3,6 +3,7 @@ package com.example.discordclonebackend.config;
 import com.example.discordclonebackend.security.JwtAuthEntryPoint;
 import com.example.discordclonebackend.security.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,13 +27,16 @@ public class SecurityConfig {
 //    @Autowired
 //    private UserDetailsServiceImpl userDetailsService;
 
+    @Value("${FRONTEND_URL}")
+    private String frontendUrl;
+
     @Autowired
     private JwtAuthEntryPoint unauthorizedHandler;
 
 
     //NOTE: "/api/v1/auth/test" is different from "/api/v1/auth/test/"
     private static final String[] WHITE_LIST_ROUTES = {
-            "/api/v1/auth/login", "/api/v1/auth/register", "/api/v1/auth/refreshToken",
+            "/api/v1/auth/login", "/api/v1/auth/test", "/api/v1/auth/register", "/api/v1/auth/refreshToken",
              "/api/v1/public"
     };
 
@@ -62,7 +66,7 @@ public class SecurityConfig {
                     CorsConfiguration configuration = new CorsConfiguration();
                     configuration.setAllowCredentials(true);
 //                    configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:3000/*"));
-                    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+                    configuration.setAllowedOrigins(Arrays.asList(frontendUrl));
                     configuration.setAllowedMethods(Arrays.asList("*"));
                     configuration.setAllowedHeaders(Arrays.asList("*"));
                     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
