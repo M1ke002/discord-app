@@ -138,7 +138,7 @@ export const useChatQuery = ({
       }
     },
     maxPages: 2,
-    refetchInterval: isConnected ? false : 1000,
+    refetchInterval: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

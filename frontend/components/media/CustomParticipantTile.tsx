@@ -27,7 +27,6 @@ import {
   useMaybeTrackRefContext,
   useParticipantTile
 } from '@livekit/components-react';
-import ParticipantPlaceholder from './ParticipantPlaceholder';
 // import { LockLockedIcon, ScreenShareIcon } from '../../assets/icons';
 import { Lock, ScreenShare } from 'lucide-react';
 import { ParticipantAvatar } from './ParticipantAvatar';
@@ -189,7 +188,6 @@ export function CustomParticipantTile({
                 )
               )}
               <div className="lk-participant-placeholder">
-                {/* <ParticipantPlaceholder /> */}
                 <ParticipantAvatar
                   mode={mode}
                   currentUser={currentUser}

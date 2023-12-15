@@ -27,7 +27,7 @@ export default function ProtectedRoutes({
       // Sign out here
       console.log('signing out...');
       signOut({
-        callbackUrl: `${process.env.NEXTAUTH_URL}/login?message=sessionExpired`
+        callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/login?message=sessionExpired`
       });
     }
   }, [session?.error, router]);

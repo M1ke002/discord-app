@@ -84,6 +84,4 @@ export function ParticipantAvatar({
       />
     );
   }
-
-  //   return <ParticipantPlaceholder />;
 }

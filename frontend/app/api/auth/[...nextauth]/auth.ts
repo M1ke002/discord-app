@@ -1,8 +1,7 @@
-import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import axios from '@/lib/axiosConfig';
 
-const getTokenExpirationDate = (token) => {
+const getTokenExpirationDate = (token: string) => {
   //input is the jwt access token string
   if (!token) {
     return null;
@@ -14,7 +13,7 @@ const getTokenExpirationDate = (token) => {
   return tokenParsed.exp;
 };
 
-const refreshToken = async (token) => {
+const refreshToken = async (token: any) => {
   console.log('old access token: ' + token.accessToken);
   const refreshToken = token?.refreshToken;
   if (!refreshToken) {
@@ -45,23 +44,23 @@ const refreshToken = async (token) => {
   }
 };
 
-export const authOptions = {
+const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
+      credentials: {
+        username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
+        password: { label: 'Password', type: 'password' }
+      },
       async authorize(credentials, req) {
+        if (!credentials) {
+          return null;
+        }
         const payload = {
           username: credentials.username,
           password: credentials.password
         };
         console.log(payload);
-        // const res = await fetch(`${AUTH_API_URL}/login`, {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(payload),
-        // });
         const res = await axios.post('/auth/login', payload);
         const user = res.data;
         console.log('LOGGED IN: ' + JSON.stringify(user));
@@ -79,7 +78,7 @@ export const authOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger, session }: any) {
       console.log('===================> JWT CALLBACK <===================');
       if (trigger === 'update') {
         console.log('UPDATE!!!!');
@@ -170,7 +169,7 @@ export const authOptions = {
       console.log('new token: ' + JSON.stringify(newToken));
       return newToken;
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       session.user.id = token.id;
       session.user.username = token.username;
       session.user.nickname = token.nickname;
@@ -189,8 +188,4 @@ export const authOptions = {
   }
 };
 
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
-
-//BUG: access token not updated for first few requests
+export default authOptions;
