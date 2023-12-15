@@ -6,7 +6,6 @@ import { useObservableState } from '@/hooks/media/useObservableState';
 import { useServerData } from '@/hooks/zustand/useServerData';
 import Member from '@/types/Member';
 import UserAvatar from '../UserAvatar';
-import ParticipantPlaceholder from './ParticipantPlaceholder';
 import User from '@/types/User';
 
 /** @public */

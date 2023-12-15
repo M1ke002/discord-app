@@ -158,11 +158,6 @@ const CreateServerModal = () => {
                       </button>
                     </div>
                   )}
-                  {/* <FileUpload
-                          endpoint="serverImage"
-                          value={field.value}
-                          onChange={field.onChange}
-                        /> */}
                 </div>
               </div>
               <FormField

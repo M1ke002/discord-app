@@ -182,7 +182,7 @@ const SearchResultItem = ({
                 href={message.file?.fileUrl || undefined}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline"
+                className="ml-2 text-sm text-indigo-500 dark:text-indigo-400 hover:underline overflow-hidden overflow-ellipsis whitespace-nowrap"
               >
                 {message.file?.fileName}
               </a>

@@ -6,7 +6,7 @@ import ChatWelcome from './ChatWelcome';
 import { Fragment, useRef, useEffect, useState, useMemo } from 'react';
 import ChannelMessage from '@/types/ChannelMessage';
 import { Loader2, ServerCrash } from 'lucide-react';
-import { useChatSocket } from '@/hooks/useChatSocket';
+import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import ChatItemSkeleton from '../skeleton/ChatItemSkeleton';
 import Member from '@/types/Member';
 import { checkIsNewDay, isChannelMessage } from '@/utils/utils';
@@ -121,12 +121,12 @@ const ChatMessages = ({
   });
 
   //this hook is used to listen to changes in messages and update messages in real time
-  useChatSocket({
-    createMessageKey,
-    updateMessageKey,
-    deleteMessageKey,
+  useRealtimeChat({
     queryKey,
-    hasPreviousPage
+    hasPreviousPage,
+    apiUrl,
+    messageType,
+    serverId
   });
 
   //for scrolling up to prevTopMessage -> current top message id must be less than previous top message id (older message)

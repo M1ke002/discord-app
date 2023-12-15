@@ -131,16 +131,16 @@ export const authOptions = {
         };
       }
 
+      //get new token in advance 30 minutes before it expires
+      //fetch interval is every 1 hour and 45 minutes
+      //token expires in 2 hours
       const shouldRefreshTime = Math.round(
-        token.accessTokenExpiryDate * 1000 - 15 * 1000 - Date.now()
+        token.accessTokenExpiryDate * 1000 - 30 * 60 * 1000 - Date.now()
       );
       console.log('should refresh time: ' + shouldRefreshTime);
 
       const dateNowInSeconds = new Date().getTime() / 1000;
-      //get new token in advance 15 seconds before it expires
-      //fetch interval is every 50 seconds
-      //token expires in 60 seconds
-      // if (dateNowInSeconds + 15 < token.accessTokenExpiryDate) {
+
       if (shouldRefreshTime > 0) {
         console.log(
           '============> DATE NOW: ' +
@@ -148,8 +148,8 @@ export const authOptions = {
             ' vs token exp date: ' +
             new Date(token.accessTokenExpiryDate * 1000) +
             ' expires in: ' +
-            (token.accessTokenExpiryDate - dateNowInSeconds) +
-            ' seconds'
+            (token.accessTokenExpiryDate - dateNowInSeconds) / 60 +
+            ' minutes'
         );
         return token;
       }

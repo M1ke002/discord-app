@@ -24,7 +24,6 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import FileUpload from '../FileUpload';
 import { useModal } from '@/hooks/zustand/useModal';
 import { useToast } from '../ui/use-toast';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
@@ -216,11 +215,6 @@ const EditServerModal = () => {
                       </button>
                     </div>
                   )}
-                  {/* <FileUpload
-                          endpoint="serverImage"
-                          value={field.value}
-                          onChange={field.onChange}
-                        /> */}
                 </div>
               </div>
               <FormField

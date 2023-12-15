@@ -31,7 +31,6 @@ import {
 import { CustomControlBar } from './CustomControlBar';
 import { CustomParticipantTile } from './CustomParticipantTile';
 import { CustomFocusLayout } from './CustomFocusLayout';
-import { CustomChat } from './CustomChat';
 import User from '@/types/User';
 
 /**
