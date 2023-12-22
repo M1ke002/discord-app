@@ -7,14 +7,11 @@ import com.example.discordclonebackend.dto.request.LoginRequest;
 import com.example.discordclonebackend.dto.request.RegisterRequest;
 import com.example.discordclonebackend.dto.response.RefreshTokenResponse;
 import com.example.discordclonebackend.dto.response.StringResponse;
-import com.example.discordclonebackend.entity.User;
-import com.example.discordclonebackend.security.CookieUtil;
 import com.example.discordclonebackend.security.CustomUserDetails;
 import com.example.discordclonebackend.security.JwtUtils;
 import com.example.discordclonebackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,9 +39,6 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @Autowired
-    private CookieUtil cookieUtil;
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication  = authenticationManager.authenticate(
@@ -61,21 +55,17 @@ public class AuthController {
         JwtToken refreshToken = jwtUtils.generateToken(authentication, "refreshToken");
         System.out.println("accessToken = " + accessToken);
         System.out.println("refreshToken = " + refreshToken);
-        HttpHeaders responseHeaders = new HttpHeaders();
-        cookieUtil.addTokenCookieToHeader(responseHeaders, accessToken, accessTokenCookieName);
-        cookieUtil.addTokenCookieToHeader(responseHeaders, refreshToken, refreshTokenCookieName);
-        System.out.println("responseHeaders = " + responseHeaders);
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(new AuthResponse(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getNickname(),
-                userDetails.getFile(),
-                accessToken.getToken(),
-                refreshToken.getToken(),
-                "Bearer"
-        ));
+        return ResponseEntity.ok(
+                new AuthResponse(
+                        userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getNickname(),
+                        userDetails.getFile(),
+                        accessToken.getToken(),
+                        refreshToken.getToken(),
+                        "Bearer"
+                )
+        );
     }
 
     @PostMapping("/register")
@@ -101,37 +91,16 @@ public class AuthController {
             //generate new access token
             JwtToken newAccessToken = jwtUtils.generateToken(authentication, "accessToken");
             JwtToken newRefreshToken = jwtUtils.generateToken(authentication, "refreshToken");
-            HttpHeaders responseHeaders = new HttpHeaders();
-            cookieUtil.addTokenCookieToHeader(responseHeaders, newAccessToken, accessTokenCookieName);
-            cookieUtil.addTokenCookieToHeader(responseHeaders, newRefreshToken, refreshTokenCookieName);
 //            return ResponseEntity.ok(new RefreshTokenResponse(accessToken, refreshToken));
-            return ResponseEntity.ok()
-                    .headers(responseHeaders)
-                    .body(new RefreshTokenResponse(
+            return ResponseEntity.ok(
+                    new RefreshTokenResponse(
                             newAccessToken.getToken(),
                             newRefreshToken.getToken(),
                             "Bearer"
-                    ));
+                    )
+            );
         }
         return ResponseEntity.badRequest().body(new StringResponse("Invalid refresh token"));
-    }
-
-    @GetMapping("/logout")
-    public ResponseEntity<StringResponse> logout(
-            @CookieValue(name = "refreshToken", required = false) String refreshToken,
-            @CookieValue(name="accessToken", required = false) String accessToken) {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        if (refreshToken != null) {
-            //delete the refresh token cookie
-            cookieUtil.deleteTokenCookieFromHeader(responseHeaders, refreshTokenCookieName);
-        }
-        if (accessToken != null) {
-            //delete the access token cookie
-            cookieUtil.deleteTokenCookieFromHeader(responseHeaders, accessTokenCookieName);
-        }
-        return ResponseEntity.ok()
-                .headers(responseHeaders)
-                .body(new StringResponse("Successfully logged out"));
     }
 
     @GetMapping("/test")

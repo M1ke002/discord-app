@@ -12,7 +12,6 @@ import Member from '@/types/Member';
 import { checkIsNewDay, isChannelMessage } from '@/utils/utils';
 import User from '@/types/User';
 import DirectMessage from '@/types/DirectMessage';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import InfiniteChatScroll from './InfiniteChatScroll';
 import useAxiosAuth from '@/hooks/useAxiosAuth';
 import { useInView } from 'react-intersection-observer';

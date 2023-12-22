@@ -222,7 +222,6 @@ const RegisterPage = () => {
           </form>
         </Form>
       </div>
-      {/* </div> */}
     </div>
   );
 };
