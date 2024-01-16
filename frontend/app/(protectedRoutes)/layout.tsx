@@ -16,13 +16,7 @@ export default function ProtectedRoutes({
   // console.log('session in ProtectedRoutes: ' + JSON.stringify(session));
 
   useEffect(() => {
-    // if (!session) {
-    //   if (pathname !== "/login") {
-    //     console.log('redirecting to login...' + pathname);
-    //     router.replace("/login");
-    //   }
-    // }
-    // check if the error has occurred
+    // check if the RefreshAccessTokenError has occurred
     if (session?.error === 'RefreshAccessTokenError') {
       // Sign out here
       console.log('signing out...');
